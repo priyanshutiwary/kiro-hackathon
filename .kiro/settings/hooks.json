@@ -1,0 +1,10 @@
+{
+  "hooks": {
+    "postToolUse": [
+      {
+        "matcher": "write",
+        "command": "echo '💡 Reminder: Consider updating steering docs if you made significant changes to architecture, features, or structure.'"
+      }
+    ]
+  }
+}
