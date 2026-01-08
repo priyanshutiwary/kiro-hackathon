@@ -42,6 +42,13 @@ A production-ready SaaS starter kit that accelerates development by providing pr
 - Multi-step conversation support
 - Integrated chat widget with context awareness
 
+### Business Integrations
+- Zoho Books OAuth 2.0 integration with Multi-DC support
+- Secure token management with AES-256-GCM encryption
+- Bills fetching and display with pagination
+- Automatic token refresh and retry logic
+- Integration status tracking and error handling
+
 ### Modern UI/UX
 - Tailwind CSS v4 with utility-first styling
 - shadcn/ui components (accessible, customizable)
@@ -79,7 +86,8 @@ A production-ready SaaS starter kit that accelerates development by providing pr
 4. Configure authentication providers (Google OAuth)
 5. Set up payment provider (Dodo Payments)
 6. Configure file storage (Cloudflare R2)
-7. Run development server and verify setup
+7. (Optional) Configure Zoho Books integration for bills
+8. Run development server and verify setup
 
 ### Development Phase (1-2 weeks)
 1. Customize branding and landing page
@@ -105,6 +113,8 @@ A production-ready SaaS starter kit that accelerates development by providing pr
 - Access dashboard and features: Immediate
 - Upload files to R2 storage: 30 seconds per file
 - Interact with AI chatbot: Real-time responses
+- Connect Zoho Books integration: 1-2 minutes
+- View business bills and expenses: Immediate after connection
 
 ## Success Criteria
 

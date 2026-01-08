@@ -84,5 +84,26 @@ export const subscription = pgTable("subscription", {
   userId: text("userId").references(() => user.id),
 });
 
+// Agent Integrations table for OAuth integrations (Zoho, etc.)
+export const agentIntegrations = pgTable("agentIntegrations", {
+  id: text("id").primaryKey(),
+  userId: text("userId")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  integrationType: text("integrationType").notNull(), // "oauth"
+  provider: text("provider").notNull(), // "zoho_books", etc.
+  accessToken: text("accessToken"), // Encrypted
+  refreshToken: text("refreshToken"), // Encrypted
+  accessTokenExpiresAt: timestamp("accessTokenExpiresAt"),
+  scope: text("scope"),
+  config: text("config"), // JSON string for provider-specific config
+  status: text("status").notNull().default("active"), // "active", "error", "disconnected"
+  enabled: boolean("enabled").notNull().default(true),
+  lastSyncAt: timestamp("lastSyncAt"),
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+});
+
 // Voice-related tables
 

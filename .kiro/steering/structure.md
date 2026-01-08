@@ -13,12 +13,20 @@ call_agent_smes/
 │   │   ├── chat/          # AI chat
 │   │   ├── upload/        # File upload
 │   │   ├── payment/       # Subscriptions
+│   │   ├── bills/         # Zoho Bills
+│   │   ├── invoices/      # Zoho Invoices
+│   │   ├── integrations/  # Integration management
 │   │   └── settings/      # User settings
 │   ├── api/               # API routes
 │   │   ├── auth/[...all]/ # Better Auth
 │   │   ├── webhooks/      # Payment webhooks
 │   │   ├── chat/          # AI endpoint
-│   │   └── upload-image/  # R2 upload
+│   │   ├── upload-image/  # R2 upload
+│   │   └── zoho/          # Zoho API routes
+│   │       ├── auth/      # OAuth flow
+│   │       ├── bills/     # Bills endpoint
+│   │       ├── invoices/  # Invoices endpoint
+│   │       └── status/    # Integration status
 │   ├── pricing/           # Pricing page
 │   └── page.tsx           # Landing page
 ├── components/
@@ -30,12 +38,18 @@ call_agent_smes/
 │   ├── auth.ts           # Auth config
 │   ├── subscription.ts   # Subscription utils
 │   ├── upload-image.ts   # R2 utils
+│   ├── encryption.ts     # Token encryption
+│   ├── zoho-oauth.ts     # Zoho OAuth service
+│   ├── zoho-token-manager.ts  # Token management
+│   ├── zoho-api-client.ts     # Zoho API client
 │   └── utils.ts          # General utils
 ├── db/                    # Database
 │   ├── schema.ts         # Drizzle schema
 │   └── drizzle.ts        # DB connection
 ├── .kiro/                 # Kiro CLI
 │   ├── steering/         # Guidelines
+│   ├── specs/            # Feature specs
+│   │   └── zoho-bills-integration/  # Zoho spec
 │   └── prompts/          # Custom commands
 └── examples/              # Documentation
     ├── README.md
@@ -67,9 +81,9 @@ import { db } from "@/db/drizzle"
 
 **Public**: `/` • `/pricing` • `/sign-in` • `/sign-up`
 
-**Protected**: `/dashboard` • `/dashboard/chat` • `/dashboard/upload` • `/dashboard/payment` • `/dashboard/settings`
+**Protected**: `/dashboard` • `/dashboard/chat` • `/dashboard/upload` • `/dashboard/payment` • `/dashboard/settings` • `/dashboard/bills` • `/dashboard/invoices` • `/dashboard/integrations`
 
-**API**: `/api/auth/[...all]` • `/api/webhooks/dodo` • `/api/chat` • `/api/upload-image`
+**API**: `/api/auth/[...all]` • `/api/webhooks/dodo` • `/api/chat` • `/api/upload-image` • `/api/zoho/auth/*` • `/api/zoho/bills` • `/api/zoho/invoices` • `/api/zoho/status`
 
 ## Configuration Files
 

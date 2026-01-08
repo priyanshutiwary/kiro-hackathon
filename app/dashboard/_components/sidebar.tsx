@@ -7,6 +7,7 @@ import {
   HomeIcon,
   LucideIcon,
   MessageCircleIcon,
+  Plug,
   Settings,
   Upload,
 } from "lucide-react";
@@ -39,6 +40,11 @@ const navItems: NavItem[] = [
     label: "Payment Gated",
     href: "/dashboard/payment",
     icon: Banknote,
+  },
+  {
+    label: "Integrations",
+    href: "/dashboard/integrations",
+    icon: Plug,
   },
 ];
 

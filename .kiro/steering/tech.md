@@ -8,7 +8,7 @@
 
 **Backend**: Next.js API Routes • Better Auth v1.2.8 • Drizzle ORM • Neon PostgreSQL
 
-**Services**: Dodo Payments • OpenAI API • Cloudflare R2 • PostHog • Vercel
+**Services**: Dodo Payments • OpenAI API • Cloudflare R2 • PostHog • Zoho Books API • Vercel
 
 **Tools**: TypeScript (strict) • ESLint • Drizzle Kit • Kiro CLI
 
@@ -22,6 +22,7 @@
 - Storage: Cloudflare R2 (S3-compatible)
 - AI: OpenAI API for chatbot
 - Database: Neon PostgreSQL with Drizzle ORM
+- Integrations: Zoho Books OAuth with encrypted token storage
 
 ## Development Environment
 
@@ -35,7 +36,7 @@ npx drizzle-kit generate && npx drizzle-kit push
 npm run dev
 ```
 
-**Key Environment Variables**: `DATABASE_URL` • `BETTER_AUTH_SECRET` • `GOOGLE_CLIENT_ID/SECRET` • `DODO_PAYMENTS_API_KEY` • `OPENAI_API_KEY` • R2 credentials • `NEXT_PUBLIC_STARTER_TIER`
+**Key Environment Variables**: `DATABASE_URL` • `BETTER_AUTH_SECRET` • `GOOGLE_CLIENT_ID/SECRET` • `DODO_PAYMENTS_API_KEY` • `OPENAI_API_KEY` • R2 credentials • `NEXT_PUBLIC_STARTER_TIER` • `ZOHO_CLIENT_ID/SECRET` • `ENCRYPTION_KEY`
 
 ## Code Standards
 
@@ -51,7 +52,7 @@ npm run dev
 
 **Authentication**: Better Auth with secure sessions • OAuth 2.0 • JWT with httpOnly cookies • CSRF protection
 
-**Data Protection**: Environment variables for secrets • User data isolated by userId • SQL injection prevention (Drizzle ORM) • Input validation
+**Data Protection**: Environment variables for secrets • User data isolated by userId • SQL injection prevention (Drizzle ORM) • Input validation • AES-256-GCM encryption for OAuth tokens
 
 **API Security**: Webhook signature verification • CORS configuration • Auth middleware for protected routes • Input sanitization
 
