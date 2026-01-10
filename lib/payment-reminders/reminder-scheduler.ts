@@ -166,6 +166,9 @@ export async function queueCall(reminderId: string): Promise<void> {
     if (!outcome.connected && outcome.customerResponse === 'no_answer') {
       console.log(`[Reminder Scheduler] Call failed to connect, scheduling retry for reminder ${reminderId}`);
       await scheduleRetry(reminderId);
+    } else if (!outcome.connected && outcome.customerResponse === 'no_phone_number') {
+      console.log(`[Reminder Scheduler] No phone number available, reminder ${reminderId} permanently skipped`);
+      // No retry needed - already marked as skipped
     }
     
   } catch (error) {

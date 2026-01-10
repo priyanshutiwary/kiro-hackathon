@@ -69,7 +69,13 @@ export async function initiateCall(reminderId: string): Promise<CallOutcome> {
   // Validate phone number exists
   if (!invoice.customerPhone) {
     console.error(`[Call Executor] Customer phone number missing for invoice: ${invoice.id}`);
-    throw new Error(`Customer phone number missing for invoice: ${invoice.id}`);
+    // Return a specific outcome instead of throwing an error
+    return {
+      connected: false,
+      duration: 0,
+      customerResponse: 'no_phone_number',
+      notes: 'Customer phone number missing - cannot make call',
+    };
   }
 
   console.log(`[Call Executor] Invoice loaded: ${invoice.zohoInvoiceId}, phone: ${invoice.customerPhone}`);
@@ -161,9 +167,16 @@ export async function handleCallOutcome(
   let skipReason: string | null = null;
 
   if (!outcome.connected) {
-    // Call failed to connect - will need retry
-    newStatus = 'pending';
-    console.log(`[Call Executor] Call failed to connect, marking for retry`);
+    if (outcome.customerResponse === 'no_phone_number') {
+      // No phone number - skip this reminder permanently
+      newStatus = 'skipped';
+      skipReason = 'Customer phone number missing';
+      console.log(`[Call Executor] No phone number available, skipping reminder permanently`);
+    } else {
+      // Call failed to connect - will need retry
+      newStatus = 'pending';
+      console.log(`[Call Executor] Call failed to connect, marking for retry`);
+    }
   } else if (outcome.customerResponse === 'already_paid') {
     // Customer claims already paid - verify and potentially skip
     newStatus = 'skipped';

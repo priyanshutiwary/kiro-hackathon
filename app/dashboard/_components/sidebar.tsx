@@ -12,6 +12,7 @@ import {
   Upload,
   Phone,
   Sliders,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -37,6 +38,11 @@ const navItems: NavItem[] = [
     label: "Reminders",
     href: "/dashboard/reminders",
     icon: Phone,
+  },
+  {
+    label: "Customers",
+    href: "/dashboard/customers",
+    icon: Users,
   },
   {
     label: "Configuration",

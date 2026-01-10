@@ -60,7 +60,7 @@ export interface CallOutcome {
   duration: number;
   
   /** Customer's response category */
-  customerResponse: 'will_pay_today' | 'already_paid' | 'dispute' | 'no_answer' | 'other';
+  customerResponse: 'will_pay_today' | 'already_paid' | 'dispute' | 'no_answer' | 'no_phone_number' | 'other';
   
   /** Additional notes or details from the call */
   notes?: string;

@@ -138,10 +138,11 @@ export class ZohoBooksClient {
           per_page: perPage.toString(),
         });
 
-        // Add status filter
-        if (filters.status && filters.status.length > 0) {
-          queryParams.append('status', filters.status.join(','));
-        }
+        // Add status filter - Note: Zoho API doesn't support multiple status values
+        // We'll filter by status in memory after fetching
+        // if (filters.status && filters.status.length > 0) {
+        //   queryParams.append('status', filters.status.join(','));
+        // }
 
         // Add due date filters
         if (filters.dueDateMin) {
@@ -174,7 +175,15 @@ export class ZohoBooksClient {
         page++;
       }
 
-      return allInvoices;
+      // Filter by status in memory (Zoho API doesn't support multiple status values)
+      let filteredInvoices = allInvoices;
+      if (filters.status && filters.status.length > 0) {
+        filteredInvoices = allInvoices.filter(invoice => 
+          filters.status!.includes(invoice.status.toLowerCase())
+        );
+      }
+
+      return filteredInvoices;
     } catch (error) {
       // Wrap and re-throw with appropriate error type
       return this.handleError(error, 'getInvoices');
@@ -221,12 +230,28 @@ export class ZohoBooksClient {
   }
 
   /**
-   * Format datetime to ISO string for Zoho API
+   * Format datetime to Zoho API format (YYYY-MM-DDTHH:MM:SS±HHMM)
    * @param date - Date to format
    * @returns Formatted datetime string
    */
   private formatDateTime(date: Date): string {
-    return date.toISOString();
+    // Get timezone offset in minutes and convert to ±HHMM format
+    const offset = -date.getTimezoneOffset();
+    const sign = offset >= 0 ? '+' : '-';
+    const absOffset = Math.abs(offset);
+    const hours = String(Math.floor(absOffset / 60)).padStart(2, '0');
+    const minutes = String(absOffset % 60).padStart(2, '0');
+    const timezone = `${sign}${hours}${minutes}`;
+    
+    // Format date and time components
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hour = String(date.getHours()).padStart(2, '0');
+    const minute = String(date.getMinutes()).padStart(2, '0');
+    const second = String(date.getSeconds()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}T${hour}:${minute}:${second}${timezone}`;
   }
 
   /**

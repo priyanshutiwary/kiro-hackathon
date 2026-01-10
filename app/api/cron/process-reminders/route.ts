@@ -105,6 +105,55 @@ export async function GET(request: Request) {
     );
   }
 
-  // Forward to POST handler
-  return POST(request);
+  try {
+    console.log('[Cron] Starting reminder processing (manual trigger)...');
+    
+    const startTime = Date.now();
+    
+    // Track errors for alerting
+    let processingErrors = 0;
+    
+    // Process all due reminders
+    try {
+      await processReminders();
+    } catch (error) {
+      processingErrors++;
+      console.error('[Cron] Error during reminder processing:', error);
+      
+      // Alert on repeated call failures (Requirement 9.1)
+      console.error('[Cron] ALERT: Reminder processing failed');
+      // In production, this would trigger an alert to monitoring service
+      // await sendAlert('Reminder Processing Failure', { error: error.message });
+    }
+    
+    const duration = Date.now() - startTime;
+    
+    console.log(`[Cron] Reminder processing complete in ${duration}ms`);
+    
+    // Alert if processing took unusually long (potential issue)
+    if (duration > 60000) { // More than 1 minute
+      console.warn(`[Cron] WARNING: Reminder processing took ${duration}ms (> 60s)`);
+      // In production, this might trigger a performance alert
+    }
+
+    return NextResponse.json({
+      success: processingErrors === 0,
+      message: processingErrors === 0 ? 'Reminder processing completed' : 'Reminder processing completed with errors',
+      duration,
+      timestamp: new Date().toISOString(),
+      errors: processingErrors,
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('[Cron] Fatal error in reminder processing:', error);
+    
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to process reminders',
+        details: errorMessage,
+      },
+      { status: 500 }
+    );
+  }
 }

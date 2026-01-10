@@ -234,10 +234,11 @@ export async function handleInvoiceChanges(
  * Create reminders for an invoice based on user settings
  * 
  * This function:
- * 1. Builds reminder schedule based on user settings
- * 2. Filters to only future reminders (today or later)
- * 3. Inserts reminder records into database
- * 4. Marks invoice as reminders_created
+ * 1. Checks if invoice has a phone number (required for calls)
+ * 2. Builds reminder schedule based on user settings
+ * 3. Filters to only future reminders (today or later)
+ * 4. Inserts reminder records into database
+ * 5. Marks invoice as reminders_created
  * 
  * Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6
  * 
@@ -254,6 +255,37 @@ export async function createRemindersForInvoice(
   settings: ReminderSettings
 ): Promise<void> {
   console.log(`[Sync Engine] Creating reminders for invoice ${invoiceId}, due date: ${dueDate.toISOString()}`);
+  
+  // Check if invoice has a phone number (required for calls)
+  const invoice = await db
+    .select({
+      customerPhone: invoicesCache.customerPhone,
+      invoiceNumber: invoicesCache.invoiceNumber,
+    })
+    .from(invoicesCache)
+    .where(eq(invoicesCache.id, invoiceId))
+    .limit(1);
+  
+  if (invoice.length === 0) {
+    console.error(`[Sync Engine] Invoice ${invoiceId} not found when creating reminders`);
+    return;
+  }
+  
+  const invoiceData = invoice[0];
+  
+  // Skip creating reminders if no phone number
+  if (!invoiceData.customerPhone) {
+    console.log(`[Sync Engine] Skipping reminder creation for invoice ${invoiceId} (${invoiceData.invoiceNumber}): no customer phone number`);
+    // Still mark as processed to avoid repeated attempts
+    await db
+      .update(invoicesCache)
+      .set({
+        remindersCreated: true,
+        updatedAt: new Date(),
+      })
+      .where(eq(invoicesCache.id, invoiceId));
+    return;
+  }
   
   // Build reminder schedule (Requirement 6.1)
   const schedule = buildReminderSchedule(dueDate, settings);
@@ -295,7 +327,7 @@ export async function createRemindersForInvoice(
   
   // Insert all reminders in a single operation (Requirement 6.6)
   if (reminderRecords.length > 0) {
-    console.log(`[Sync Engine] Inserting ${reminderRecords.length} reminder records for invoice ${invoiceId}`);
+    console.log(`[Sync Engine] Inserting ${reminderRecords.length} reminder records for invoice ${invoiceId} (phone: ${invoiceData.customerPhone})`);
     await db.insert(paymentReminders).values(reminderRecords);
   }
   
@@ -469,7 +501,7 @@ export async function syncInvoicesForUser(
     
     const invoices = await client.getInvoices(userId, {
       organizationId,
-      status: ['unpaid', 'partially_paid'], // Requirement 3.6
+      status: ['sent', 'overdue', 'partially_paid'], // Requirement 3.6 - Zoho uses 'sent' and 'overdue' for unpaid invoices
       dueDateMin: windowStart,
       dueDateMax: windowEnd,
       lastModifiedAfter, // Incremental sync (Requirement 3.8)
@@ -482,7 +514,7 @@ export async function syncInvoicesForUser(
     console.log(`[Sync Engine] Fetching overdue invoices...`);
     const overdueInvoices = await client.getInvoices(userId, {
       organizationId,
-      status: ['unpaid', 'partially_paid'],
+      status: ['sent', 'overdue', 'partially_paid'], // Zoho uses 'sent' and 'overdue' for unpaid invoices
       dueDateMax: now, // Overdue = due date in the past
       lastModifiedAfter,
     });

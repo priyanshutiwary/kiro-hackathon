@@ -87,6 +87,7 @@ export const subscription = pgTable("subscription", {
 });
 
 // Agent Integrations table for OAuth integrations (Zoho, etc.)
+
 export const agentIntegrations = pgTable("agentIntegrations", {
   id: text("id").primaryKey(),
   userId: text("userId")

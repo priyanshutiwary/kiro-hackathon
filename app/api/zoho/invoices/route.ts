@@ -41,7 +41,8 @@ export async function GET(request: NextRequest) {
 
     try {
       const response = await apiClient.getInvoices(userId, page, perPage);
-
+      console.log("response", response);
+      
       return NextResponse.json({
         success: true,
         data: response.invoices,
