@@ -37,15 +37,17 @@ interface Order {
   product?: {
     name: string;
   };
-  createdAt: string;
-  totalAmount: number;
+  createdAt?: string;
+  created_at?: string;
+  totalAmount?: number;
+  amount?: number;
   currency: string;
   status: string;
   subscription?: {
     status: string;
     endedAt?: string;
   };
-  items: OrderItem[];
+  items?: OrderItem[];
 }
 
 interface OrdersResponse {
@@ -76,7 +78,7 @@ function SettingsContent() {
   // Handle URL tab parameter
   useEffect(() => {
     const tab = searchParams.get("tab");
-    if (tab && ["profile", "organization", "billing"].includes(tab)) {
+    if (tab && ["profile", "billing"].includes(tab)) {
       setCurrentTab(tab);
     }
   }, [searchParams]);
@@ -213,6 +215,7 @@ function SettingsContent() {
       setUploadingImage(false);
     }
   };
+
   if (loading) {
     return (
       <div className="flex flex-col gap-6 p-6">
@@ -497,7 +500,7 @@ function SettingsContent() {
                               </div>
                             </div>
                             <div className="text-sm text-muted-foreground">
-                              {new Date(order.created_at).toLocaleDateString(
+                              {new Date(order.created_at || order.createdAt || "").toLocaleDateString(
                                 "en-US",
                                 {
                                   year: "numeric",
@@ -510,7 +513,7 @@ function SettingsContent() {
 
                           <div className="text-right">
                             <div className="font-medium text-base">
-                              ${(order.amount / 100).toFixed(2)}
+                              ${((order.amount || order.totalAmount || 0) / 100).toFixed(2)}
                             </div>
                             <div className="text-xs text-muted-foreground">
                               {order.currency?.toUpperCase()}
@@ -519,7 +522,7 @@ function SettingsContent() {
                         </div>
 
                         {/* Order Items */}
-                        {order.items?.length > 0 && (
+                        {order.items && order.items.length > 0 && (
                           <div className="mt-2 pt-3 border-t">
                             <ul className="space-y-1.5 text-sm">
                               {order.items.map((item, index: number) => (

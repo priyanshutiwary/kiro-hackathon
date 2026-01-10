@@ -29,6 +29,20 @@
       "when": 1767805993869,
       "tag": "0003_curly_bloodstorm",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1767983893486,
+      "tag": "0004_flippant_blue_blade",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1767984859604,
+      "tag": "0005_stormy_rawhide_kid",
+      "breakpoints": true
     }
   ]
 }

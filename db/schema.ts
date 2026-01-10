@@ -1,9 +1,11 @@
 import {
   boolean,
+  index,
   integer,
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 // Better Auth Tables
@@ -107,3 +109,122 @@ export const agentIntegrations = pgTable("agentIntegrations", {
 
 // Voice-related tables
 
+
+// Payment Reminder System Tables
+
+// User reminder settings
+export const reminderSettings = pgTable("reminder_settings", {
+  id: text("id").primaryKey(),
+  userId: text("userId")
+    .notNull()
+    .unique()
+    .references(() => user.id, { onDelete: "cascade" }),
+  organizationId: text("organizationId"),
+
+  // Reminder schedule
+  reminder30DaysBefore: boolean("reminder30DaysBefore").notNull().default(false),
+  reminder15DaysBefore: boolean("reminder15DaysBefore").notNull().default(false),
+  reminder7DaysBefore: boolean("reminder7DaysBefore").notNull().default(true),
+  reminder5DaysBefore: boolean("reminder5DaysBefore").notNull().default(false),
+  reminder3DaysBefore: boolean("reminder3DaysBefore").notNull().default(true),
+  reminder1DayBefore: boolean("reminder1DayBefore").notNull().default(true),
+  reminderOnDueDate: boolean("reminderOnDueDate").notNull().default(true),
+  reminder1DayOverdue: boolean("reminder1DayOverdue").notNull().default(true),
+  reminder3DaysOverdue: boolean("reminder3DaysOverdue").notNull().default(true),
+  reminder7DaysOverdue: boolean("reminder7DaysOverdue").notNull().default(false),
+  customReminderDays: text("customReminderDays").notNull().default("[]"), // JSON array
+
+  // Call timing
+  callTimezone: text("callTimezone").notNull().default("UTC"),
+  callStartTime: text("callStartTime").notNull().default("09:00:00"),
+  callEndTime: text("callEndTime").notNull().default("18:00:00"),
+  callDaysOfWeek: text("callDaysOfWeek").notNull().default("[1,2,3,4,5]"), // JSON array
+
+  // Retry settings
+  maxRetryAttempts: integer("maxRetryAttempts").notNull().default(3),
+  retryDelayHours: integer("retryDelayHours").notNull().default(2),
+
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+});
+
+// Invoices cache
+export const invoicesCache = pgTable("invoices_cache", {
+  id: text("id").primaryKey(),
+  userId: text("userId")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  zohoInvoiceId: text("zohoInvoiceId").notNull(),
+
+  // Invoice details
+  customerId: text("customerId"),
+  customerName: text("customerName"),
+  customerPhone: text("customerPhone"),
+  customerCountryCode: text("customerCountryCode"),
+  customerTimezone: text("customerTimezone"),
+  invoiceNumber: text("invoiceNumber"),
+  amountTotal: text("amountTotal"), // Store as string to avoid precision issues
+  amountDue: text("amountDue"), // Store as string to avoid precision issues
+  dueDate: timestamp("dueDate").notNull(),
+  status: text("status"),
+
+  // Change tracking
+  zohoLastModifiedAt: timestamp("zohoLastModifiedAt"),
+  localLastSyncedAt: timestamp("localLastSyncedAt"),
+  syncHash: text("syncHash"),
+
+  // Reminder tracking
+  remindersCreated: boolean("remindersCreated").notNull().default(false),
+
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+}, (table) => ({
+  userZohoInvoiceIdx: uniqueIndex("invoices_cache_user_zoho_invoice_idx").on(table.userId, table.zohoInvoiceId),
+  userDueDateIdx: index("invoices_cache_user_due_date_idx").on(table.userId, table.dueDate),
+  userStatusIdx: index("invoices_cache_user_status_idx").on(table.userId, table.status),
+}));
+
+// Payment reminders
+export const paymentReminders = pgTable("payment_reminders", {
+  id: text("id").primaryKey(),
+  invoiceId: text("invoiceId")
+    .notNull()
+    .references(() => invoicesCache.id, { onDelete: "cascade" }),
+  userId: text("userId")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+
+  // Reminder details
+  reminderType: text("reminderType").notNull(),
+  scheduledDate: timestamp("scheduledDate").notNull(),
+  status: text("status").notNull().default("pending"),
+
+  // Attempt tracking
+  attemptCount: integer("attemptCount").notNull().default(0),
+  lastAttemptAt: timestamp("lastAttemptAt"),
+
+  // Call outcome
+  callOutcome: text("callOutcome"), // JSON string
+  skipReason: text("skipReason"),
+
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+}, (table) => ({
+  userScheduledStatusIdx: index("payment_reminders_user_scheduled_status_idx").on(table.userId, table.scheduledDate, table.status),
+  invoiceIdIdx: index("payment_reminders_invoice_id_idx").on(table.invoiceId),
+  scheduledDateIdx: index("payment_reminders_scheduled_date_idx").on(table.scheduledDate),
+}));
+
+// Sync metadata
+export const syncMetadata = pgTable("sync_metadata", {
+  id: text("id").primaryKey(),
+  userId: text("userId")
+    .notNull()
+    .unique()
+    .references(() => user.id, { onDelete: "cascade" }),
+  lastFullSyncAt: timestamp("lastFullSyncAt"),
+  lastIncrementalSyncAt: timestamp("lastIncrementalSyncAt"),
+  syncWindowDays: integer("syncWindowDays"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+});
