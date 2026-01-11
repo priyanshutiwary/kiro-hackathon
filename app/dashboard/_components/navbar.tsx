@@ -78,7 +78,9 @@ export default function DashboardTopNav({ children }: { children: ReactNode }) {
           <UserProfile mini={true} />
         </div>
       </header>
-      {children}
+      <div className="flex-1 overflow-y-auto p-6">
+        {children}
+      </div>
     </div>
   );
 }

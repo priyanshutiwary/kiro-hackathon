@@ -1,0 +1,228 @@
+"use client";
+
+import { useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal, Calendar, DollarSign, User, FileText } from "lucide-react";
+import { format, isToday, isTomorrow, isThisWeek } from "date-fns";
+
+interface ScheduledReminder {
+  id: number;
+  invoiceId: number;
+  reminderType: string;
+  scheduledDate: string;
+  status: string;
+  attemptCount: number;
+  lastAttemptAt: string | null;
+  skipReason: string | null;
+  invoice: {
+    invoiceNumber: string;
+    customerName: string;
+    amountDue: number;
+    dueDate: string;
+  };
+}
+
+interface ScheduledRemindersTableProps {
+  reminders: ScheduledReminder[];
+}
+
+export function ScheduledRemindersTable({ reminders }: ScheduledRemindersTableProps) {
+  const [sortBy, setSortBy] = useState<"scheduledDate" | "amountDue" | "customerName">("scheduledDate");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
+  const formatScheduledDate = (dateString: string) => {
+    const date = new Date(dateString);
+    
+    if (isToday(date)) {
+      return `Today, ${format(date, "h:mm a")}`;
+    } else if (isTomorrow(date)) {
+      return `Tomorrow, ${format(date, "h:mm a")}`;
+    } else if (isThisWeek(date)) {
+      return format(date, "EEEE, h:mm a");
+    } else {
+      return format(date, "MMM d, yyyy h:mm a");
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "pending":
+        return <Badge variant="secondary">Pending</Badge>;
+      case "queued":
+        return <Badge variant="outline">Queued</Badge>;
+      case "in_progress":
+        return <Badge variant="default">In Progress</Badge>;
+      default:
+        return <Badge variant="secondary">{status}</Badge>;
+    }
+  };
+
+  const getReminderTypeBadge = (type: string) => {
+    switch (type) {
+      case "initial":
+        return <Badge variant="default">Initial</Badge>;
+      case "follow_up":
+        return <Badge variant="secondary">Follow-up</Badge>;
+      case "final":
+        return <Badge variant="destructive">Final</Badge>;
+      default:
+        return <Badge variant="outline">{type}</Badge>;
+    }
+  };
+
+  const sortedReminders = [...reminders].sort((a, b) => {
+    let aValue: string | number;
+    let bValue: string | number;
+
+    switch (sortBy) {
+      case "scheduledDate":
+        aValue = new Date(a.scheduledDate).getTime();
+        bValue = new Date(b.scheduledDate).getTime();
+        break;
+      case "amountDue":
+        aValue = a.invoice.amountDue;
+        bValue = b.invoice.amountDue;
+        break;
+      case "customerName":
+        aValue = a.invoice.customerName.toLowerCase();
+        bValue = b.invoice.customerName.toLowerCase();
+        break;
+      default:
+        return 0;
+    }
+
+    if (sortOrder === "asc") {
+      return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+    } else {
+      return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+    }
+  });
+
+  const handleSort = (column: "scheduledDate" | "amountDue" | "customerName") => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(column);
+      setSortOrder("asc");
+    }
+  };
+
+  return (
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead 
+              className="cursor-pointer hover:bg-muted/50"
+              onClick={() => handleSort("scheduledDate")}
+            >
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                Scheduled Time
+                {sortBy === "scheduledDate" && (
+                  <span className="text-xs">{sortOrder === "asc" ? "↑" : "↓"}</span>
+                )}
+              </div>
+            </TableHead>
+            <TableHead 
+              className="cursor-pointer hover:bg-muted/50"
+              onClick={() => handleSort("customerName")}
+            >
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                Customer
+                {sortBy === "customerName" && (
+                  <span className="text-xs">{sortOrder === "asc" ? "↑" : "↓"}</span>
+                )}
+              </div>
+            </TableHead>
+            <TableHead>
+              <div className="flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Invoice
+              </div>
+            </TableHead>
+            <TableHead 
+              className="cursor-pointer hover:bg-muted/50"
+              onClick={() => handleSort("amountDue")}
+            >
+              <div className="flex items-center gap-2">
+                <DollarSign className="h-4 w-4" />
+                Amount Due
+                {sortBy === "amountDue" && (
+                  <span className="text-xs">{sortOrder === "asc" ? "↑" : "↓"}</span>
+                )}
+              </div>
+            </TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead className="w-[50px]"></TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {sortedReminders.map((reminder) => (
+            <TableRow key={reminder.id}>
+              <TableCell>
+                <div className="font-medium">
+                  {formatScheduledDate(reminder.scheduledDate)}
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="font-medium">{reminder.invoice.customerName}</div>
+              </TableCell>
+              <TableCell>
+                <div className="font-medium">{reminder.invoice.invoiceNumber}</div>
+                <div className="text-sm text-muted-foreground">
+                  Due: {format(new Date(reminder.invoice.dueDate), "MMM d, yyyy")}
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="font-medium">
+                  ${reminder.invoice.amountDue.toFixed(2)}
+                </div>
+              </TableCell>
+              <TableCell>
+                {getReminderTypeBadge(reminder.reminderType)}
+              </TableCell>
+              <TableCell>
+                {getStatusBadge(reminder.status)}
+              </TableCell>
+              <TableCell>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <span className="sr-only">Open menu</span>
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem>View Details</DropdownMenuItem>
+                    <DropdownMenuItem>Reschedule</DropdownMenuItem>
+                    <DropdownMenuItem className="text-destructive">
+                      Cancel Reminder
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}

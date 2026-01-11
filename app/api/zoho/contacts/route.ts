@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { createZohoAPIClient } from "@/lib/zoho-api-client";
 import { headers } from "next/headers";
+import { db } from "@/db/drizzle";
+import { customersCache } from "@/db/schema";
+import { eq, desc } from "drizzle-orm";
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,37 +19,61 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1");
     const perPage = parseInt(searchParams.get("per_page") || "200");
 
-    // Get organization ID from env or query
-    const organizationId = process.env.ZOHO_ORGANIZATION_ID || searchParams.get("organization_id");
-    if (!organizationId) {
-      return NextResponse.json(
-        { error: "Organization ID required" },
-        { status: 400 }
-      );
-    }
+    // Fetch customers from local database cache
+    const offset = (page - 1) * perPage;
+    const customers = await db
+      .select()
+      .from(customersCache)
+      .where(eq(customersCache.userId, userId))
+      .orderBy(desc(customersCache.updatedAt))
+      .limit(perPage + 1) // Fetch one extra to check if there are more pages
+      .offset(offset);
 
-    const zohoClient = createZohoAPIClient();
+    console.log("[Zoho Contacts API] Raw customers from DB:", JSON.stringify(customers, null, 2));
 
-    // Build query parameters
-    const queryParams = new URLSearchParams({
-      organization_id: organizationId,
-      page: page.toString(),
-      per_page: perPage.toString(),
-    });
+    const hasMorePage = customers.length > perPage;
+    const contactsToReturn = hasMorePage ? customers.slice(0, perPage) : customers;
 
-    // Fetch contacts from Zoho
-    const endpoint = `/books/v3/contacts?${queryParams.toString()}`;
-    
-    // @ts-expect-error - Accessing private method for direct API call
-    const response = await zohoClient.makeRequest(userId, endpoint);
+    // Transform database records to match Zoho API format
+    const contacts = contactsToReturn.map((customer) => ({
+      contact_id: customer.zohoCustomerId,
+      contact_name: customer.customerName,
+      company_name: customer.companyName || "",
+      contact_type: "customer",
+      customer_sub_type: "business",
+      status: "active",
+      email: customer.primaryEmail || undefined,
+      phone: customer.primaryPhone || undefined,
+      mobile: customer.primaryPhone || undefined,
+      contact_persons: customer.primaryContactPersonId ? [{
+        contact_person_id: customer.primaryContactPersonId,
+        first_name: customer.customerName.split(" ")[0] || "",
+        last_name: customer.customerName.split(" ").slice(1).join(" ") || "",
+        email: customer.primaryEmail || "",
+        phone: customer.primaryPhone || undefined,
+        mobile: customer.primaryPhone || undefined,
+        is_primary_contact: true,
+      }] : [],
+      last_modified_time: customer.updatedAt.toISOString(),
+    }));
 
     return NextResponse.json({
       success: true,
-      data: response,
+      data: {
+        code: 0,
+        message: "success",
+        contacts,
+        page_context: {
+          page,
+          per_page: perPage,
+          has_more_page: hasMorePage,
+          total: contacts.length,
+        },
+      },
       meta: {
         page,
         perPage,
-        organizationId,
+        organizationId: process.env.ZOHO_ORGANIZATION_ID || "",
       },
     });
   } catch (error) {

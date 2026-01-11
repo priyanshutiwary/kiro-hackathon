@@ -10,8 +10,6 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
 
 interface ZohoInvoice {
   invoiceId: string;
@@ -88,37 +86,15 @@ export function InvoiceDetailModal({
   onOpenChange,
 }: InvoiceDetailModalProps) {
   const [detailedInvoice, setDetailedInvoice] = useState<DetailedInvoice | null>(null);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (open && invoice) {
-      fetchInvoiceDetails();
+      // Initialize with invoice data from DB
+      setDetailedInvoice(invoice as DetailedInvoice);
     } else if (!open) {
-      // Clear detailed invoice when modal closes
       setDetailedInvoice(null);
     }
   }, [open, invoice]);
-
-  const fetchInvoiceDetails = async () => {
-    if (!invoice) return;
-
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/zoho/invoices/${invoice.invoiceId}`);
-      
-      if (!response.ok) {
-        throw new Error("Failed to fetch invoice details");
-      }
-
-      const data = await response.json();
-      setDetailedInvoice(data.data);
-    } catch (error) {
-      console.error("Error fetching invoice details:", error);
-      toast.error("Failed to load invoice details");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (!invoice) return null;
 
@@ -182,16 +158,11 @@ export function InvoiceDetailModal({
             {getStatusBadge(invoice.status)}
           </DialogTitle>
           <DialogDescription>
-            Invoice details from Zoho Books
+            Invoice details from database
           </DialogDescription>
         </DialogHeader>
 
-        {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin" />
-          </div>
-        ) : (
-          <div className="space-y-6">
+        <div className="space-y-6">
             {/* Customer Information */}
             <div>
               <h3 className="text-sm font-semibold mb-3">Customer Information</h3>
@@ -431,7 +402,6 @@ export function InvoiceDetailModal({
               </>
             )}
           </div>
-        )}
       </DialogContent>
     </Dialog>
   );

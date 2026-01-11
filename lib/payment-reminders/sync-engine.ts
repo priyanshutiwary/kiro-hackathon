@@ -6,13 +6,14 @@
  */
 
 import { db } from "@/db/drizzle";
-import { invoicesCache, paymentReminders, syncMetadata } from "@/db/schema";
+import { invoicesCache, paymentReminders, syncMetadata, customersCache } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { ZohoInvoice, ZohoBooksClient, createZohoBooksClient } from "./zoho-books-client";
 import { calculateInvoiceHash, detectChanges, InvoiceChanges } from "./invoice-hash";
 import { buildReminderSchedule, ReminderScheduleItem } from "./reminder-schedule";
 import { ReminderSettings, getUserSettings } from "./settings-manager";
 import { getMaxReminderDays } from "./reminder-schedule";
+import { syncCustomersForUser, CustomerSyncResult } from "./customer-sync-engine";
 
 /**
  * Process and upsert invoice into cache
@@ -40,6 +41,29 @@ export async function processAndUpsertInvoice(
   // Calculate hash for change detection (Requirement 4.1)
   const syncHash = calculateInvoiceHash(zohoInvoice);
   
+  // Look up customerId from customers_cache using zohoCustomerId (Requirement FR-3, FR-4)
+  let customerId: string | null = null;
+  if (zohoInvoice.customer_id) {
+    const customers = await db
+      .select({ id: customersCache.id })
+      .from(customersCache)
+      .where(
+        and(
+          eq(customersCache.userId, userId),
+          eq(customersCache.zohoCustomerId, zohoInvoice.customer_id)
+        )
+      )
+      .limit(1);
+    
+    if (customers.length > 0) {
+      customerId = customers[0].id;
+      console.log(`[Sync Engine] Found customer ${customerId} for Zoho customer ${zohoInvoice.customer_id}`);
+    } else {
+      // Customer not found - log warning and set customerId to null (Requirement FR-7)
+      console.warn(`[Sync Engine] Customer not found in cache for Zoho customer ${zohoInvoice.customer_id} (invoice ${zohoInvoice.invoice_id})`);
+    }
+  }
+  
   // Check if invoice exists in cache (Requirement 5.1, 5.2)
   const existingInvoices = await db
     .select()
@@ -64,9 +88,9 @@ export async function processAndUpsertInvoice(
       id: newInvoiceId,
       userId,
       zohoInvoiceId: zohoInvoice.invoice_id,
-      customerId: zohoInvoice.customer_id,
-      customerName: zohoInvoice.customer_name,
-      customerPhone: zohoInvoice.customer_phone || null,
+      customerId, // Store customerId reference (Requirement FR-3)
+      customerName: zohoInvoice.customer_name, // Keep for backward compatibility during migration
+      customerPhone: zohoInvoice.customer_phone || null, // Keep for backward compatibility during migration
       customerCountryCode: null, // Not provided by Zoho API
       customerTimezone: null, // Not provided by Zoho API
       invoiceNumber: zohoInvoice.invoice_number,
@@ -110,8 +134,9 @@ export async function processAndUpsertInvoice(
       await db
         .update(invoicesCache)
         .set({
-          customerName: zohoInvoice.customer_name,
-          customerPhone: zohoInvoice.customer_phone || null,
+          customerId, // Update customerId reference (Requirement FR-3)
+          customerName: zohoInvoice.customer_name, // Keep for backward compatibility during migration
+          customerPhone: zohoInvoice.customer_phone || null, // Keep for backward compatibility during migration
           invoiceNumber: zohoInvoice.invoice_number,
           amountTotal: zohoInvoice.total.toString(),
           amountDue: zohoInvoice.balance.toString(),
@@ -234,13 +259,14 @@ export async function handleInvoiceChanges(
  * Create reminders for an invoice based on user settings
  * 
  * This function:
- * 1. Checks if invoice has a phone number (required for calls)
- * 2. Builds reminder schedule based on user settings
- * 3. Filters to only future reminders (today or later)
- * 4. Inserts reminder records into database
- * 5. Marks invoice as reminders_created
+ * 1. Joins with customers_cache to get customer data
+ * 2. Checks if customer has a phone number (required for calls)
+ * 3. Builds reminder schedule based on user settings
+ * 4. Filters to only future reminders (today or later)
+ * 5. Inserts reminder records into database
+ * 6. Marks invoice as reminders_created
  * 
- * Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6
+ * Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, FR-5, FR-7
  * 
  * @param invoiceId - Database ID of the invoice
  * @param userId - User ID who owns the invoice
@@ -256,26 +282,43 @@ export async function createRemindersForInvoice(
 ): Promise<void> {
   console.log(`[Sync Engine] Creating reminders for invoice ${invoiceId}, due date: ${dueDate.toISOString()}`);
   
-  // Check if invoice has a phone number (required for calls)
-  const invoice = await db
+  // Join with customers_cache to get customer data (Requirement FR-5)
+  const result = await db
     .select({
-      customerPhone: invoicesCache.customerPhone,
       invoiceNumber: invoicesCache.invoiceNumber,
+      customerId: invoicesCache.customerId,
+      customerName: customersCache.customerName,
+      primaryPhone: customersCache.primaryPhone,
     })
     .from(invoicesCache)
+    .leftJoin(customersCache, eq(invoicesCache.customerId, customersCache.id))
     .where(eq(invoicesCache.id, invoiceId))
     .limit(1);
   
-  if (invoice.length === 0) {
+  if (result.length === 0) {
     console.error(`[Sync Engine] Invoice ${invoiceId} not found when creating reminders`);
     return;
   }
   
-  const invoiceData = invoice[0];
+  const invoiceData = result[0];
   
-  // Skip creating reminders if no phone number
-  if (!invoiceData.customerPhone) {
-    console.log(`[Sync Engine] Skipping reminder creation for invoice ${invoiceId} (${invoiceData.invoiceNumber}): no customer phone number`);
+  // Skip reminder creation if customer not found (Requirement FR-7)
+  if (!invoiceData.customerId) {
+    console.log(`[Sync Engine] Skipping reminder creation for invoice ${invoiceId} (${invoiceData.invoiceNumber}): customer not found in cache`);
+    // Still mark as processed to avoid repeated attempts
+    await db
+      .update(invoicesCache)
+      .set({
+        remindersCreated: true,
+        updatedAt: new Date(),
+      })
+      .where(eq(invoicesCache.id, invoiceId));
+    return;
+  }
+  
+  // Skip reminder creation if customer has no phone (Requirement FR-5, FR-7)
+  if (!invoiceData.primaryPhone) {
+    console.log(`[Sync Engine] Skipping reminder creation for invoice ${invoiceId} (${invoiceData.invoiceNumber}): customer ${invoiceData.customerName} has no phone number`);
     // Still mark as processed to avoid repeated attempts
     await db
       .update(invoicesCache)
@@ -327,7 +370,7 @@ export async function createRemindersForInvoice(
   
   // Insert all reminders in a single operation (Requirement 6.6)
   if (reminderRecords.length > 0) {
-    console.log(`[Sync Engine] Inserting ${reminderRecords.length} reminder records for invoice ${invoiceId} (phone: ${invoiceData.customerPhone})`);
+    console.log(`[Sync Engine] Inserting ${reminderRecords.length} reminder records for invoice ${invoiceId} (customer: ${invoiceData.customerName}, phone: ${invoiceData.primaryPhone})`);
     await db.insert(paymentReminders).values(reminderRecords);
   }
   
@@ -418,6 +461,9 @@ export interface SyncResult {
   invoicesInserted: number;
   invoicesUpdated: number;
   remindersCreated: number;
+  customersFetched: number;
+  customersInserted: number;
+  customersUpdated: number;
   errors: string[];
 }
 
@@ -452,16 +498,14 @@ export async function syncInvoicesForUser(
     invoicesInserted: 0,
     invoicesUpdated: 0,
     remindersCreated: 0,
+    customersFetched: 0,
+    customersInserted: 0,
+    customersUpdated: 0,
     errors: [],
   };
 
   try {
-    // 1. Get user settings (Requirement 3.1)
-    console.log(`[Sync Engine] Fetching user settings for user ${userId}`);
-    const settings = await getUserSettings(userId);
-    console.log(`[Sync Engine] User settings loaded: max reminder days = ${getMaxReminderDays(settings)}`);
-    
-    // 2. Get sync metadata
+    // 0. Get sync metadata first to determine incremental sync
     console.log(`[Sync Engine] Fetching sync metadata for user ${userId}`);
     const metadata = await db
       .select()
@@ -471,7 +515,64 @@ export async function syncInvoicesForUser(
     
     const existingMetadata = metadata.length > 0 ? metadata[0] : null;
     
-    // 3. Calculate sync window (Requirements 3.3, 3.4, 3.5)
+    // 0a. Customer Sync Phase (Requirement FR-4)
+    console.log(`[Sync Engine] ===== PHASE 1: CUSTOMER SYNC =====`);
+    try {
+      // Determine if this is incremental customer sync
+      const lastCustomerSync = existingMetadata?.lastCustomerSyncAt;
+      const lastModifiedTime = lastCustomerSync ? lastCustomerSync.toISOString() : undefined;
+      
+      if (lastModifiedTime) {
+        console.log(`[Sync Engine] Running incremental customer sync from: ${lastModifiedTime}`);
+      } else {
+        console.log(`[Sync Engine] Running full customer sync (first sync)`);
+      }
+      
+      // Sync customers before invoices
+      const customerSyncResult = await syncCustomersForUser(userId, lastModifiedTime);
+      
+      // Update result with customer sync stats
+      result.customersFetched = customerSyncResult.customersFetched;
+      result.customersInserted = customerSyncResult.customersInserted;
+      result.customersUpdated = customerSyncResult.customersUpdated;
+      
+      // Add customer sync errors to overall errors
+      if (customerSyncResult.errors.length > 0) {
+        result.errors.push(...customerSyncResult.errors);
+        console.warn(`[Sync Engine] Customer sync completed with ${customerSyncResult.errors.length} errors`);
+      }
+      
+      console.log(`[Sync Engine] Customer sync complete: ${customerSyncResult.customersFetched} fetched, ${customerSyncResult.customersInserted} inserted, ${customerSyncResult.customersUpdated} updated`);
+      
+      // Update lastCustomerSyncAt in metadata
+      const customerSyncTime = new Date();
+      if (existingMetadata) {
+        await db
+          .update(syncMetadata)
+          .set({
+            lastCustomerSyncAt: customerSyncTime,
+            updatedAt: customerSyncTime,
+          })
+          .where(eq(syncMetadata.userId, userId));
+      } else {
+        // Will be created at the end of sync
+        console.log(`[Sync Engine] Sync metadata will be created at end of sync`);
+      }
+    } catch (error) {
+      // Handle customer sync errors gracefully - log but continue with invoice sync (Requirement FR-7)
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      result.errors.push(`Customer sync failed: ${errorMessage}`);
+      console.error('[Sync Engine] Customer sync error (continuing with invoice sync):', error);
+    }
+    
+    console.log(`[Sync Engine] ===== PHASE 2: INVOICE SYNC =====`);
+    
+    // 1. Get user settings (Requirement 3.1)
+    console.log(`[Sync Engine] Fetching user settings for user ${userId}`);
+    const settings = await getUserSettings(userId);
+    console.log(`[Sync Engine] User settings loaded: max reminder days = ${getMaxReminderDays(settings)}`);
+    
+    // 2. Calculate sync window (Requirements 3.3, 3.4, 3.5)
     const maxReminderDays = getMaxReminderDays(settings);
     const syncWindowDays = maxReminderDays + 5; // Add 5-day buffer
     
@@ -484,7 +585,7 @@ export async function syncInvoicesForUser(
     
     console.log(`[Sync Engine] Sync window calculated: ${syncWindowDays} days (${windowStart.toISOString()} to ${windowEnd.toISOString()})`);
     
-    // 4. Determine if this is incremental or full sync (Requirement 3.8)
+    // 3. Determine if this is incremental or full sync (Requirement 3.8)
     const isIncrementalSync = existingMetadata?.lastIncrementalSyncAt !== null && existingMetadata?.lastIncrementalSyncAt !== undefined;
     const lastModifiedAfter = isIncrementalSync && existingMetadata?.lastIncrementalSyncAt
       ? existingMetadata.lastIncrementalSyncAt
@@ -495,7 +596,7 @@ export async function syncInvoicesForUser(
       console.log(`[Sync Engine] Last sync: ${lastModifiedAfter.toISOString()}`);
     }
     
-    // 5. Fetch invoices from Zoho (Requirements 3.2, 3.6, 3.7, 3.8)
+    // 4. Fetch invoices from Zoho (Requirements 3.2, 3.6, 3.7, 3.8)
     console.log(`[Sync Engine] Fetching invoices from Zoho Books...`);
     const client = zohoClient || createZohoBooksClient();
     
@@ -535,7 +636,7 @@ export async function syncInvoicesForUser(
     result.invoicesFetched = allInvoices.length;
     console.log(`[Sync Engine] Total invoices to process: ${allInvoices.length} (after deduplication)`);
     
-    // 6. Process and upsert each invoice (Requirement 3.1)
+    // 5. Process and upsert each invoice (Requirement 3.1)
     console.log(`[Sync Engine] Processing invoices...`);
     for (const invoice of allInvoices) {
       try {
@@ -575,7 +676,7 @@ export async function syncInvoicesForUser(
     
     console.log(`[Sync Engine] Invoice processing complete: ${result.invoicesInserted} inserted, ${result.invoicesUpdated} updated`);
     
-    // 7. Cleanup invoices outside window (Requirement 10.1-10.5)
+    // 6. Cleanup invoices outside window (Requirement 10.1-10.5)
     console.log(`[Sync Engine] Cleaning up invoices outside sync window...`);
     try {
       await cleanupInvoicesOutsideWindow(userId, windowStart, windowEnd);
@@ -586,7 +687,7 @@ export async function syncInvoicesForUser(
       console.error('[Sync Engine] Error cleaning up invoices:', error);
     }
     
-    // 8. Update sync metadata
+    // 7. Update sync metadata
     console.log(`[Sync Engine] Updating sync metadata...`);
     const syncTime = new Date();
     
@@ -605,6 +706,7 @@ export async function syncInvoicesForUser(
         userId,
         lastFullSyncAt: syncTime,
         lastIncrementalSyncAt: syncTime,
+        lastCustomerSyncAt: syncTime,
         syncWindowDays,
         createdAt: syncTime,
         updatedAt: syncTime,

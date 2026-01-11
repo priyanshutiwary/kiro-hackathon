@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Loader2, RefreshCw, Phone, Mail, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { CustomerDetailModal } from "./_components/customer-detail-modal";
 
 interface ContactPerson {
   contact_person_id: string;
@@ -56,13 +57,16 @@ export default function CustomersPage() {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchContacts = async (pageNum: number = 1) => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch(`/api/zoho/contacts?page=${pageNum}&per_page=200`);
+      // Fetch from local database cache
+      const response = await fetch(`/api/db/customers?page=${pageNum}&per_page=200`);
       const result: ContactsResponse = await response.json();
 
       if (!response.ok) {
@@ -116,13 +120,18 @@ export default function CustomersPage() {
     return firstPerson?.email || null;
   };
 
+  const handleContactClick = (contact: Contact) => {
+    setSelectedContact(contact);
+    setIsModalOpen(true);
+  };
+
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Customers from Zoho</h1>
+          <h1 className="text-3xl font-bold">Customers</h1>
           <p className="text-muted-foreground mt-1">
-            Preview customer data from Zoho Books Contacts API
+            View customer data from local database cache
           </p>
         </div>
         <Button
@@ -163,7 +172,11 @@ export default function CustomersPage() {
           const primaryEmail = getPrimaryEmail(contact);
 
           return (
-            <Card key={contact.contact_id}>
+            <Card 
+              key={contact.contact_id}
+              className="cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => handleContactClick(contact)}
+            >
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
@@ -277,6 +290,12 @@ export default function CustomersPage() {
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       )}
+
+      <CustomerDetailModal
+        contact={selectedContact}
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+      />
     </div>
   );
 }

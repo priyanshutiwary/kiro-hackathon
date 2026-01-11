@@ -149,6 +149,35 @@ export const reminderSettings = pgTable("reminder_settings", {
   updatedAt: timestamp("updatedAt").notNull().defaultNow(),
 });
 
+// Customers cache
+export const customersCache = pgTable("customers_cache", {
+  id: text("id").primaryKey(),
+  userId: text("userId")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  zohoCustomerId: text("zohoCustomerId").notNull(),
+
+  // Customer details
+  customerName: text("customerName").notNull(),
+  companyName: text("companyName"),
+  primaryContactPersonId: text("primaryContactPersonId"),
+  primaryPhone: text("primaryPhone"),
+  primaryEmail: text("primaryEmail"),
+  contactPersons: text("contactPersons").notNull().default("[]"), // JSON array of contact person objects
+
+  // Change tracking
+  zohoLastModifiedAt: timestamp("zohoLastModifiedAt"),
+  localLastSyncedAt: timestamp("localLastSyncedAt"),
+  syncHash: text("syncHash"),
+
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+}, (table) => ({
+  userIdIdx: index("customers_cache_user_id_idx").on(table.userId),
+  zohoCustomerIdIdx: index("customers_cache_zoho_customer_id_idx").on(table.zohoCustomerId),
+  userZohoCustomerIdx: uniqueIndex("customers_cache_user_zoho_customer_idx").on(table.userId, table.zohoCustomerId),
+}));
+
 // Invoices cache
 export const invoicesCache = pgTable("invoices_cache", {
   id: text("id").primaryKey(),
@@ -158,11 +187,9 @@ export const invoicesCache = pgTable("invoices_cache", {
   zohoInvoiceId: text("zohoInvoiceId").notNull(),
 
   // Invoice details
-  customerId: text("customerId"),
-  customerName: text("customerName"),
-  customerPhone: text("customerPhone"),
-  customerCountryCode: text("customerCountryCode"),
-  customerTimezone: text("customerTimezone"),
+  customerId: text("customerId")
+    .references(() => customersCache.id, { onDelete: "set null" }),
+  
   invoiceNumber: text("invoiceNumber"),
   amountTotal: text("amountTotal"), // Store as string to avoid precision issues
   amountDue: text("amountDue"), // Store as string to avoid precision issues
@@ -225,6 +252,7 @@ export const syncMetadata = pgTable("sync_metadata", {
     .references(() => user.id, { onDelete: "cascade" }),
   lastFullSyncAt: timestamp("lastFullSyncAt"),
   lastIncrementalSyncAt: timestamp("lastIncrementalSyncAt"),
+  lastCustomerSyncAt: timestamp("lastCustomerSyncAt"),
   syncWindowDays: integer("syncWindowDays"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
   updatedAt: timestamp("updatedAt").notNull().defaultNow(),

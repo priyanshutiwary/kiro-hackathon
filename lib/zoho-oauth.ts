@@ -160,6 +160,8 @@ export class ZohoOAuthService {
     });
 
     try {
+      console.log(`[ZohoOAuth] Refreshing token at: ${tokenUrl}`);
+      
       const response = await fetch(tokenUrl, {
         method: "POST",
         headers: {
@@ -170,17 +172,20 @@ export class ZohoOAuthService {
 
       if (!response.ok) {
         const errorText = await response.text();
+        console.error(`[ZohoOAuth] Token refresh failed: ${response.status} ${response.statusText}. ${errorText}`);
         throw new Error(
           `Failed to refresh access token: ${response.status} ${response.statusText}. ${errorText}`
         );
       }
 
       const data: ZohoTokenResponse = await response.json();
+      console.log(`[ZohoOAuth] Token refresh successful. New token expires in ${data.expires_in}s`);
 
       // Refresh token response may not include a new refresh token
       // In that case, we keep the existing one
       return this.parseTokenResponse(data, refreshToken);
     } catch (error) {
+      console.error(`[ZohoOAuth] Error refreshing access token:`, error);
       throw new Error(
         `Error refreshing access token: ${
           error instanceof Error ? error.message : "Unknown error"

@@ -13,7 +13,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, RefreshCw, AlertCircle, Calendar, Phone } from "lucide-react";
 import { toast } from "sonner";
 import { RemindersTable } from "./_components/reminders-table";
-import { ReminderStats } from "./_components/reminder-stats";
 import { InvoicesAwaitingPayment } from "./_components/invoices-awaiting-payment";
 import { ReminderFilters } from "./_components/reminder-filters";
 
@@ -40,27 +39,6 @@ interface Reminder {
   };
 }
 
-interface ReminderStatsData {
-  overall: {
-    total: number;
-    completed: number;
-    skipped: number;
-    failed: number;
-    pending: number;
-    queued: number;
-    inProgress: number;
-    successRate: number;
-  };
-  customerResponses: Record<string, number>;
-  byReminderType: Record<string, {
-    total: number;
-    completed: number;
-    failed: number;
-    skipped: number;
-    pending: number;
-  }>;
-}
-
 interface Invoice {
   id: number;
   invoiceNumber: string;
@@ -73,7 +51,6 @@ interface Invoice {
 
 export default function RemindersPage() {
   const [reminders, setReminders] = useState<Reminder[]>([]);
-  const [stats, setStats] = useState<ReminderStatsData | null>(null);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -97,7 +74,6 @@ export default function RemindersPage() {
 
       await Promise.all([
         fetchReminders(),
-        fetchStats(),
         fetchInvoices(),
       ]);
     } catch (error) {
@@ -132,17 +108,6 @@ export default function RemindersPage() {
 
     const data = await response.json();
     setReminders(data.reminders || []);
-  };
-
-  const fetchStats = async () => {
-    const response = await fetch("/api/reminders/stats");
-    
-    if (!response.ok) {
-      throw new Error("Failed to fetch stats");
-    }
-
-    const data = await response.json();
-    setStats(data);
   };
 
   const fetchInvoices = async () => {
@@ -205,13 +170,6 @@ export default function RemindersPage() {
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
-      )}
-
-      {/* Statistics Cards */}
-      {stats && (
-        <div className="mb-6">
-          <ReminderStats stats={stats} />
-        </div>
       )}
 
       {/* Invoices Awaiting Payment */}

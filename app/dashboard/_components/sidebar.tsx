@@ -6,13 +6,13 @@ import {
   Banknote,
   HomeIcon,
   LucideIcon,
-  MessageCircleIcon,
   Plug,
   Settings,
-  Upload,
   Phone,
   Sliders,
   Users,
+  FileText,
+  Calendar,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -30,14 +30,14 @@ const navItems: NavItem[] = [
     icon: HomeIcon,
   },
   {
-    label: "Chat",
-    href: "/dashboard/chat",
-    icon: MessageCircleIcon,
-  },
-  {
     label: "Reminders",
     href: "/dashboard/reminders",
     icon: Phone,
+  },
+  {
+    label: "Scheduled",
+    href: "/dashboard/scheduled",
+    icon: Calendar,
   },
   {
     label: "Customers",
@@ -45,14 +45,14 @@ const navItems: NavItem[] = [
     icon: Users,
   },
   {
+    label: "Invoices",
+    href: "/dashboard/invoices",
+    icon: FileText,
+  },
+  {
     label: "Configuration",
     href: "/dashboard/configuration",
     icon: Sliders,
-  },
-  {
-    label: "Upload",
-    href: "/dashboard/upload",
-    icon: Upload,
   },
   {
     label: "Payment Gated",

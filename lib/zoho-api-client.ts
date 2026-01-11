@@ -132,6 +132,7 @@ export class ZohoAPIClient {
   private oauthService: ZohoOAuthService;
   private readonly MAX_RETRIES = 3;
   private readonly INITIAL_RETRY_DELAY = 1000; // 1 second
+  private static refreshLocks: Map<string, Promise<void>> = new Map();
 
   constructor(
     tokenManager?: ZohoTokenManager,
@@ -423,15 +424,42 @@ export class ZohoAPIClient {
   }
 
   /**
-   * Refresh access token using refresh token
+   * Refresh access token using refresh token with locking to prevent concurrent refreshes
    * @param userId - User ID
    */
   private async refreshTokens(userId: string): Promise<void> {
+    // Check if there's already a refresh in progress for this user
+    const existingLock = ZohoAPIClient.refreshLocks.get(userId);
+    if (existingLock) {
+      console.log(`[ZohoAPIClient] Token refresh already in progress for user ${userId}, waiting...`);
+      await existingLock;
+      return;
+    }
+
+    // Create a new refresh promise
+    const refreshPromise = this.performTokenRefresh(userId);
+    ZohoAPIClient.refreshLocks.set(userId, refreshPromise);
+
+    try {
+      await refreshPromise;
+    } finally {
+      // Clean up the lock
+      ZohoAPIClient.refreshLocks.delete(userId);
+    }
+  }
+
+  /**
+   * Perform the actual token refresh
+   * @param userId - User ID
+   */
+  private async performTokenRefresh(userId: string): Promise<void> {
     try {
       const integration = await this.tokenManager.getIntegration(userId);
       if (!integration) {
         throw new Error("Integration not found");
       }
+
+      console.log(`[ZohoAPIClient] Refreshing tokens for user ${userId}...`);
 
       // Refresh tokens using OAuth service
       const newTokens = await this.oauthService.refreshAccessToken(
@@ -439,15 +467,33 @@ export class ZohoAPIClient {
         integration.config.accountsServer
       );
 
+      console.log(`[ZohoAPIClient] Token refresh successful, updating database...`);
+
       // Update tokens in database
       await this.tokenManager.updateTokens(userId, newTokens);
+      
+      console.log(`[ZohoAPIClient] Tokens updated successfully in database`);
     } catch (error) {
-      // Mark integration as error state
-      await this.tokenManager.updateStatus(
-        userId,
-        "error",
-        "Failed to refresh access token. Please reconnect your account."
-      );
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error(`[ZohoAPIClient] Token refresh failed:`, errorMessage);
+      
+      // Only mark as error if it's a permanent auth failure
+      // Don't mark as error for temporary network issues or rate limits
+      if (
+        errorMessage.includes("invalid_client") ||
+        errorMessage.includes("invalid_grant") ||
+        errorMessage.includes("unauthorized")
+      ) {
+        console.error(`[ZohoAPIClient] Permanent auth failure detected, marking integration as error`);
+        await this.tokenManager.updateStatus(
+          userId,
+          "error",
+          "Failed to refresh access token. Please reconnect your account."
+        );
+      } else {
+        console.warn(`[ZohoAPIClient] Temporary refresh failure, not marking as error`);
+      }
+      
       throw new Error(
         "Failed to refresh access token. Please reconnect your Zoho Books account."
       );

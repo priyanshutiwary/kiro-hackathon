@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, RefreshCw, AlertCircle, ExternalLink } from "lucide-react";
+import { Loader2, RefreshCw, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { InvoicesTable } from "./_components/invoices-table";
 import { InvoiceDetailModal } from "./_components/invoice-detail-modal";
@@ -40,21 +40,11 @@ interface InvoicesResponse {
   };
 }
 
-interface IntegrationStatus {
-  connected: boolean;
-  status?: string;
-  organizationId?: string;
-  lastSyncAt?: string;
-  errorMessage?: string;
-}
-
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<ZohoInvoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [integrationStatus, setIntegrationStatus] =
-    useState<IntegrationStatus | null>(null);
   const [pagination, setPagination] = useState({
     page: 1,
     perPage: 50,
@@ -63,30 +53,10 @@ export default function InvoicesPage() {
   const [selectedInvoice, setSelectedInvoice] = useState<ZohoInvoice | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Check integration status
+  // Fetch invoices on mount
   useEffect(() => {
-    checkIntegrationStatus();
+    fetchInvoices();
   }, []);
-
-  // Fetch invoices when integration is connected
-  useEffect(() => {
-    if (integrationStatus?.connected) {
-      fetchInvoices();
-    } else {
-      setLoading(false);
-    }
-  }, [integrationStatus]);
-
-  const checkIntegrationStatus = async () => {
-    try {
-      const response = await fetch("/api/zoho/status");
-      const data = await response.json();
-      setIntegrationStatus(data);
-    } catch (error) {
-      console.error("Error checking integration status:", error);
-      setError("Failed to check integration status");
-    }
-  };
 
   const fetchInvoices = async (page: number = 1) => {
     try {
@@ -94,8 +64,9 @@ export default function InvoicesPage() {
       setRefreshing(page > 1);
       setError(null);
 
+      // Fetch from local database cache
       const response = await fetch(
-        `/api/zoho/invoices?page=${page}&per_page=${pagination.perPage}`
+        `/api/db/invoices?page=${page}&per_page=${pagination.perPage}`
       );
 
       if (!response.ok) {
@@ -153,47 +124,13 @@ export default function InvoicesPage() {
     );
   }
 
-  // Show connection prompt if not connected
-  if (!integrationStatus?.connected) {
-    return (
-      <div className="container mx-auto py-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Zoho Books Integration Required</CardTitle>
-            <CardDescription>
-              Connect your Zoho Books account to view your invoices
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Not Connected</AlertTitle>
-              <AlertDescription>
-                You need to connect your Zoho Books account before you can view
-                invoices. Go to the integrations page to connect.
-              </AlertDescription>
-            </Alert>
-            <div className="mt-4">
-              <Button asChild>
-                <a href="/dashboard/integrations">
-                  <ExternalLink className="mr-2 h-4 w-4" />
-                  Go to Integrations
-                </a>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-6">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Invoices</h1>
           <p className="text-muted-foreground">
-            View and manage your customer invoices from Zoho Books
+            View and manage your customer invoices (from local database)
           </p>
         </div>
         <Button onClick={handleRefresh} disabled={refreshing} variant="outline">
@@ -205,27 +142,10 @@ export default function InvoicesPage() {
       </div>
 
       {error && (
-        <Alert variant="destructive" className="mb-6">
+        <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
-      {integrationStatus.errorMessage && (
-        <Alert variant="destructive" className="mb-6">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Integration Error</AlertTitle>
-          <AlertDescription>
-            {integrationStatus.errorMessage}
-            <Button
-              asChild
-              variant="link"
-              className="ml-2 p-0 h-auto"
-            >
-              <a href="/dashboard/integrations">Reconnect</a>
-            </Button>
-          </AlertDescription>
         </Alert>
       )}
 
@@ -234,14 +154,8 @@ export default function InvoicesPage() {
           <CardTitle>Your Invoices</CardTitle>
           <CardDescription>
             {invoices.length > 0
-              ? `Showing ${invoices.length} invoice${invoices.length !== 1 ? "s" : ""}`
-              : "No invoices found"}
-            {integrationStatus.lastSyncAt && (
-              <span className="ml-2">
-                • Last synced:{" "}
-                {new Date(integrationStatus.lastSyncAt).toLocaleString()}
-              </span>
-            )}
+              ? `Showing ${invoices.length} invoice${invoices.length !== 1 ? "s" : ""} from database cache`
+              : "No invoices found in database"}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -273,10 +187,10 @@ export default function InvoicesPage() {
           ) : (
             <div className="text-center py-12">
               <p className="text-muted-foreground mb-4">
-                No invoices found in your Zoho Books account
+                No invoices found in database cache
               </p>
               <p className="text-sm text-muted-foreground">
-                Invoices you create in Zoho Books will appear here
+                Invoices will appear here after syncing from Zoho Books
               </p>
             </div>
           )}

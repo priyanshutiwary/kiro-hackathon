@@ -208,7 +208,7 @@ describe('Integration Tests - Payment Reminder Calls', () => {
         id: invoiceId,
         userId: TEST_USER_ID,
         zohoInvoiceId: 'INV-TEST-001',
-        customerId: 'CUST-001',
+        customerId: null, // No customer reference for this test
         customerName: 'Test Customer',
         customerPhone: '+1234567890',
         customerCountryCode: null,
@@ -352,7 +352,7 @@ describe('Integration Tests - Payment Reminder Calls', () => {
           id: invoice1Id,
           userId: TEST_USER_ID,
           zohoInvoiceId: 'INV-USER1-001',
-          customerId: 'CUST-001',
+          customerId: null, // No customer reference for this test
           customerName: 'User 1 Customer',
           customerPhone: '+1111111111',
           customerCountryCode: null,
@@ -375,7 +375,7 @@ describe('Integration Tests - Payment Reminder Calls', () => {
           id: invoice2Id,
           userId: TEST_USER_2,
           zohoInvoiceId: 'INV-USER2-001',
-          customerId: 'CUST-002',
+          customerId: null, // No customer reference for this test
           customerName: 'User 2 Customer',
           customerPhone: '+2222222222',
           customerCountryCode: null,

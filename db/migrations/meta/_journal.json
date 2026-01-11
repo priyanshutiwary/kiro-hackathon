@@ -43,6 +43,27 @@
       "when": 1767984859604,
       "tag": "0005_stormy_rawhide_kid",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1768068935679,
+      "tag": "0006_odd_lily_hollister",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1768070914403,
+      "tag": "0007_eminent_enchantress",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1768125406377,
+      "tag": "0008_big_lifeguard",
+      "breakpoints": true
     }
   ]
 }

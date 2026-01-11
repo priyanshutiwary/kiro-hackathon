@@ -1,1 +1,2 @@
 =-> Currently we are fetching all kind of bill like paid due and all and filtering locally. filter fetch is not wokring .
+=-> we are only extracting phone number from customer not contact person
