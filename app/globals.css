@@ -100,11 +100,11 @@
 
 .dark {
     /* Apple Dark Theme Colors */
-    --background: #000000;
+    --background: #1a1a1a;
     --foreground: #ffffff;
-    --card: #1c1c1e;
+    --card: #242424;
     --card-foreground: #ffffff;
-    --popover: #1c1c1e;
+    --popover: #242424;
     --popover-foreground: #ffffff;
     --primary: #0a84ff; /* Apple Blue (Dark Mode) */
     --primary-foreground: #ffffff;

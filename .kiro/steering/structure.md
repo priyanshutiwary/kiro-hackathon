@@ -7,53 +7,54 @@
 ```
 call_agent_smes/
 ├── app/                     # Next.js App Router
-│   ├── (auth)/             # Auth pages (sign-in, sign-up)
-│   ├── dashboard/          # Protected routes
-│   │   ├── _components/   # Private components
-│   │   ├── chat/          # AI chat
-│   │   ├── upload/        # File upload
-│   │   ├── payment/       # Subscriptions
-│   │   ├── bills/         # Zoho Bills
-│   │   ├── invoices/      # Zoho Invoices
-│   │   ├── integrations/  # Integration management
-│   │   └── settings/      # User settings
+│   ├── dashboard/          # Business management dashboard
+│   │   ├── customers/     # Customer management & history
+│   │   ├── invoices/      # Invoice tracking & status
+│   │   ├── reminders/     # Payment reminder management
+│   │   ├── scheduled/     # Scheduled call management
+│   │   ├── business-profile/ # Company settings & branding
+│   │   └── integrations/  # CRM integration management
 │   ├── api/               # API routes
 │   │   ├── auth/[...all]/ # Better Auth
-│   │   ├── webhooks/      # Payment webhooks
-│   │   ├── chat/          # AI endpoint
-│   │   ├── upload-image/  # R2 upload
-│   │   └── zoho/          # Zoho API routes
-│   │       ├── auth/      # OAuth flow
-│   │       ├── bills/     # Bills endpoint
-│   │       ├── invoices/  # Invoices endpoint
-│   │       └── status/    # Integration status
-│   ├── pricing/           # Pricing page
+│   │   ├── zoho/          # Zoho CRM/Books integration
+│   │   │   ├── auth/      # OAuth flow & token management
+│   │   │   ├── contacts/  # Customer data sync
+│   │   │   └── invoices/  # Invoice data sync
+│   │   ├── reminders/     # Payment reminder processing
+│   │   ├── cron/          # Scheduled job endpoints
+│   │   │   ├── process-reminders/ # Automated reminder processing
+│   │   │   └── status/    # System health checks
+│   │   ├── business-profile/ # Business configuration
+│   │   └── db/            # Database operations
+│   │       ├── customers/ # Customer cache operations
+│   │       └── invoices/  # Invoice cache operations
 │   └── page.tsx           # Landing page
+├── lib/                   # Core business logic
+│   ├── payment-reminders/ # Payment reminder system
+│   │   ├── sync-engine.ts # Main payment sync automation
+│   │   ├── customer-sync-engine.ts # Customer data sync
+│   │   ├── livekit-client.ts # Voice call integration
+│   │   ├── phone-extractor.ts # Phone number validation
+│   │   └── pre-call-verification.ts # Call validation logic
+│   ├── business-profile/  # Business configuration
+│   │   ├── service.ts     # Profile management service
+│   │   └── __tests__/     # Business profile tests
+│   ├── zoho-api-client.ts # Zoho API integration
+│   ├── zoho-oauth.ts      # OAuth service
+│   ├── zoho-token-manager.ts # Token management
+│   ├── encryption.ts      # Token encryption utilities
+│   └── utils.ts           # General utilities
 ├── components/
-│   ├── ui/                # shadcn/ui (30+ components)
-│   ├── homepage/          # Landing sections
-│   ├── theme-toggle.tsx   # Dark mode toggle
-│   └── user-profile.tsx   # Profile dropdown
-├── lib/                   # Utilities
-│   ├── auth.ts           # Auth config
-│   ├── subscription.ts   # Subscription utils
-│   ├── upload-image.ts   # R2 utils
-│   ├── encryption.ts     # Token encryption
-│   ├── zoho-oauth.ts     # Zoho OAuth service
-│   ├── zoho-token-manager.ts  # Token management
-│   ├── zoho-api-client.ts     # Zoho API client
-│   └── utils.ts          # General utils
+│   ├── ui/                # shadcn/ui components
+│   └── theme-toggle.tsx   # Dark mode toggle
 ├── db/                    # Database
-│   ├── schema.ts         # Drizzle schema
+│   ├── schema.ts         # Complete database schema
 │   └── drizzle.ts        # DB connection
-├── .kiro/                 # Kiro CLI
-│   ├── steering/         # Guidelines
-│   ├── specs/            # Feature specs
-│   │   └── zoho-bills-integration/  # Zoho spec
-│   └── prompts/          # Custom commands
-└── examples/              # Documentation
-    ├── README.md
-    └── DEVLOG.md
+└── .kiro/                 # Kiro CLI configuration
+    ├── steering/         # Project guidelines
+    ├── specs/            # Feature specifications
+    │   └── business-profile-management/ # Business profile spec
+    └── devlogs/          # Development logs
 ```
 
 ## Naming Conventions
@@ -79,11 +80,11 @@ import { db } from "@/db/drizzle"
 
 ## Routes
 
-**Public**: `/` • `/pricing` • `/sign-in` • `/sign-up`
+**Public**: `/` (landing page)
 
-**Protected**: `/dashboard` • `/dashboard/chat` • `/dashboard/upload` • `/dashboard/payment` • `/dashboard/settings` • `/dashboard/bills` • `/dashboard/invoices` • `/dashboard/integrations`
+**Protected**: `/dashboard` • `/dashboard/customers` • `/dashboard/invoices` • `/dashboard/reminders` • `/dashboard/scheduled` • `/dashboard/business-profile` • `/dashboard/integrations`
 
-**API**: `/api/auth/[...all]` • `/api/webhooks/dodo` • `/api/chat` • `/api/upload-image` • `/api/zoho/auth/*` • `/api/zoho/bills` • `/api/zoho/invoices` • `/api/zoho/status`
+**API**: `/api/auth/[...all]` • `/api/zoho/auth/*` • `/api/zoho/contacts` • `/api/zoho/invoices` • `/api/reminders` • `/api/reminders/scheduled` • `/api/cron/process-reminders` • `/api/cron/status` • `/api/business-profile` • `/api/db/customers` • `/api/db/invoices`
 
 ## Configuration Files
 

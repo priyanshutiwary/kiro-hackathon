@@ -64,6 +64,13 @@
       "when": 1768125406377,
       "tag": "0008_big_lifeguard",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1768139488057,
+      "tag": "0009_perfect_guardsmen",
+      "breakpoints": true
     }
   ]
 }

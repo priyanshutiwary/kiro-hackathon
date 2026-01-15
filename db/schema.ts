@@ -190,6 +190,7 @@ export const invoicesCache = pgTable("invoices_cache", {
   customerId: text("customerId")
     .references(() => customersCache.id, { onDelete: "set null" }),
   
+  
   invoiceNumber: text("invoiceNumber"),
   amountTotal: text("amountTotal"), // Store as string to avoid precision issues
   amountDue: text("amountDue"), // Store as string to avoid precision issues
@@ -242,6 +243,31 @@ export const paymentReminders = pgTable("payment_reminders", {
   invoiceIdIdx: index("payment_reminders_invoice_id_idx").on(table.invoiceId),
   scheduledDateIdx: index("payment_reminders_scheduled_date_idx").on(table.scheduledDate),
 }));
+
+// Business profiles
+export const businessProfiles = pgTable("business_profiles", {
+  id: text("id").primaryKey(),
+  userId: text("userId")
+    .notNull()
+    .unique()
+    .references(() => user.id, { onDelete: "cascade" }),
+  
+  // Basic information
+  companyName: text("companyName").notNull(),
+  businessDescription: text("businessDescription").notNull(),
+  industry: text("industry"),
+  
+  // Contact information
+  supportPhone: text("supportPhone").notNull(),
+  supportEmail: text("supportEmail"),
+  
+  // Operational details
+  businessHours: text("businessHours"), // JSON string
+  preferredPaymentMethods: text("preferredPaymentMethods").notNull().default("[]"), // JSON array
+  
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+});
 
 // Sync metadata
 export const syncMetadata = pgTable("sync_metadata", {

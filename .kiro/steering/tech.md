@@ -8,21 +8,22 @@
 
 **Backend**: Next.js API Routes • Better Auth v1.2.8 • Drizzle ORM • Neon PostgreSQL
 
-**Services**: Dodo Payments • OpenAI API • Cloudflare R2 • PostHog • Zoho Books API • Vercel
+**Voice AI**: LiveKit • Real-time voice calls • AI conversation flows • Call analytics
+
+**Services**: Zoho Books/CRM API • AES-256-GCM encryption • Vercel deployment
 
 **Tools**: TypeScript (strict) • ESLint • Drizzle Kit • Kiro CLI
 
 ## Architecture Overview
 
-**Layers**: Next.js App Router (RSC) → API Routes → Drizzle ORM → Neon PostgreSQL
+**Layers**: Next.js App Router (RSC) → API Routes → Sync Engines → Drizzle ORM → Neon PostgreSQL
 
 **Key Components**:
-- Authentication: Better Auth with Google OAuth
-- Payments: Dodo Payments with webhook processing
-- Storage: Cloudflare R2 (S3-compatible)
-- AI: OpenAI API for chatbot
-- Database: Neon PostgreSQL with Drizzle ORM
-- Integrations: Zoho Books OAuth with encrypted token storage
+- Voice Agent: LiveKit integration for AI-powered calls
+- Sync Engines: Automated data synchronization with Zoho
+- Authentication: Better Auth with secure session management
+- Database: Local caching with real-time sync capabilities
+- Integrations: Zoho Books/CRM OAuth with encrypted token storage
 
 ## Development Environment
 
@@ -36,7 +37,7 @@ npx drizzle-kit generate && npx drizzle-kit push
 npm run dev
 ```
 
-**Key Environment Variables**: `DATABASE_URL` • `BETTER_AUTH_SECRET` • `GOOGLE_CLIENT_ID/SECRET` • `DODO_PAYMENTS_API_KEY` • `OPENAI_API_KEY` • R2 credentials • `NEXT_PUBLIC_STARTER_TIER` • `ZOHO_CLIENT_ID/SECRET` • `ENCRYPTION_KEY`
+**Key Environment Variables**: `DATABASE_URL` • `BETTER_AUTH_SECRET` • `LIVEKIT_API_KEY/SECRET` • `LIVEKIT_URL` • `ZOHO_CLIENT_ID/SECRET` • `ENCRYPTION_KEY` • `NEXT_PUBLIC_APP_URL`
 
 ## Code Standards
 
@@ -54,8 +55,10 @@ npm run dev
 
 **Data Protection**: Environment variables for secrets • User data isolated by userId • SQL injection prevention (Drizzle ORM) • Input validation • AES-256-GCM encryption for OAuth tokens
 
-**API Security**: Webhook signature verification • CORS configuration • Auth middleware for protected routes • Input sanitization
+**Voice Security**: LiveKit secure connections • Call recording compliance • Customer data privacy • PCI DSS considerations for payment data
 
-**File Upload**: Type validation • Size limits • Secure presigned URLs • Access control
+**API Security**: Webhook signature verification • CORS configuration • Auth middleware for protected routes • Input sanitization • Rate limiting for voice calls
 
-**Best Practices**: Never commit secrets • Use environment variables • Validate all inputs • Keep dependencies updated • HTTPS in production
+**Integration Security**: Encrypted token storage • Automatic token refresh • Secure API communication • Multi-DC OAuth support
+
+**Best Practices**: Never commit secrets • Use environment variables • Validate all inputs • Keep dependencies updated • HTTPS in production • Secure voice call handling

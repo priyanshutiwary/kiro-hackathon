@@ -13,6 +13,7 @@ import {
   Users,
   FileText,
   Calendar,
+  Building2,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -28,6 +29,11 @@ const navItems: NavItem[] = [
     label: "Overview",
     href: "/dashboard",
     icon: HomeIcon,
+  },
+  {
+    label: "Business Profile",
+    href: "/dashboard/business-profile",
+    icon: Building2,
   },
   {
     label: "Reminders",

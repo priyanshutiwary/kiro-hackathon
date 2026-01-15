@@ -1,88 +1,92 @@
-# Next.js SaaS Starter Kit
+# AI-Powered Call Agent for SME Payment Reminders
 
-A comprehensive, production-ready SaaS starter kit built with Next.js 15, featuring authentication, subscriptions, AI integration, and modern UI components.
+An intelligent call agent system that automates payment reminder calls for small and medium enterprises. Built with Next.js 15, LiveKit voice AI, and Zoho CRM integration for seamless customer outreach and payment collection.
 
 ## ✨ Features
 
-### 🔐 Authentication & User Management
-- **Better Auth v1.2.8** - Modern authentication system
-- Google OAuth integration
-- Session management with database persistence
-- User profile management with image uploads
-- Account linking for multiple providers
+### 🤖 AI Voice Agent
+- **LiveKit Integration** - Real-time voice calls with AI agents
+- Natural conversation flows for payment reminders
+- Intelligent call routing and scheduling
+- Pre-call verification and validation
+- Call analytics and success tracking
 
-### 💳 Subscription & Billing
-- **Dodo Payments** integration for subscription management
-- Flexible pricing tiers (configurable)
-- Real-time webhook processing
-- Subscription status tracking (active, canceled, expired)
-- Payment gating with elegant overlays
-- Secure checkout with redirect flow
+### 💰 Payment Reminder Automation
+- **Smart Sync Engine** - Automated processing of overdue invoices
+- Customer sync with Zoho CRM/Books integration
+- Intelligent phone number extraction and validation
+- Scheduled reminder processing with cron jobs
+- Business profile-specific call configurations
 
-### 🤖 AI Integration
-- **OpenAI** powered chatbot
-- React Markdown rendering for rich responses
-- Multi-step conversation support
-- Integrated chat widget in dashboard
+### 🏢 Business Management
+- **Customer Management** - Comprehensive customer database with sync
+- Invoice tracking and payment status monitoring
+- Business profile configuration for personalized calls
+- Integration status monitoring and health checks
+- Dashboard for managing reminders and scheduled calls
 
-### 🎨 Modern UI/UX
-- **Tailwind CSS v4** - Latest utility-first styling
-- **shadcn/ui** components - Accessible, customizable
-- **Radix UI** primitives - Unstyled, accessible components
+### 🔗 CRM Integration
+- **Zoho Books/CRM** - OAuth 2.0 with Multi-DC support
+- Secure token management with AES-256-GCM encryption
+- Two-way data synchronization (customers, invoices, bills)
+- Automatic token refresh and retry logic
+- Real-time integration status tracking
+
+### 🎨 Modern Dashboard
+- **Next.js 15** - Server Components with App Router
+- **Tailwind CSS v4** + shadcn/ui components
 - Dark/light theme support with smooth transitions
-- Responsive design with mobile-first approach
-- Loading skeletons and optimistic UI updates
+- Responsive design optimized for business workflows
+- Real-time updates and optimistic UI
 
 ### 🗄️ Database & Storage
-- **Neon PostgreSQL** - Serverless database
-- **Drizzle ORM** - Type-safe database toolkit
-- **Cloudflare R2** - Scalable file storage with zero egress fees
-- Database migrations with Drizzle Kit
-- Drag & drop file uploads with progress tracking
-
-### 📊 Analytics & Monitoring
-- **PostHog** integration for product analytics
-- User behavior tracking
-- Custom event monitoring
-- Error tracking and insights
+- **Neon PostgreSQL** - Serverless database with caching
+- **Drizzle ORM** - Type-safe database operations
+- Local data caching for fast UI performance
+- Database-first approach for instant loading
+- Automated sync engines for data consistency
 
 ## 🚀 Tech Stack
 
 - **Framework**: Next.js 15.3.1 with App Router
 - **Language**: TypeScript with strict mode
+- **Voice AI**: LiveKit for real-time voice calls
 - **Styling**: Tailwind CSS v4 + shadcn/ui
 - **Database**: Neon PostgreSQL + Drizzle ORM
 - **Authentication**: Better Auth v1.2.8
-- **Payments**: Dodo Payments
-- **AI**: OpenAI SDK
-- **Storage**: Cloudflare R2
-- **Analytics**: PostHog
+- **CRM Integration**: Zoho Books/CRM OAuth 2.0
+- **Encryption**: AES-256-GCM for secure token storage
 - **Deployment**: Vercel (recommended)
 
 ## 📁 Project Structure
 
 ```
 ├── app/
-│   ├── (auth)/              # Authentication pages
-│   ├── dashboard/           # Protected dashboard area
-│   │   ├── _components/     # Dashboard components
-│   │   ├── chat/           # AI chat interface
-│   │   ├── upload/         # File upload with R2
-│   │   ├── payment/        # Subscription management
-│   │   └── settings/       # User settings & billing
-│   ├── pricing/            # Public pricing page
-│   └── api/                # API routes
-├── components/
-│   ├── ui/                 # shadcn/ui components
-│   └── homepage/           # Landing page sections
+│   ├── dashboard/           # Business management dashboard
+│   │   ├── customers/       # Customer management
+│   │   ├── invoices/        # Invoice tracking
+│   │   ├── reminders/       # Payment reminders
+│   │   ├── scheduled/       # Scheduled calls
+│   │   ├── business-profile/ # Company settings
+│   │   └── integrations/    # CRM integrations
+│   └── api/                 # API routes
+│       ├── zoho/           # Zoho CRM/Books integration
+│       ├── reminders/      # Reminder processing
+│       ├── cron/           # Scheduled jobs
+│       └── business-profile/ # Profile management
 ├── lib/
-│   ├── auth/              # Authentication config
-│   ├── subscription.ts    # Subscription utilities
-│   ├── dodo-payments.ts   # Dodo Payments integration
-│   └── upload-image.ts    # R2 file upload utilities
+│   ├── payment-reminders/   # Core reminder system
+│   │   ├── sync-engine.ts   # Payment sync automation
+│   │   ├── customer-sync-engine.ts # Customer data sync
+│   │   ├── livekit-client.ts # Voice call integration
+│   │   ├── phone-extractor.ts # Phone validation
+│   │   └── pre-call-verification.ts # Call validation
+│   ├── business-profile/    # Business configuration
+│   ├── zoho-api-client.ts   # Zoho API integration
+│   └── encryption.ts        # Token security
 └── db/
-    ├── schema.ts          # Database schema
-    └── drizzle.ts         # Database connection
+    ├── schema.ts           # Database schema
+    └── drizzle.ts          # Database connection
 ```
 
 ## 🛠️ Quick Start
@@ -90,10 +94,9 @@ A comprehensive, production-ready SaaS starter kit built with Next.js 15, featur
 ### Prerequisites
 - Node.js 18+
 - PostgreSQL database (Neon recommended)
-- Cloudflare R2 bucket for file storage
-- Dodo Payments account for subscriptions
-- OpenAI API key for AI features
-- Google OAuth credentials (optional)
+- LiveKit account for voice calls
+- Zoho Books/CRM account for customer data
+- Business with overdue invoices to automate
 
 ### Installation
 
@@ -116,28 +119,23 @@ DATABASE_URL="your-neon-database-url"
 
 # Authentication
 BETTER_AUTH_SECRET="your-secret-key"
-GOOGLE_CLIENT_ID="your-google-client-id"
-GOOGLE_CLIENT_SECRET="your-google-client-secret"
 
-# Dodo Payments
-DODO_PAYMENTS_API_KEY="your-dodo-api-key"
-DODO_WEBHOOK_SECRET="your-dodo-webhook-secret"
+# LiveKit Voice Integration
+LIVEKIT_API_KEY="your-livekit-api-key"
+LIVEKIT_API_SECRET="your-livekit-api-secret"
+LIVEKIT_URL="your-livekit-server-url"
 
-# OpenAI
-OPENAI_API_KEY="your-openai-api-key"
+# Zoho CRM/Books Integration
+ZOHO_CLIENT_ID="your-zoho-client-id"
+ZOHO_CLIENT_SECRET="your-zoho-client-secret"
+ZOHO_REDIRECT_URI="http://localhost:3000/api/zoho/auth/callback"
 
-# Cloudflare R2 Storage
-CLOUDFLARE_ACCOUNT_ID="your-cloudflare-account-id"
-R2_UPLOAD_IMAGE_ACCESS_KEY_ID="your-r2-access-key-id"
-R2_UPLOAD_IMAGE_SECRET_ACCESS_KEY="your-r2-secret-access-key"
-R2_UPLOAD_IMAGE_BUCKET_NAME="your-r2-bucket-name"
+# Encryption for secure token storage
+ENCRYPTION_KEY="your-32-character-encryption-key"
 
-# Product Configuration
-NEXT_PUBLIC_STARTER_TIER="your-dodo-product-id"
+# App Configuration
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
-
-**See DODO_PAYMENTS_SETUP.md for detailed setup instructions.**
 
 4. **Database Setup**
 ```bash
@@ -146,75 +144,74 @@ npx drizzle-kit generate
 npx drizzle-kit push
 ```
 
-5. **Cloudflare R2 Setup**
-- Create a Cloudflare account and set up R2 storage
-- Create a bucket for file uploads
-- Generate API tokens with R2 permissions
-- Configure CORS settings for your domain
+5. **LiveKit Setup**
+- Create a LiveKit account at [livekit.io](https://livekit.io)
+- Set up voice agent configuration
+- Configure outbound calling capabilities
 
-6. **Dodo Payments Setup**
-- Create products for your pricing tiers
-- Set up webhook endpoints at `/api/webhooks/dodo`
-- Configure your pricing structure
-- See **DODO_PAYMENTS_SETUP.md** for complete instructions
+6. **Zoho Integration Setup**
+- Create Zoho OAuth app in Zoho Developer Console
+- Configure OAuth scopes: `ZohoBooks.contacts.READ`, `ZohoBooks.invoices.READ`
+- Set up webhook endpoints for real-time updates
 
 7. **Start Development Server**
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to see your application.
+Open [http://localhost:3000](http://localhost:3000) to access your call agent dashboard.
 
 ## 🎯 Key Features Explained
 
-### Subscription Management
-- Automatic subscription status checking
-- Payment gating for premium features
-- Integration with Dodo Payments checkout
-- Webhook handling for real-time updates
-- Secure payment processing with redirect flow
+### AI Voice Agent System
+- **LiveKit Integration**: Real-time voice calls with natural conversation flows
+- **Pre-call Verification**: Smart validation before initiating calls
+- **Call Analytics**: Track success rates and customer responses
+- **Intelligent Scheduling**: Optimal timing based on customer preferences
 
-### AI Chat Integration
-- Built-in chatbot with OpenAI
-- Markdown rendering for rich responses
-- Conversation history and context
+### Payment Reminder Automation
+- **Sync Engine**: Automatically processes overdue invoices from Zoho
+- **Customer Sync**: Two-way synchronization with CRM data
+- **Phone Extraction**: Intelligent parsing and validation of contact numbers
+- **Business Profiles**: Company-specific call scripts and configurations
 
-### File Upload System
-- **Cloudflare R2 integration** with S3-compatible API
-- **Drag & drop interface** with visual feedback
-- **File validation** - Type checking and size limits
-- **Progress tracking** - Real-time upload progress
-- **Image gallery** - View uploaded files with metadata
-- **Copy URLs** - Easy sharing and integration
+### CRM Integration
+- **Zoho OAuth**: Secure Multi-DC authentication with encrypted token storage
+- **Real-time Sync**: Automatic updates between local cache and Zoho
+- **Data Consistency**: Database-first approach for instant UI performance
+- **Integration Health**: Monitoring and status tracking for all connections
 
-### Analytics & Tracking
-- PostHog event tracking
-- User behavior monitoring
-- Custom analytics dashboard
+### Business Dashboard
+- **Customer Management**: Comprehensive view of all customers and contact history
+- **Invoice Tracking**: Real-time status of payments and overdue amounts
+- **Reminder Scheduling**: Plan and manage automated call campaigns
+- **Analytics**: Track call success rates and payment collection metrics
 
 ## 🔧 Customization
 
-### Adding New Features
-1. Create components in `components/`
-2. Add API routes in `app/api/`
-3. Update database schema in `db/schema.ts`
-4. Run `npx drizzle-kit generate` and `npx drizzle-kit push`
+### Business Configuration
+1. Set up business profile in `/dashboard/business-profile`
+2. Configure call scripts and company branding
+3. Set payment reminder schedules and frequency
+4. Customize voice agent personality and responses
 
-### Styling
-- Modify `app/globals.css` for global styles
-- Use Tailwind classes for component styling
-- Customize theme in `tailwind.config.ts`
+### Integration Setup
+- Connect Zoho Books/CRM for customer and invoice data
+- Configure LiveKit for voice calling capabilities
+- Set up automated sync schedules for data consistency
+- Monitor integration health and performance
 
-### Authentication
-- Configure providers in `lib/auth/auth.ts`
-- Add new OAuth providers as needed
-- Customize user profile fields in database schema
+### Call Agent Customization
+- Modify conversation flows in LiveKit configuration
+- Adjust pre-call verification rules
+- Customize phone number extraction patterns
+- Configure call scheduling and retry logic
 
 ## 📚 Learn More
 
 - [Next.js Documentation](https://nextjs.org/docs)
-- [Better Auth Documentation](https://better-auth.com)
-- [Dodo Payments Documentation](https://docs.dodopayments.com)
+- [LiveKit Voice Agent Guide](https://docs.livekit.io/agents/)
+- [Zoho Books API Documentation](https://www.zoho.com/books/api/v3/)
 - [Drizzle ORM Documentation](https://orm.drizzle.team)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
 
@@ -223,13 +220,14 @@ Open [http://localhost:3000](http://localhost:3000) to see your application.
 ### Vercel (Recommended)
 1. Connect your GitHub repository to Vercel
 2. Add environment variables in Vercel dashboard
-3. Deploy automatically on every push
+3. Configure LiveKit and Zoho webhook endpoints
+4. Deploy automatically on every push
 
-### Manual Deployment
-```bash
-npm run build
-npm start
-```
+### Environment Variables for Production
+- Update `NEXT_PUBLIC_APP_URL` to your domain
+- Configure LiveKit production server
+- Set up Zoho OAuth with production redirect URIs
+- Use secure encryption keys for token storage
 
 ## 📄 License
 
@@ -241,4 +239,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ---
 
-Built with ❤️ using Next.js and modern web technologies.
+Built for SMEs who want to automate payment collection with AI-powered voice agents.

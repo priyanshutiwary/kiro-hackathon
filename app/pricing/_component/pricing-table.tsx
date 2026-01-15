@@ -10,10 +10,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { authClient } from "@/lib/auth-client";
-import { Check } from "lucide-react";
+import { Check, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { brandColors } from "@/lib/brand-colors";
 
 type SubscriptionDetails = {
   id: string;
@@ -159,67 +160,87 @@ export default function PricingTable({
   };
 
   return (
-    <section className="flex flex-col items-center justify-center px-4 mb-24 w-full">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-medium tracking-tight mb-4">
-          Fake Subscription
-        </h1>
-        <p className="text-xl text-muted-foreground">
-          Test out this starter kit using this fake subscription.
+    <section id="pricing" className={`flex flex-col items-center justify-center px-4 py-24 w-full ${brandColors.backgrounds.section}`}>
+      <div className="text-center mb-12 max-w-2xl">
+        <Badge variant="secondary" className={`mb-4 ${brandColors.border.accent} ${brandColors.backgrounds.glass}`}>
+          <Zap className={`mr-1.5 h-3.5 w-3.5 ${brandColors.primary.text}`} />
+          Simple Pricing
+        </Badge>
+        <h2 className={`text-4xl font-bold tracking-tight sm:text-5xl ${brandColors.text.gradient}`}>
+          Start Collecting Payments Today
+        </h2>
+        <p className={`mt-4 text-lg ${brandColors.text.secondary}`}>
+          Reduce overdue invoices and improve cash flow with automated payment reminders
         </p>
       </div>
 
       <div className="grid md:grid-cols-2 gap-8 max-w-4xl w-full">
         {/* Starter Tier */}
-        <Card className="relative h-fit">
+        <Card className={`relative h-fit ${brandColors.backgrounds.card} ${brandColors.border.default} backdrop-blur-xl rounded-2xl hover:shadow-2xl transition-all duration-300`}>
           {isCurrentPlan(STARTER_TIER) && (
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
               <Badge
                 variant="secondary"
-                className="bg-green-100 text-green-800"
+                className={`${brandColors.success.gradientBr} text-white shadow-lg`}
               >
                 Current Plan
               </Badge>
             </div>
           )}
           <CardHeader>
-            <CardTitle className="text-2xl">Starter</CardTitle>
-            <CardDescription>Perfect for getting started</CardDescription>
+            <CardTitle className={`text-2xl ${brandColors.text.primary}`}>Starter</CardTitle>
+            <CardDescription className={brandColors.text.secondary}>
+              Perfect for small businesses getting started with automated payment collection
+            </CardDescription>
             <div className="mt-4">
-              <span className="text-4xl font-bold">$1,000</span>
-              <span className="text-muted-foreground">/month</span>
+              <span className={`text-4xl font-bold ${brandColors.text.primary}`}>$1,000</span>
+              <span className={brandColors.text.muted}>/month</span>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-3">
-              <Check className="h-5 w-5 text-green-500" />
-              <span>5 Projects</span>
+              <div className={`flex h-5 w-5 items-center justify-center rounded-full ${brandColors.success.bg}`}>
+                <Check className="h-3 w-3 text-white" />
+              </div>
+              <span className={brandColors.text.secondary}>Up to 500 payment reminder calls/month</span>
             </div>
             <div className="flex items-center gap-3">
-              <Check className="h-5 w-5 text-green-500" />
-              <span>10GB Storage</span>
+              <div className={`flex h-5 w-5 items-center justify-center rounded-full ${brandColors.success.bg}`}>
+                <Check className="h-3 w-3 text-white" />
+              </div>
+              <span className={brandColors.text.secondary}>Zoho CRM & Books integration</span>
             </div>
             <div className="flex items-center gap-3">
-              <Check className="h-5 w-5 text-green-500" />
-              <span>1 Team Member</span>
+              <div className={`flex h-5 w-5 items-center justify-center rounded-full ${brandColors.success.bg}`}>
+                <Check className="h-3 w-3 text-white" />
+              </div>
+              <span className={brandColors.text.secondary}>AI voice agent customization</span>
             </div>
             <div className="flex items-center gap-3">
-              <Check className="h-5 w-5 text-green-500" />
-              <span>Email Support</span>
+              <div className={`flex h-5 w-5 items-center justify-center rounded-full ${brandColors.success.bg}`}>
+                <Check className="h-3 w-3 text-white" />
+              </div>
+              <span className={brandColors.text.secondary}>Real-time analytics dashboard</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className={`flex h-5 w-5 items-center justify-center rounded-full ${brandColors.success.bg}`}>
+                <Check className="h-3 w-3 text-white" />
+              </div>
+              <span className={brandColors.text.secondary}>Email & chat support</span>
             </div>
           </CardContent>
           <CardFooter>
             {isCurrentPlan(STARTER_TIER) ? (
               <div className="w-full space-y-2">
                 <Button
-                  className="w-full"
+                  className="w-full rounded-xl"
                   variant="outline"
                   onClick={handleManageSubscription}
                 >
                   Manage Subscription
                 </Button>
                 {subscriptionDetails.subscription && (
-                  <p className="text-sm text-muted-foreground text-center">
+                  <p className={`text-sm ${brandColors.text.muted} text-center`}>
                     {subscriptionDetails.subscription.cancelAtPeriodEnd
                       ? `Expires ${formatDate(subscriptionDetails.subscription.currentPeriodEnd)}`
                       : `Renews ${formatDate(subscriptionDetails.subscription.currentPeriodEnd)}`}
@@ -228,24 +249,87 @@ export default function PricingTable({
               </div>
             ) : (
               <Button
-                className="w-full"
+                className={`w-full ${brandColors.primary.gradient} hover:opacity-90 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all rounded-xl`}
                 onClick={() => handleCheckout("starter")}
               >
                 {isAuthenticated === false
                   ? "Sign In to Get Started"
-                  : "Get Started"}
+                  : "Start Free Trial"}
               </Button>
             )}
+          </CardFooter>
+        </Card>
+
+        {/* Enterprise Tier - Coming Soon */}
+        <Card className={`relative h-fit ${brandColors.backgrounds.card} ${brandColors.border.default} backdrop-blur-xl rounded-2xl hover:shadow-2xl transition-all duration-300`}>
+          <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+            <Badge
+              variant="secondary"
+              className={`${brandColors.secondary.gradientBr} text-white shadow-lg`}
+            >
+              Most Popular
+            </Badge>
+          </div>
+          <CardHeader>
+            <CardTitle className={`text-2xl ${brandColors.text.primary}`}>Enterprise</CardTitle>
+            <CardDescription className={brandColors.text.secondary}>
+              For businesses with high-volume payment collection needs
+            </CardDescription>
+            <div className="mt-4">
+              <span className={`text-4xl font-bold ${brandColors.text.primary}`}>Custom</span>
+              <span className={brandColors.text.muted}>/month</span>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className={`flex h-5 w-5 items-center justify-center rounded-full ${brandColors.success.bg}`}>
+                <Check className="h-3 w-3 text-white" />
+              </div>
+              <span className={brandColors.text.secondary}>Unlimited payment reminder calls</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className={`flex h-5 w-5 items-center justify-center rounded-full ${brandColors.success.bg}`}>
+                <Check className="h-3 w-3 text-white" />
+              </div>
+              <span className={brandColors.text.secondary}>Multi-CRM integrations</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className={`flex h-5 w-5 items-center justify-center rounded-full ${brandColors.success.bg}`}>
+                <Check className="h-3 w-3 text-white" />
+              </div>
+              <span className={brandColors.text.secondary}>Advanced AI customization</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className={`flex h-5 w-5 items-center justify-center rounded-full ${brandColors.success.bg}`}>
+                <Check className="h-3 w-3 text-white" />
+              </div>
+              <span className={brandColors.text.secondary}>Dedicated account manager</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className={`flex h-5 w-5 items-center justify-center rounded-full ${brandColors.success.bg}`}>
+                <Check className="h-3 w-3 text-white" />
+              </div>
+              <span className={brandColors.text.secondary}>Priority 24/7 support</span>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button
+              className="w-full rounded-xl"
+              variant="outline"
+              onClick={() => window.location.href = "mailto:sales@callagent.ai"}
+            >
+              Contact Sales
+            </Button>
           </CardFooter>
         </Card>
       </div>
 
       <div className="mt-12 text-center">
-        <p className="text-muted-foreground">
+        <p className={brandColors.text.secondary}>
           Need a custom plan?{" "}
-          <span className="text-primary cursor-pointer hover:underline">
-            Contact us
-          </span>
+          <a href="mailto:sales@callagent.ai" className={`${brandColors.primary.text} cursor-pointer hover:underline font-medium`}>
+            Contact our sales team
+          </a>
         </p>
       </div>
     </section>

@@ -8,7 +8,7 @@
  */
 
 import { db } from "@/db/drizzle";
-import { paymentReminders, invoicesCache } from "@/db/schema";
+import { paymentReminders, invoicesCache, customersCache } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { verifyInvoiceStatus, prepareFreshContext } from "./pre-call-verification";
 import { makeCall, CallOutcome } from "./livekit-client";
@@ -47,15 +47,17 @@ export async function initiateCall(reminderId: string): Promise<CallOutcome> {
   const reminder = reminders[0];
   console.log(`[Call Executor] Reminder loaded: type=${reminder.reminderType}, attempt=${reminder.attemptCount}`);
 
-  // Fetch invoice from cache
+  // Fetch invoice from cache with customer phone
   const invoices = await db
     .select({
       id: invoicesCache.id,
       userId: invoicesCache.userId,
       zohoInvoiceId: invoicesCache.zohoInvoiceId,
-      customerPhone: invoicesCache.customerPhone,
+      customerId: invoicesCache.customerId,
+      customerPhone: customersCache.primaryPhone,
     })
     .from(invoicesCache)
+    .leftJoin(customersCache, eq(invoicesCache.customerId, customersCache.id))
     .where(eq(invoicesCache.id, reminder.invoiceId))
     .limit(1);
 

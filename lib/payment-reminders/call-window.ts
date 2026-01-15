@@ -28,9 +28,9 @@ export function getCurrentTimeInTimezone(timezone: string): Date {
   // Get current UTC time
   const now = new Date();
   
-  // Use Intl.DateTimeFormat to get the time in the target timezone
-  // This handles all timezone conversions including DST automatically
-  const formatter = new Intl.DateTimeFormat('en-US', {
+  // Convert to the target timezone by getting the locale string
+  // and then parsing it back to create a Date object
+  const timeString = now.toLocaleString('en-US', {
     timeZone: timezone,
     year: 'numeric',
     month: '2-digit',
@@ -41,27 +41,22 @@ export function getCurrentTimeInTimezone(timezone: string): Date {
     hour12: false,
   });
   
-  const parts = formatter.formatToParts(now);
-  const dateParts: Record<string, string> = {};
+  // Parse the formatted string back to a Date object
+  // Format will be: "MM/DD/YYYY, HH:MM:SS"
+  const [datePart, timePart] = timeString.split(', ');
+  const [month, day, year] = datePart.split('/');
+  const [hour, minute, second] = timePart.split(':');
   
-  for (const part of parts) {
-    if (part.type !== 'literal') {
-      dateParts[part.type] = part.value;
-    }
-  }
-  
-  // Construct a date string in ISO format
-  const year = dateParts.year;
-  const month = dateParts.month;
-  const day = dateParts.day;
-  const hour = dateParts.hour;
-  const minute = dateParts.minute;
-  const second = dateParts.second;
-  
-  // Create a date object representing the local time in the target timezone
-  // Note: This creates a Date object with the local time values, but the Date object
-  // itself is still in the system's timezone. This is intentional for comparison purposes.
-  const localDate = new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}`);
+  // Create a Date object in UTC, then adjust to represent the target timezone's local time
+  // We create it as if the target timezone's time is the local time
+  const localDate = new Date(
+    parseInt(year),
+    parseInt(month) - 1, // Month is 0-indexed
+    parseInt(day),
+    parseInt(hour),
+    parseInt(minute),
+    parseInt(second)
+  );
   
   return localDate;
 }

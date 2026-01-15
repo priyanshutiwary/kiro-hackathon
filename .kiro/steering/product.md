@@ -2,146 +2,128 @@
 
 > **📝 Documentation Maintenance**: When adding features, changing objectives, or updating user flows, update this file and run `@update-docs`.
 
+# Product Overview
+
+> **📝 Documentation Maintenance**: When adding features, changing objectives, or updating user flows, update this file and run `@update-docs`.
+
 ## Product Purpose
-A production-ready SaaS starter kit that accelerates development by providing pre-built authentication, subscription management, AI integration, and modern UI components. It eliminates months of boilerplate setup, allowing developers to focus on building their unique product features.
+An AI-powered call agent system that automates payment reminder calls for small and medium enterprises. The platform integrates with existing CRM systems (Zoho Books/CRM), uses voice AI technology to conduct natural conversations with customers, and streamlines the payment collection process through intelligent automation.
 
 ## Target Users
-**Primary Audience**: SaaS developers and entrepreneurs
-- Solo developers building their first SaaS product
-- Development teams launching new products quickly
-- Agencies building client SaaS applications
-- Startups needing rapid MVP development
+**Primary Audience**: Small and Medium Enterprises (SMEs)
+- Business owners struggling with overdue payments
+- Accounting teams managing payment collections
+- Service-based businesses with recurring invoices
+- Companies wanting to automate customer outreach
 
 **User Needs**:
-- Fast time-to-market for SaaS products
-- Production-ready authentication and billing
-- Modern, accessible UI components
-- Scalable architecture from day one
-- Best practices and security built-in
+- Reduce time spent on manual payment reminder calls
+- Improve payment collection rates and cash flow
+- Maintain professional customer relationships during collections
+- Automate repetitive administrative tasks
+- Scale payment collection without hiring additional staff
 
 ## Key Features
 
-### Authentication & User Management
-- Google OAuth integration with Better Auth
-- Session management with database persistence
-- User profile management with image uploads
-- Account linking for multiple providers
-- Secure password handling and session tokens
+### AI Voice Agent System
+- LiveKit-powered voice calls with natural conversation flows
+- Intelligent call routing and scheduling optimization
+- Pre-call verification to ensure data accuracy
+- Real-time call analytics and success rate tracking
+- Customizable conversation scripts per business profile
 
-### Subscription & Billing
-- Dodo Payments integration for recurring billing
-- Flexible pricing tiers (configurable)
-- Real-time webhook processing for payment events
-- Subscription status tracking (active, canceled, expired)
-- Payment gating with elegant overlays
-- Customer portal for subscription management
+### Payment Reminder Automation
+- Automated sync engine that processes overdue invoices
+- Smart customer data synchronization with CRM systems
+- Intelligent phone number extraction and validation
+- Scheduled reminder processing with configurable frequency
+- Business-specific call configurations and branding
 
-### AI Integration
-- OpenAI-powered chatbot in dashboard
-- React Markdown rendering for rich responses
-- Multi-step conversation support
-- Integrated chat widget with context awareness
-
-### Business Integrations
-- Zoho Books OAuth 2.0 integration with Multi-DC support
+### CRM Integration & Data Management
+- Zoho Books/CRM OAuth 2.0 integration with Multi-DC support
 - Secure token management with AES-256-GCM encryption
-- Bills fetching and display with pagination
-- Automatic token refresh and retry logic
-- Integration status tracking and error handling
+- Two-way data synchronization (customers, invoices, bills)
+- Local database caching for instant UI performance
+- Real-time integration status monitoring and health checks
 
-### Modern UI/UX
-- Tailwind CSS v4 with utility-first styling
-- shadcn/ui components (accessible, customizable)
-- Dark/light theme support with smooth transitions
-- Responsive design with mobile-first approach
-- Loading skeletons and optimistic UI updates
-- Professional landing page and pricing sections
+### Business Management Dashboard
+- Comprehensive customer management with call history
+- Invoice tracking and payment status monitoring
+- Reminder scheduling and campaign management
+- Integration management and status tracking
+- Call analytics and performance metrics
 
-### Database & Storage
-- Neon PostgreSQL serverless database
-- Drizzle ORM for type-safe queries
-- Cloudflare R2 for scalable file storage
-- Database migrations with Drizzle Kit
-- Drag & drop file uploads with progress tracking
-
-### Analytics & Monitoring
-- PostHog integration for product analytics
-- User behavior tracking
-- Custom event monitoring
-- Error tracking and insights
+### Modern Web Platform
+- Next.js 15 with Server Components for optimal performance
+- Responsive dashboard optimized for business workflows
+- Dark/light theme support with professional design
+- Real-time updates and optimistic UI interactions
+- Mobile-friendly interface for on-the-go management
 
 ## Business Objectives
-1. **Developer Adoption**: Help 1,000+ developers launch SaaS products faster
-2. **Time Savings**: Reduce initial setup time from 2-3 months to 1-2 weeks
-3. **Quality Standards**: Provide production-ready code with best practices
-4. **Community Growth**: Build an active community sharing improvements
-5. **Ecosystem**: Create a marketplace for add-ons and extensions
+1. **Payment Collection Efficiency**: Help SMEs reduce overdue payment collection time by 70%
+2. **Cash Flow Improvement**: Increase payment collection rates by 40% through automated reminders
+3. **Cost Reduction**: Reduce manual administrative work by 80% for payment-related tasks
+4. **Customer Relationship**: Maintain professional relationships during payment collection
+5. **Scalability**: Enable businesses to handle 10x more payment reminders without additional staff
 
 ## User Journey
 
-### Initial Setup (1-2 hours)
-1. Clone repository and install dependencies
-2. Configure environment variables (.env setup)
-3. Set up database (Neon PostgreSQL)
-4. Configure authentication providers (Google OAuth)
-5. Set up payment provider (Dodo Payments)
-6. Configure file storage (Cloudflare R2)
-7. (Optional) Configure Zoho Books integration for bills
-8. Run development server and verify setup
+### Initial Setup (2-4 hours)
+1. Sign up and configure business profile
+2. Connect Zoho Books/CRM integration via OAuth
+3. Configure LiveKit voice agent settings
+4. Set up call scripts and business branding
+5. Test voice agent with sample calls
+6. Configure reminder schedules and frequency
 
-### Development Phase (1-2 weeks)
-1. Customize branding and landing page
-2. Configure pricing tiers and products
-3. Build custom features on top of starter kit
-4. Add business logic and API endpoints
-5. Customize UI components and styling
-6. Test authentication and payment flows
-7. Set up analytics and monitoring
+### Daily Operations (5-10 minutes)
+1. Review dashboard for overdue invoices
+2. Check scheduled reminder calls for the day
+3. Monitor call success rates and customer responses
+4. Review integration status and data sync health
+5. Adjust call schedules based on customer feedback
 
-### Launch Phase (1-3 days)
-1. Deploy to Vercel or preferred platform
-2. Configure production environment variables
-3. Set up custom domain
-4. Configure webhook endpoints
-5. Test production payment flow
-6. Monitor analytics and user behavior
+### Weekly Management (15-30 minutes)
+1. Analyze payment collection performance metrics
+2. Review and update call scripts based on success rates
+3. Manage customer preferences and call scheduling
+4. Monitor integration health and resolve any issues
+5. Plan reminder campaigns for upcoming periods
 
-**Typical Workflow** (Post-Setup):
-- User signs up with Google OAuth: 30 seconds
-- Browse pricing and select plan: 2 minutes
-- Complete checkout with Dodo Payments: 1 minute
-- Access dashboard and features: Immediate
-- Upload files to R2 storage: 30 seconds per file
-- Interact with AI chatbot: Real-time responses
-- Connect Zoho Books integration: 1-2 minutes
-- View business bills and expenses: Immediate after connection
+**Typical Workflow** (Automated):
+- System syncs overdue invoices from Zoho: Every 4 hours
+- AI agent makes scheduled reminder calls: Throughout business hours
+- Customer payment updates sync back to Zoho: Real-time
+- Dashboard updates with call results: Immediate
+- Follow-up calls scheduled automatically: Based on business rules
 
 ## Success Criteria
 
-**Developer Metrics**:
-- Setup completion time: <2 hours
-- Time to first deployment: <1 week
-- Developer satisfaction: >4.5/5 stars
-- GitHub stars: 1,000+ in first year
-- Active forks: 500+ in first year
+**Business Impact Metrics**:
+- Payment collection time reduction: >70%
+- Payment collection rate improvement: >40%
+- Administrative work reduction: >80%
+- Customer satisfaction during collections: >4.0/5.0
+- Monthly recurring revenue increase: >25%
 
-**Product Metrics**:
-- Authentication success rate: >99%
-- Payment processing success: >95%
-- Page load time: <2 seconds
-- API response time: <500ms
-- Uptime: >99.9%
-
-**Business Metrics**:
-- Products launched using starter: 100+ in first year
-- Community contributions: 50+ PRs
-- Documentation completeness: 100% coverage
-- Support response time: <24 hours
-- Monthly active developers: 500+
+**Technical Performance Metrics**:
+- Call connection success rate: >95%
+- Voice quality and clarity: >4.5/5.0
+- System uptime: >99.9%
+- Data sync accuracy: >99.5%
+- Dashboard load time: <2 seconds
 
 **User Experience Metrics**:
-- Sign-up completion rate: >80%
-- Subscription conversion: >10%
-- Feature adoption rate: >60%
-- User retention (30 days): >70%
-- Net Promoter Score: >50
+- Setup completion time: <4 hours
+- Daily workflow time: <10 minutes
+- User retention (90 days): >85%
+- Feature adoption rate: >70%
+- Net Promoter Score: >60
+
+**Integration & Reliability Metrics**:
+- Zoho integration uptime: >99.5%
+- Token refresh success rate: >99%
+- Data synchronization latency: <30 seconds
+- Call scheduling accuracy: >98%
+- Error recovery time: <5 minutes
