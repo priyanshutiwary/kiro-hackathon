@@ -141,6 +141,10 @@ export const reminderSettings = pgTable("reminder_settings", {
   callEndTime: text("callEndTime").notNull().default("18:00:00"),
   callDaysOfWeek: text("callDaysOfWeek").notNull().default("[1,2,3,4,5]"), // JSON array
 
+  // Voice and Language Settings
+  language: text("language").notNull().default("en"), // "en", "hi", "hinglish"
+  voiceGender: text("voiceGender").notNull().default("female"), // "male", "female"
+
   // Retry settings
   maxRetryAttempts: integer("maxRetryAttempts").notNull().default(3),
   retryDelayHours: integer("retryDelayHours").notNull().default(2),

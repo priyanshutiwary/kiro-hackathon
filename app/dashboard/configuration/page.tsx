@@ -41,6 +41,10 @@ interface ReminderSettings {
   callEndTime: string;
   callDaysOfWeek: number[];
   
+  // Voice and Language Settings
+  language: string;
+  voiceGender: string;
+  
   // Retry settings
   maxRetryAttempts: number;
   retryDelayHours: number;
@@ -118,6 +122,18 @@ export default function ConfigurationPage() {
         errors.push("Custom reminder days must be between -30 and 30 (excluding 0)");
         break;
       }
+    }
+
+    // Validate language
+    const validLanguages = ['en', 'hi', 'hinglish'];
+    if (reminderSettings.language && !validLanguages.includes(reminderSettings.language)) {
+      errors.push("Invalid language selection");
+    }
+
+    // Validate voice gender
+    const validVoiceGenders = ['male', 'female'];
+    if (reminderSettings.voiceGender && !validVoiceGenders.includes(reminderSettings.voiceGender)) {
+      errors.push("Invalid voice gender selection");
     }
 
     setValidationErrors(errors);
@@ -508,6 +524,64 @@ export default function ConfigurationPage() {
                     {day.label}
                   </Button>
                 ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Voice and Language Settings */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Phone className="h-5 w-5" />
+              Voice and Language Settings
+            </CardTitle>
+            <CardDescription>
+              Configure the language and voice for payment reminder calls
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="language">Language</Label>
+                <Select
+                  value={reminderSettings?.language || "en"}
+                  onValueChange={(value) =>
+                    setReminderSettings(prev => prev ? { ...prev, language: value } : null)
+                  }
+                >
+                  <SelectTrigger id="language">
+                    <SelectValue placeholder="Select language" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="hi">Hindi</SelectItem>
+                    <SelectItem value="hinglish">Hinglish</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Language for payment reminder calls
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="voiceGender">Voice Gender</Label>
+                <Select
+                  value={reminderSettings?.voiceGender || "female"}
+                  onValueChange={(value) =>
+                    setReminderSettings(prev => prev ? { ...prev, voiceGender: value } : null)
+                  }
+                >
+                  <SelectTrigger id="voiceGender">
+                    <SelectValue placeholder="Select voice gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value="male">Male</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Voice gender for the AI agent
+                </p>
               </div>
             </div>
           </CardContent>

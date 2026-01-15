@@ -35,6 +35,10 @@ export interface ReminderSettings {
   callEndTime: string;
   callDaysOfWeek: number[];
   
+  // Voice and Language Settings
+  language: string;
+  voiceGender: string;
+  
   // Retry settings
   maxRetryAttempts: number;
   retryDelayHours: number;
@@ -70,6 +74,10 @@ export const DEFAULT_REMINDER_SETTINGS: Omit<ReminderSettings, 'userId' | 'organ
   callStartTime: '09:00:00',
   callEndTime: '18:00:00',
   callDaysOfWeek: [1, 2, 3, 4, 5], // Monday to Friday
+  
+  // Voice and Language Settings
+  language: 'en',
+  voiceGender: 'female',
   
   // Retry settings
   maxRetryAttempts: 3,
@@ -216,6 +224,22 @@ export function validateRetryDelayHours(hours: number): boolean {
 }
 
 /**
+ * Validates language setting
+ */
+export function validateLanguage(language: string): boolean {
+  const validLanguages = ['en', 'hi', 'hinglish'];
+  return validLanguages.includes(language);
+}
+
+/**
+ * Validates voice gender setting
+ */
+export function validateVoiceGender(voiceGender: string): boolean {
+  const validVoiceGenders = ['male', 'female'];
+  return validVoiceGenders.includes(voiceGender);
+}
+
+/**
  * Validates complete reminder settings
  * Requirements: 1.1-1.13, 2.1-2.8, 11.5, 13.1-13.6
  */
@@ -261,6 +285,16 @@ export function validateSettings(settings: Partial<ReminderSettings>): Validatio
   // Validate retry delay hours
   if (settings.retryDelayHours !== undefined && !validateRetryDelayHours(settings.retryDelayHours)) {
     errors.push('Invalid retry delay hours. Must be an integer between 1 and 48.');
+  }
+  
+  // Validate language
+  if (settings.language !== undefined && !validateLanguage(settings.language)) {
+    errors.push('Invalid language. Must be one of: en, hi, hinglish.');
+  }
+  
+  // Validate voice gender
+  if (settings.voiceGender !== undefined && !validateVoiceGender(settings.voiceGender)) {
+    errors.push('Invalid voice gender. Must be either male or female.');
   }
   
   return {
@@ -322,6 +356,8 @@ export async function getUserSettings(userId: string): Promise<ReminderSettings>
     callStartTime: dbSettings.callStartTime,
     callEndTime: dbSettings.callEndTime,
     callDaysOfWeek,
+    language: dbSettings.language,
+    voiceGender: dbSettings.voiceGender,
     maxRetryAttempts: dbSettings.maxRetryAttempts,
     retryDelayHours: dbSettings.retryDelayHours,
   };
@@ -413,6 +449,12 @@ export async function updateUserSettings(
   }
   if (updates.retryDelayHours !== undefined) {
     dbData.retryDelayHours = updates.retryDelayHours;
+  }
+  if (updates.language !== undefined) {
+    dbData.language = updates.language;
+  }
+  if (updates.voiceGender !== undefined) {
+    dbData.voiceGender = updates.voiceGender;
   }
   
   try {

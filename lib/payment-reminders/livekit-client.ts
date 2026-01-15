@@ -21,6 +21,8 @@ export interface CallContext {
   paymentMethods: string[];
   companyName: string;
   supportPhone: string;
+  language?: string;
+  voiceGender?: string;
   businessProfile: {
     companyName: string;
     businessDescription: string;
@@ -94,6 +96,8 @@ export async function makeCall(
       dueDate: context.dueDate,
       companyName: context.companyName,
       supportPhone: context.supportPhone,
+      language: context.language,
+      voiceGender: context.voiceGender,
     });
 
     if (!result.success) {

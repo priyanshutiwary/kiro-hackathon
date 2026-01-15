@@ -21,6 +21,8 @@ export interface PaymentCallContext {
   dueDate: string;
   companyName: string;
   supportPhone: string;
+  language?: string;
+  voiceGender?: string;
 }
 
 /**
@@ -184,6 +186,8 @@ export async function dispatchPaymentCall(
       due_date: context.dueDate,
       company_name: context.companyName,
       phone_number: cleanedPhone,
+      language: context.language || 'en',
+      voice_gender: context.voiceGender || 'female',
     };
 
     // Step 1: Create room

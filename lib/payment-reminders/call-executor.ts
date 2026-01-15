@@ -112,6 +112,29 @@ export async function initiateCall(reminderId: string): Promise<CallOutcome> {
   console.log(`[Call Executor] Preparing call context...`);
   const context = await prepareFreshContext(invoice.id, reminder.userId);
 
+  // Get user language and voice preferences
+  const { reminderSettings } = await import("@/db/schema");
+  const userSettings = await db
+    .select({
+      language: reminderSettings.language,
+      voiceGender: reminderSettings.voiceGender,
+    })
+    .from(reminderSettings)
+    .where(eq(reminderSettings.userId, reminder.userId))
+    .limit(1);
+
+  // Add language and voice preferences to context
+  if (userSettings.length > 0) {
+    context.language = userSettings[0].language;
+    context.voiceGender = userSettings[0].voiceGender;
+    console.log(`[Call Executor] Using language: ${context.language}, voice: ${context.voiceGender}`);
+  } else {
+    // Default values
+    context.language = 'en';
+    context.voiceGender = 'female';
+    console.log(`[Call Executor] Using default language: ${context.language}, voice: ${context.voiceGender}`);
+  }
+
   // Step 4: Make call via LiveKit (Requirements 8.1, 8.2)
   console.log(`[Call Executor] Making call to ${invoice.customerPhone}...`);
   const callStartTime = Date.now();
