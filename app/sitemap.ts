@@ -1,8 +1,8 @@
 import { MetadataRoute } from 'next'
- 
+
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://callagent.ai'
-  
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://invocall.ai'
+
   return [
     {
       url: baseUrl,

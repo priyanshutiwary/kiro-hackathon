@@ -131,7 +131,10 @@ export default function DashboardSideBar() {
               isCollapsed ? "w-0 opacity-0 overflow-hidden scale-0" : "w-auto opacity-100 scale-100"
             )}
           >
-            Starter Kit
+            <span className="flex items-center gap-0.5">
+              <span className="font-medium">Invo</span>
+              <span className="font-extrabold">Call</span>
+            </span>
           </span>
         </Link>
       </div>

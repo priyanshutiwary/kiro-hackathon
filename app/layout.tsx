@@ -4,21 +4,21 @@ import { ThemeProvider } from "../components/provider";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 export const metadata: Metadata = {
-  title: "Next.js Starter Kit - Launch Your SAAS",
+  title: "InvoCall - AI Payment Reminder Calls",
   description:
-    "A modern, full-stack Next.js starter kit with authentication, payments, and dashboard. Built with TypeScript, Tailwind CSS, and shadcn/ui.",
+    "Automate payment collection with AI voice agents. Reduce overdue invoices and improve cash flow.",
   openGraph: {
-    title: "Next.js Starter Kit",
+    title: "InvoCall",
     description:
-      "A modern, full-stack Next.js starter kit with authentication, payments, and dashboard. Built with TypeScript, Tailwind CSS, and shadcn/ui.",
-    url: "nextstarter.xyz",
-    siteName: "Next.js Starter Kit",
+      "Automate payment collection with AI voice agents. Reduce overdue invoices and improve cash flow.",
+    url: "invocall.ai",
+    siteName: "InvoCall",
     images: [
       {
         url: "https://jdj14ctwppwprnqu.public.blob.vercel-storage.com/nsk-w9fFwBBmLDLxrB896I4xqngTUEEovS.png",
         width: 1200,
         height: 630,
-        alt: "Next.js Starter Kit",
+        alt: "InvoCall",
       },
     ],
     locale: "en-US",

@@ -18,14 +18,18 @@ export default function Chatbot() {
           <div className="flex flex-col items-start justify-between gap-3 rounded-lg border h-96 shadow-lg p-4">
             <div className="w-full">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Nextjs Starter Kit</h3>
+                <h3 className="text-lg font-semibold flex items-center gap-0.5">
+                  <span className="font-medium">Invo</span>
+                  <span className="font-extrabold">Call</span>
+                  <span> Support</span>
+                </h3>
                 <X
                   className="w-4 h-4 hover:cursor-pointer"
                   onClick={() => setOpen(false)}
                 />
               </div>
               <p className="text-sm text-muted-foreground mt-1 mb-4">
-                Ask me anything about Nextjs Starter Kit
+                Ask me anything about InvoCall
               </p>
             </div>
             <div className="flex  items-end justify-center gap-2 w-full">

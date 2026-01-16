@@ -35,12 +35,13 @@ export default function FooterSection() {
               <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${brandColors.primary.gradientBr} shadow-md`}>
                 <Phone className="h-4 w-4 text-white" />
               </div>
-              <span className={`font-bold text-lg ${brandColors.text.primary}`}>
-                CallAgent AI
+              <span className={`text-lg ${brandColors.text.primary} flex items-center gap-0.5`}>
+                <span className="font-medium">Invo</span>
+                <span className="font-extrabold">Call</span>
               </span>
             </div>
             <p className={`text-sm ${brandColors.text.muted}`}>
-              © {new Date().getFullYear()} CallAgent AI. All rights reserved.
+              © {new Date().getFullYear()} InvoCall. All rights reserved.
             </p>
           </div>
 

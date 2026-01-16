@@ -118,7 +118,7 @@ export default function PricingTable({
     try {
       // Use Better Auth Dodo Payments plugin customer portal
       const { data: customerPortal, error } = await authClient.dodopayments.customer.portal();
-      
+
       if (error) {
         console.error("Portal error:", error);
         toast.error("Failed to open customer portal");
@@ -316,7 +316,7 @@ export default function PricingTable({
             <Button
               className="w-full rounded-xl"
               variant="outline"
-              onClick={() => window.location.href = "mailto:sales@callagent.ai"}
+              onClick={() => window.location.href = "mailto:sales@invocall.ai"}
             >
               Contact Sales
             </Button>
@@ -327,7 +327,7 @@ export default function PricingTable({
       <div className="mt-12 text-center">
         <p className={brandColors.text.secondary}>
           Need a custom plan?{" "}
-          <a href="mailto:sales@callagent.ai" className={`${brandColors.primary.text} cursor-pointer hover:underline font-medium`}>
+          <a href="mailto:sales@invocall.ai" className={`${brandColors.primary.text} cursor-pointer hover:underline font-medium`}>
             Contact our sales team
           </a>
         </p>

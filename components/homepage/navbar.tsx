@@ -16,14 +16,12 @@ export default function Navbar() {
           <div className="flex h-14 items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 group">
-              <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${brandColors.primary.gradientBr} shadow-lg shadow-blue-900/30 group-hover:shadow-xl group-hover:shadow-blue-900/40 transition-shadow duration-200`}>
-                <Phone className="h-5 w-5 text-white" />
-              </div>
-              <span className={`font-bold text-lg ${brandColors.text.gradient}`}>
-                CallAgent AI
+              <span className={`text-lg ${brandColors.text.gradient} flex items-center gap-0.5`}>
+                <span className="font-medium">Invo</span>
+                <span className="font-extrabold">Call</span>
               </span>
             </Link>
-            
+
             {/* Navigation Links */}
             <div className="hidden md:flex items-center gap-6">
               <Link href="#features" className={`text-sm font-medium ${brandColors.text.secondary} hover:${brandColors.primary.text} transition-colors duration-200`}>
@@ -36,7 +34,7 @@ export default function Navbar() {
                 Integrations
               </Link>
             </div>
-            
+
             {/* Actions */}
             <div className="flex items-center gap-3">
               <ThemeToggle />

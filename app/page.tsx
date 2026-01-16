@@ -28,15 +28,15 @@ export const metadata: Metadata = {
     "accounts receivable software",
     "automated collection calls"
   ],
-  authors: [{ name: "CallAgent AI" }],
-  creator: "CallAgent AI",
-  publisher: "CallAgent AI",
+  authors: [{ name: "InvoCall" }],
+  creator: "InvoCall",
+  publisher: "InvoCall",
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://callagent.ai"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://invocall.ai"),
   alternates: {
     canonical: "/",
   },
@@ -44,13 +44,13 @@ export const metadata: Metadata = {
     title: "AI Payment Reminder Calls | Reduce Overdue Invoices by 73%",
     description: "Automate payment collection with AI voice agents. Seamless Zoho integration, 85% success rate. Transform overdue invoices into collected payments.",
     url: "/",
-    siteName: "CallAgent AI",
+    siteName: "InvoCall",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "CallAgent AI - Automated Payment Collection",
+        alt: "InvoCall - Automated Payment Collection",
       },
     ],
     locale: "en_US",
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     title: "AI Payment Reminder Calls | Automated Invoice Collection",
     description: "Reduce overdue invoices by 73% with AI-powered payment reminder calls. 85% success rate. Start free trial.",
     images: ["/og-image.png"],
-    creator: "@callagentai",
+    creator: "@invocall",
   },
   robots: {
     index: true,
@@ -88,7 +88,7 @@ export default async function Home() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "name": "CallAgent AI",
+    "name": "InvoCall",
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Web",
     "offers": {
@@ -117,27 +117,27 @@ export default async function Home() {
     "softwareVersion": "1.0",
     "author": {
       "@type": "Organization",
-      "name": "CallAgent AI"
+      "name": "InvoCall"
     }
   };
 
   const organizationJsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "CallAgent AI",
-    "url": process.env.NEXT_PUBLIC_APP_URL || "https://callagent.ai",
+    "name": "InvoCall",
+    "url": process.env.NEXT_PUBLIC_APP_URL || "https://invocall.ai",
     "logo": "/logo.png",
     "description": "AI-powered payment collection automation platform for SMEs",
     "contactPoint": {
       "@type": "ContactPoint",
       "telephone": "+1-555-0123",
       "contactType": "Customer Service",
-      "email": "support@callagent.ai",
+      "email": "support@invocall.ai",
       "availableLanguage": ["English"]
     },
     "sameAs": [
-      "https://twitter.com/callagentai",
-      "https://linkedin.com/company/callagentai"
+      "https://twitter.com/invocall",
+      "https://linkedin.com/company/invocall"
     ]
   };
 

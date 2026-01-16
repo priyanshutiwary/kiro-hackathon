@@ -28,7 +28,7 @@ function SignInContent() {
       <Card className="max-w-md w-full">
         <CardHeader>
           <CardTitle className="text-lg md:text-xl">
-            Welcome to Nextjs Starter Kit
+            Welcome to <span className="font-medium">Invo</span><span className="font-extrabold">Call</span>
           </CardTitle>
           <CardDescription className="text-xs md:text-sm">
             Use your google account to login to your account

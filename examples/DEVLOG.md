@@ -1,11 +1,11 @@
-# Development Log - Next.js SaaS Starter Kit
+# Development Log - InvoCall
 
-**Project**: Next.js SaaS Starter Kit - Production-Ready SaaS Template  
+**Project**: InvoCall - Production-Ready SaaS Template  
 **Duration**: January 2-7, 2026  
 **Total Time**: ~38 hours  
 
 ## Overview
-Building a comprehensive SaaS starter kit with authentication, subscriptions, AI integration, and modern UI. Heavy use of Kiro CLI for rapid development and maintaining code quality.
+Building InvoCall with authentication, subscriptions, AI integration, and modern UI. Heavy use of Kiro CLI for rapid development and maintaining code quality.
 
 ---
 
@@ -13,7 +13,7 @@ Building a comprehensive SaaS starter kit with authentication, subscriptions, AI
 
 **Morning (3h)**: Initial setup and architecture planning
 - Used `@quickstart` to configure Kiro environment
-- Set up Next.js 15 with App Router and TypeScript
+- Set up InvoCall with App Router and TypeScript
 - Configured Tailwind CSS v4 and shadcn/ui
 - **Kiro Usage**: `@prime` to understand Next.js 15 best practices
 
