@@ -9,7 +9,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import UserProfile from "@/components/user-profile";
+
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
   Brush,
@@ -23,7 +23,7 @@ import { ReactNode } from "react";
 export default function DashboardTopNav({ children }: { children: ReactNode }) {
   return (
     <div className="flex flex-col">
-      <header className="flex h-14 lg:h-[52px] items-center gap-4 border-b px-3">
+      <header className="flex h-14 lg:h-[52px] items-center gap-4 px-3">
         <Dialog>
           <SheetTrigger className="min-[1024px]:hidden p-2 transition">
             <Link prefetch={true} href="/dashboard">
@@ -75,7 +75,6 @@ export default function DashboardTopNav({ children }: { children: ReactNode }) {
         </Dialog>
         <div className="flex justify-center items-center gap-2 ml-auto">
           <ThemeToggle />
-          <UserProfile mini={true} />
         </div>
       </header>
       <div className="flex-1 overflow-y-auto p-6">

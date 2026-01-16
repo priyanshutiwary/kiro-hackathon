@@ -41,12 +41,12 @@ export default function Dashboard() {
     try {
       setError(null);
       const response = await fetch("/api/reminders/stats");
-      
+
       if (response.status === 401) {
         router.push("/sign-in");
         return;
       }
-      
+
       if (!response.ok) {
         throw new Error("Failed to fetch reminder stats");
       }
