@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { db } from "@/db";
-import { reminders } from "@/db/schema";
+import { db } from "@/db/drizzle";
+import { paymentReminders as reminders } from "@/db/schema";
 import { desc } from "drizzle-orm";
 
 export async function GET() {
@@ -12,7 +12,7 @@ export async function GET() {
       .orderBy(desc(reminders.updatedAt))
       .limit(5);
 
-    const lastProcessedReminder = recentReminders.find(r => 
+    const lastProcessedReminder = recentReminders.find(r =>
       r.status === 'completed' || r.status === 'failed'
     );
 

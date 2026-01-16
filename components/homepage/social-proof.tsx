@@ -1,7 +1,11 @@
+"use client";
+
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Star } from "lucide-react";
 import { brandColors } from "@/lib/brand-colors";
+import { motion } from "framer-motion";
 
 const testimonials = [
   {
@@ -34,26 +38,62 @@ const stats = [
   { value: "4.9/5", label: "Customer Satisfaction" },
 ];
 
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const item = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 }
+};
+
 export default function SocialProof() {
   return (
-    <section className="py-24 bg-white dark:bg-gray-950">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+    <section className="relative py-24 overflow-hidden">
+      {/* Background - Clean with very subtle gradient (Trust Feel) */}
+      <div className="absolute inset-0 bg-white/50 dark:bg-slate-950/20 backdrop-blur-3xl" />
+      <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-blue-100/30 dark:bg-blue-900/10 blur-3xl animate-pulse" />
+      <div className="absolute -bottom-24 -left-24 h-96 w-96 rounded-full bg-indigo-100/30 dark:bg-indigo-900/10 blur-3xl animate-pulse" />
+
+      <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
         {/* Stats Section */}
         <div className="mb-20">
-          <div className="text-center mb-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.5 }}
+            className="mx-auto max-w-2xl text-center"
+          >
+            <Badge variant="secondary" className="mb-4 bg-blue-100/50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 backdrop-blur-sm border-0">
+              Trusted Results
+            </Badge>
             <h2 className={`text-3xl font-bold ${brandColors.text.primary}`}>
               Trusted by businesses worldwide for payment collection
             </h2>
             <p className={`mt-3 text-lg ${brandColors.text.secondary}`}>
               Real results from real businesses using AI-powered payment reminders
             </p>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-6 lg:grid-cols-4">
+          </motion.div>
+
+          <motion.div
+            variants={container}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            className="grid grid-cols-2 gap-6 lg:grid-cols-4"
+          >
             {stats.map((stat, index) => (
-              <div
+              <motion.div
                 key={index}
-                className={`text-center p-6 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border ${brandColors.border.accent} backdrop-blur-xl`}
+                variants={item}
+                className={`text-center p-6 rounded-2xl bg-white/40 dark:bg-white/5 border border-white/20 dark:border-white/10 backdrop-blur-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105`}
               >
                 <div className={`text-4xl font-bold ${brandColors.text.gradient}`}>
                   {stat.value}
@@ -61,47 +101,56 @@ export default function SocialProof() {
                 <div className={`mt-2 text-sm ${brandColors.text.muted}`}>
                   {stat.label}
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
 
         {/* Testimonials */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <motion.div
+          variants={container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+        >
           {testimonials.map((testimonial, index) => (
-            <Card
-              key={index}
-              className={`p-6 hover:shadow-xl transition-all ${brandColors.backgrounds.card} ${brandColors.border.default} backdrop-blur-xl rounded-2xl`}
-            >
-              <div className="flex gap-1 mb-4">
-                {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className="h-4 w-4 fill-amber-400 text-amber-400"
-                  />
-                ))}
-              </div>
-              <p className={`${brandColors.text.secondary} mb-6 leading-relaxed`}>
-                "{testimonial.content}"
-              </p>
-              <div className="flex items-center gap-3">
-                <Avatar className={`h-10 w-10 ${brandColors.primary.gradientBr} shadow-lg shadow-blue-500/30`}>
-                  <AvatarFallback className="text-white font-semibold">
-                    {testimonial.initials}
-                  </AvatarFallback>
-                </Avatar>
+            <motion.div key={index} variants={item} className="h-full">
+              <Card
+                className={`p-8 hover:shadow-2xl transition-all duration-300 bg-white/60 dark:bg-slate-900/60 border border-white/20 dark:border-white/10 backdrop-blur-xl rounded-2xl h-full flex flex-col justify-between`}
+              >
                 <div>
-                  <div className={`font-semibold ${brandColors.text.primary}`}>
-                    {testimonial.name}
+                  <div className="flex gap-1 mb-6">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className="h-4 w-4 fill-amber-400 text-amber-400"
+                      />
+                    ))}
                   </div>
-                  <div className={`text-sm ${brandColors.text.muted}`}>
-                    {testimonial.role}
+                  <p className={`${brandColors.text.primary} text-lg mb-6 leading-relaxed font-medium`}>
+                    "{testimonial.content}"
+                  </p>
+                </div>
+                <div className="flex items-center gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                  <Avatar className={`h-12 w-12 ${brandColors.primary.gradientBr} shadow-md`}>
+                    <AvatarFallback className="text-white font-semibold">
+                      {testimonial.initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className={`font-semibold ${brandColors.text.primary}`}>
+                      {testimonial.name}
+                    </div>
+                    <div className={`text-sm ${brandColors.text.muted}`}>
+                      {testimonial.role}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Card>
+              </Card>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

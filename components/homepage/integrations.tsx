@@ -1,23 +1,50 @@
+"use client";
+
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Phone, 
-  Zap, 
-  Clock, 
-  BarChart3, 
-  Shield, 
+import {
+  Phone,
+  Zap,
+  Clock,
+  BarChart3,
+  Shield,
   Workflow,
   TrendingUp
 } from "lucide-react";
 import { brandColors } from "@/lib/brand-colors";
+import { motion } from "framer-motion";
+
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const item = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 }
+};
 
 export default function Integrations() {
   return (
-    <section id="features" className={`py-24 ${brandColors.backgrounds.section}`}>
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+    <section className={`py-24 sm:py-32 relative overflow-hidden ${brandColors.backgrounds.section}`}>
+      {/* Background Pattern - Dot Grid (Subtle Technical Feel) */}
+      <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] dark:bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:20px_20px] opacity-30" />
+
+      <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
         {/* Section Header */}
-        <div className="mx-auto max-w-2xl text-center">
-          <Badge variant="secondary" className={`mb-4 ${brandColors.border.accent} ${brandColors.backgrounds.glass}`}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.5 }}
+          className="mx-auto max-w-2xl text-center"
+        >
+          <Badge variant="secondary" className={`mb-4 ${brandColors.border.accent} ${brandColors.backgrounds.glass} shadow-sm backdrop-blur-md`}>
             <Zap className={`mr-1.5 h-3.5 w-3.5 ${brandColors.primary.text}`} />
             Powerful Features
           </Badge>
@@ -27,10 +54,16 @@ export default function Integrations() {
           <p className={`mt-4 text-lg ${brandColors.text.secondary}`}>
             Reduce overdue invoices and improve cash flow with intelligent automation
           </p>
-        </div>
+        </motion.div>
 
         {/* Feature Grid */}
-        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <motion.div
+          variants={container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        >
           <FeatureCard
             icon={<Phone className="h-6 w-6" />}
             title="AI Voice Collection Calls"
@@ -72,20 +105,35 @@ export default function Integrations() {
             description="Proven results with automated payment reminders. Reduce DSO (Days Sales Outstanding) and improve working capital."
             gradient={brandColors.features.success}
           />
-        </div>
+        </motion.div>
 
         {/* How It Works */}
         <div className="mt-24">
-          <div className="text-center mb-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-12"
+          >
+            <Badge variant="outline" className={`mb-4 ${brandColors.border.default} backdrop-blur-sm`}>
+              Simple Process
+            </Badge>
             <h3 className={`text-3xl font-bold ${brandColors.text.primary}`}>
               Start collecting payments in 3 simple steps
             </h3>
             <p className={`mt-3 text-lg ${brandColors.text.secondary}`}>
               Setup takes minutes, not days
             </p>
-          </div>
+          </motion.div>
 
-          <div className="grid gap-8 md:grid-cols-3">
+          <motion.div
+            variants={container}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            className="grid gap-8 md:grid-cols-3"
+          >
             <StepCard
               step="1"
               title="Connect Your CRM"
@@ -101,7 +149,7 @@ export default function Integrations() {
               title="Automate Collections"
               description="Our AI agents make professional payment reminder calls automatically. Track results and watch your cash flow improve."
             />
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
@@ -120,17 +168,22 @@ const FeatureCard = ({
   gradient: string;
 }) => {
   return (
-    <Card className={`relative overflow-hidden p-6 hover:shadow-2xl transition-all duration-300 ${brandColors.border.default} ${brandColors.backgrounds.card} backdrop-blur-xl rounded-2xl`}>
-      <div className={`inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${gradient} text-white shadow-lg shadow-blue-500/20 mb-4`}>
-        {icon}
-      </div>
-      <h3 className={`text-xl font-semibold ${brandColors.text.primary} mb-2`}>
-        {title}
-      </h3>
-      <p className={`${brandColors.text.secondary} leading-relaxed`}>
-        {description}
-      </p>
-    </Card>
+    <motion.div variants={item} className="h-full">
+      <Card className={`relative overflow-hidden p-6 hover:shadow-2xl transition-all duration-300 border border-white/20 dark:border-white/10 ${brandColors.backgrounds.glass} backdrop-blur-xl rounded-2xl h-full group`}>
+        {/* Hover Glow Effect */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+        <div className={`inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${gradient} text-white shadow-lg shadow-blue-500/20 mb-4 transition-transform duration-300 group-hover:scale-110 relative z-10`}>
+          {icon}
+        </div>
+        <h3 className={`text-xl font-semibold ${brandColors.text.primary} mb-2 relative z-10`}>
+          {title}
+        </h3>
+        <p className={`${brandColors.text.secondary} leading-relaxed relative z-10`}>
+          {description}
+        </p>
+      </Card>
+    </motion.div>
   );
 };
 
@@ -144,7 +197,7 @@ const StepCard = ({
   description: string;
 }) => {
   return (
-    <div className="relative">
+    <motion.div variants={item} className="relative">
       <div className="flex items-start gap-4">
         <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${brandColors.primary.gradientBr} text-white font-bold shadow-lg shadow-blue-500/30`}>
           {step}
@@ -158,6 +211,6 @@ const StepCard = ({
           </p>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
