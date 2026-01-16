@@ -19,6 +19,7 @@ import { ExternalLink, Settings2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { DashboardTheme } from "@/lib/dashboard-theme";
 
 interface User {
   id: string;
@@ -100,7 +101,7 @@ function SettingsContent() {
           if (subscriptionResponse.ok) {
             const subscriptionData = await subscriptionResponse.json();
             console.log("Subscription data:", subscriptionData);
-            
+
             // Convert subscription data to orders format for display
             if (subscriptionData && subscriptionData.length > 0) {
               const ordersData = {
@@ -300,283 +301,286 @@ function SettingsContent() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground mt-2">
-          Manage your account settings and preferences
-        </p>
-      </div>
+    <div className={DashboardTheme.layout.container}>
+      <div className={DashboardTheme.layout.sectionAnimateInDelayed}>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2 mb-2">
+          <div>
+            <h2 className={DashboardTheme.typography.sectionTitle}>Settings</h2>
+            <p className={DashboardTheme.typography.subtext}>
+              Manage your account settings and preferences
+            </p>
+          </div>
+        </div>
 
-      <Tabs
-        value={currentTab}
-        onValueChange={handleTabChange}
-        className="w-full max-w-4xl"
-      >
-        <TabsList>
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="billing">Billing</TabsTrigger>
-        </TabsList>
+        <Tabs
+          value={currentTab}
+          onValueChange={handleTabChange}
+          className="w-full max-w-4xl"
+        >
+          <TabsList>
+            <TabsTrigger value="profile">Profile</TabsTrigger>
+            <TabsTrigger value="billing">Billing</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="profile" className="space-y-6">
-          {/* Profile Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings2 className="h-5 w-5" />
-                Profile Information
-              </CardTitle>
-              <CardDescription>
-                Update your personal information and profile settings
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-20 w-20">
-                  <AvatarImage src={imagePreview || user?.image || ""} />
-                  <AvatarFallback>
-                    {name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="space-y-2">
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        document.getElementById("profile-image-input")?.click()
-                      }
-                      disabled={uploadingImage}
-                    >
-                      {uploadingImage ? "Uploading..." : "Change Photo"}
-                    </Button>
-                    {profileImage && (
-                      <Button
-                        size="sm"
-                        onClick={handleUploadProfilePicture}
-                        disabled={uploadingImage}
-                      >
-                        Save
-                      </Button>
-                    )}
-                    {imagePreview && (
+          <TabsContent value="profile" className="space-y-6">
+            {/* Profile Information */}
+            <Card className={DashboardTheme.card.base}>
+              <CardHeader className={DashboardTheme.card.header}>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings2 className="h-5 w-5" />
+                  Profile Information
+                </CardTitle>
+                <CardDescription>
+                  Update your personal information and profile settings
+                </CardDescription>
+              </CardHeader>
+              <CardContent className={DashboardTheme.card.content + " space-y-6"}>
+                <div className="flex items-center gap-4">
+                  <Avatar className="h-20 w-20">
+                    <AvatarImage src={imagePreview || user?.image || ""} />
+                    <AvatarFallback>
+                      {name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => {
-                          setImagePreview(null);
-                          setProfileImage(null);
-                        }}
+                        onClick={() =>
+                          document.getElementById("profile-image-input")?.click()
+                        }
+                        disabled={uploadingImage}
                       >
-                        Cancel
+                        {uploadingImage ? "Uploading..." : "Change Photo"}
                       </Button>
-                    )}
+                      {profileImage && (
+                        <Button
+                          size="sm"
+                          onClick={handleUploadProfilePicture}
+                          disabled={uploadingImage}
+                        >
+                          Save
+                        </Button>
+                      )}
+                      {imagePreview && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setImagePreview(null);
+                            setProfileImage(null);
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      )}
+                    </div>
+                    <input
+                      id="profile-image-input"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      JPG, GIF or PNG. 1MB max.
+                    </p>
                   </div>
-                  <input
-                    id="profile-image-input"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Enter your full name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter your email"
+                      disabled
+                    />
+                  </div>
+                </div>
+
+                <Button onClick={handleUpdateProfile}>Save Changes</Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="billing" className="space-y-6">
+            <div className="space-y-4 mt-2">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-lg font-medium">Billing History</h3>
                   <p className="text-sm text-muted-foreground">
-                    JPG, GIF or PNG. 1MB max.
+                    View your past and upcoming invoices
                   </p>
                 </div>
-              </div>
+                <Button
+                  variant="outline"
+                  onClick={async () => {
+                    try {
+                      const { data: customerPortal, error } = await authClient.dodopayments.customer.portal();
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Enter your full name"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email"
-                    disabled
-                  />
-                </div>
-              </div>
+                      if (error) {
+                        console.error("Portal error:", error);
+                        toast.error("Failed to open customer portal");
+                        return;
+                      }
 
-              <Button onClick={handleUpdateProfile}>Save Changes</Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="billing" className="space-y-6">
-          <div className="space-y-4 mt-2">
-            <div className="flex justify-between items-center">
-              <div>
-                <h3 className="text-lg font-medium">Billing History</h3>
-                <p className="text-sm text-muted-foreground">
-                  View your past and upcoming invoices
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                onClick={async () => {
-                  try {
-                    const { data: customerPortal, error } = await authClient.dodopayments.customer.portal();
-                    
-                    if (error) {
-                      console.error("Portal error:", error);
-                      toast.error("Failed to open customer portal");
-                      return;
+                      if (customerPortal?.redirect && customerPortal?.url) {
+                        window.location.href = customerPortal.url;
+                      } else {
+                        router.push("/dashboard/payment");
+                      }
+                    } catch (error) {
+                      console.error("Failed to open customer portal:", error);
+                      toast.error("Failed to open subscription management");
                     }
+                  }}
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Manage Subscription
+                </Button>
+              </div>
+              {orders?.result?.items && orders.result.items.length > 0 ? (
+                <div className="space-y-4">
+                  {(orders.result.items || []).map((order) => (
+                    <Card key={order.id} className="overflow-hidden">
+                      <CardContent className="px-4">
+                        <div className="flex flex-col gap-3">
+                          {/* Header Row */}
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <div className="flex justify-center gap-2">
+                                <h4 className="font-medium text-base">
+                                  Starter Plan
+                                </h4>
+                                <div className="flex items-center gap-2">
+                                  {order.status === "active" ? (
+                                    <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 text-xs">
+                                      Active
+                                    </Badge>
+                                  ) : order.status === "canceled" ? (
+                                    <Badge
+                                      variant="destructive"
+                                      className="text-xs"
+                                    >
+                                      Canceled
+                                    </Badge>
+                                  ) : (
+                                    <Badge variant="outline" className="text-xs">
+                                      {order.status}
+                                    </Badge>
+                                  )}
 
-                    if (customerPortal?.redirect && customerPortal?.url) {
-                      window.location.href = customerPortal.url;
-                    } else {
-                      router.push("/dashboard/payment");
-                    }
-                  } catch (error) {
-                    console.error("Failed to open customer portal:", error);
-                    toast.error("Failed to open subscription management");
-                  }
-                }}
-              >
-                <ExternalLink className="h-4 w-4 mr-2" />
-                Manage Subscription
-              </Button>
-            </div>
-            {orders?.result?.items && orders.result.items.length > 0 ? (
-              <div className="space-y-4">
-                {(orders.result.items || []).map((order) => (
-                  <Card key={order.id} className="overflow-hidden">
-                    <CardContent className="px-4">
-                      <div className="flex flex-col gap-3">
-                        {/* Header Row */}
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <div className="flex justify-center gap-2">
-                              <h4 className="font-medium text-base">
-                                Starter Plan
-                              </h4>
-                              <div className="flex items-center gap-2">
-                                {order.status === "active" ? (
-                                  <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 text-xs">
-                                    Active
-                                  </Badge>
-                                ) : order.status === "canceled" ? (
-                                  <Badge
-                                    variant="destructive"
-                                    className="text-xs"
-                                  >
-                                    Canceled
-                                  </Badge>
-                                ) : (
-                                  <Badge variant="outline" className="text-xs">
-                                    {order.status}
-                                  </Badge>
-                                )}
-
-                                {order.subscription?.status === "canceled" && (
-                                  <span className="text-xs text-muted-foreground">
-                                    • Canceled on{" "}
-                                    {order.subscription.endedAt
-                                      ? new Date(
+                                  {order.subscription?.status === "canceled" && (
+                                    <span className="text-xs text-muted-foreground">
+                                      • Canceled on{" "}
+                                      {order.subscription.endedAt
+                                        ? new Date(
                                           order.subscription.endedAt,
                                         ).toLocaleDateString("en-US", {
                                           month: "short",
                                           day: "numeric",
                                         })
-                                      : "N/A"}
-                                  </span>
+                                        : "N/A"}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                {new Date(order.created_at || order.createdAt || "").toLocaleDateString(
+                                  "en-US",
+                                  {
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                  },
                                 )}
                               </div>
                             </div>
-                            <div className="text-sm text-muted-foreground">
-                              {new Date(order.created_at || order.createdAt || "").toLocaleDateString(
-                                "en-US",
-                                {
-                                  year: "numeric",
-                                  month: "short",
-                                  day: "numeric",
-                                },
-                              )}
+
+                            <div className="text-right">
+                              <div className="font-medium text-base">
+                                ${((order.amount || order.totalAmount || 0) / 100).toFixed(2)}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {order.currency?.toUpperCase()}
+                              </div>
                             </div>
                           </div>
 
-                          <div className="text-right">
-                            <div className="font-medium text-base">
-                              ${((order.amount || order.totalAmount || 0) / 100).toFixed(2)}
+                          {/* Order Items */}
+                          {order.items && order.items.length > 0 && (
+                            <div className="mt-2 pt-3 border-t">
+                              <ul className="space-y-1.5 text-sm">
+                                {order.items.map((item, index: number) => (
+                                  <li
+                                    key={`${order.id}-${item.label}-${index}`}
+                                    className="flex justify-between"
+                                  >
+                                    <span className="text-muted-foreground truncate max-w-[200px]">
+                                      {item.label}
+                                    </span>
+                                    <span className="font-medium">
+                                      ${(item.amount / 100).toFixed(2)}
+                                    </span>
+                                  </li>
+                                ))}
+                              </ul>
                             </div>
-                            <div className="text-xs text-muted-foreground">
-                              {order.currency?.toUpperCase()}
-                            </div>
-                          </div>
+                          )}
                         </div>
-
-                        {/* Order Items */}
-                        {order.items && order.items.length > 0 && (
-                          <div className="mt-2 pt-3 border-t">
-                            <ul className="space-y-1.5 text-sm">
-                              {order.items.map((item, index: number) => (
-                                <li
-                                  key={`${order.id}-${item.label}-${index}`}
-                                  className="flex justify-between"
-                                >
-                                  <span className="text-muted-foreground truncate max-w-[200px]">
-                                    {item.label}
-                                  </span>
-                                  <span className="font-medium">
-                                    ${(item.amount / 100).toFixed(2)}
-                                  </span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <Card>
-                <CardContent className="p-8 text-center">
-                  <div className="mx-auto flex max-w-[420px] flex-col items-center justify-center text-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="1.5"
-                      className="h-10 w-10 text-muted-foreground mb-4"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-                    </svg>
-                    <h3 className="mt-4 text-lg font-semibold">
-                      No orders found
-                    </h3>
-                    <p className="mb-4 mt-2 text-sm text-muted-foreground">
-                      {orders === null
-                        ? "Unable to load billing history. This may be because your account is not yet set up for billing."
-                        : "You don't have any orders yet. Your billing history will appear here."}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        </TabsContent>
-      </Tabs>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <Card>
+                  <CardContent className="p-8 text-center">
+                    <div className="mx-auto flex max-w-[420px] flex-col items-center justify-center text-center">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="1.5"
+                        className="h-10 w-10 text-muted-foreground mb-4"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                      </svg>
+                      <h3 className="mt-4 text-lg font-semibold">
+                        No orders found
+                      </h3>
+                      <p className="mb-4 mt-2 text-sm text-muted-foreground">
+                        {orders === null
+                          ? "Unable to load billing history. This may be because your account is not yet set up for billing."
+                          : "You don't have any orders yet. Your billing history will appear here."}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }

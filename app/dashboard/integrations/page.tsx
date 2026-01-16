@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Check, AlertCircle, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { DashboardTheme } from "@/lib/dashboard-theme";
 
 interface Integration {
   name: string;
@@ -66,7 +67,7 @@ export default function IntegrationsPage() {
     try {
       setIsLoadingZoho(true);
       const response = await fetch("/api/zoho/status");
-      
+
       if (!response.ok) {
         throw new Error("Failed to fetch Zoho status");
       }
@@ -129,7 +130,7 @@ export default function IntegrationsPage() {
         }
 
         toast.success("Zoho Books disconnected successfully");
-        
+
         // Refresh status
         await fetchZohoStatus();
       } catch (error) {
@@ -203,13 +204,8 @@ export default function IntegrationsPage() {
     }
   };
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Integrations</h1>
-        <p className="text-muted-foreground mt-2">
-          Manage your connected services and integrations
-        </p>
-      </div>
+    <div className={DashboardTheme.layout.container}>
+      {/* Header removed */}
 
       {isLoadingZoho && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -218,82 +214,93 @@ export default function IntegrationsPage() {
         </div>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {integrations.map((integration) => (
-          <Card key={integration.name} className="relative">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="text-3xl">{integration.icon}</span>
-                  <div>
-                    <CardTitle className="text-lg">
-                      {integration.name}
-                    </CardTitle>
-                    <Badge
-                      variant={
-                        integration.status === "connected"
-                          ? "default"
+      <section className={DashboardTheme.layout.sectionAnimateInDelayed}>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2 mb-2">
+          <div>
+            <h2 className={DashboardTheme.typography.sectionTitle}>Connected Services</h2>
+            <p className={DashboardTheme.typography.subtext}>
+              Manage your connected services and integrations
+            </p>
+          </div>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {integrations.map((integration) => (
+            <Card key={integration.name} className={`${DashboardTheme.card.base} relative`}>
+              <CardHeader className={DashboardTheme.card.header}>
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl">{integration.icon}</span>
+                    <div>
+                      <CardTitle className={DashboardTheme.card.metricLabel + " text-lg"}>
+                        {integration.name}
+                      </CardTitle>
+                      <Badge
+                        variant={
+                          integration.status === "connected"
+                            ? "default"
+                            : integration.status === "error"
+                              ? "destructive"
+                              : "secondary"
+                        }
+                        className="mt-1"
+                      >
+                        {integration.status === "connected" ? (
+                          <Check className="h-3 w-3 mr-1" />
+                        ) : integration.status === "error" ? (
+                          <AlertCircle className="h-3 w-3 mr-1" />
+                        ) : null}
+                        {integration.status === "connected"
+                          ? "Connected"
                           : integration.status === "error"
-                          ? "destructive"
-                          : "secondary"
-                      }
-                      className="mt-1"
-                    >
-                      {integration.status === "connected" ? (
-                        <Check className="h-3 w-3 mr-1" />
-                      ) : integration.status === "error" ? (
-                        <AlertCircle className="h-3 w-3 mr-1" />
-                      ) : null}
-                      {integration.status === "connected"
-                        ? "Connected"
-                        : integration.status === "error"
-                        ? "Error"
-                        : "Available"}
-                    </Badge>
+                            ? "Error"
+                            : "Available"}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <CardDescription className="mb-4">
-                {integration.description}
-              </CardDescription>
-              
-              {integration.status === "error" && integration.errorMessage && (
-                <div className="mb-4 p-2 bg-destructive/10 rounded-md">
-                  <p className="text-xs text-destructive">
-                    {integration.errorMessage}
-                  </p>
+              </CardHeader>
+              <CardContent className={DashboardTheme.card.content}>
+                <CardDescription className="mb-4">
+                  {integration.description}
+                </CardDescription>
+
+                {integration.status === "error" && integration.errorMessage && (
+                  <div className="mb-4 p-2 bg-destructive/10 rounded-md">
+                    <p className="text-xs text-destructive">
+                      {integration.errorMessage}
+                    </p>
+                  </div>
+                )}
+
+                {integration.status === "connected" && integration.lastSync && (
+                  <div className="mb-4">
+                    <p className="text-xs text-muted-foreground">
+                      Last synced: {new Date(integration.lastSync).toLocaleString()}
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">
+                    {integration.category}
+                  </span>
+                  {getButtonAction(integration)}
                 </div>
-              )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
 
-              {integration.status === "connected" && integration.lastSync && (
-                <div className="mb-4">
-                  <p className="text-xs text-muted-foreground">
-                    Last synced: {new Date(integration.lastSync).toLocaleString()}
-                  </p>
-                </div>
-              )}
-
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">
-                  {integration.category}
-                </span>
-                {getButtonAction(integration)}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <Card className="mt-4">
-        <CardHeader>
-          <CardTitle>Need More Integrations?</CardTitle>
-          <CardDescription>
+      <Card className={DashboardTheme.card.dashed + " mt-4"}>
+        <CardHeader className={DashboardTheme.card.content + " items-center text-center py-6"}>
+          <CardTitle className={DashboardTheme.card.metricLabel}>Need More Integrations?</CardTitle>
+          <CardDescription className={DashboardTheme.card.metricValue + " text-sm font-normal max-w-md mx-auto"}>
             Request new integrations or build custom ones using our API
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex justify-center pb-6">
           <Button variant="outline">
             View Documentation
             <ExternalLink className="h-4 w-4 ml-2" />

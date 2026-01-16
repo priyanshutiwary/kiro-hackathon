@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { DashboardTheme } from "@/lib/dashboard-theme";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -47,7 +48,7 @@ export function ScheduledRemindersTable({ reminders }: ScheduledRemindersTablePr
 
   const formatScheduledDate = (dateString: string) => {
     const date = new Date(dateString);
-    
+
     if (isToday(date)) {
       return `Today, ${format(date, "h:mm a")}`;
     } else if (isTomorrow(date)) {
@@ -62,24 +63,24 @@ export function ScheduledRemindersTable({ reminders }: ScheduledRemindersTablePr
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "pending":
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Badge className={DashboardTheme.badge.pending} variant="outline">Pending</Badge>;
       case "queued":
-        return <Badge variant="outline">Queued</Badge>;
+        return <Badge className={DashboardTheme.badge.queued} variant="outline">Queued</Badge>;
       case "in_progress":
-        return <Badge variant="default">In Progress</Badge>;
+        return <Badge className={DashboardTheme.badge.in_progress} variant="outline">In Progress</Badge>;
       default:
-        return <Badge variant="secondary">{status}</Badge>;
+        return <Badge variant="outline">{status}</Badge>;
     }
   };
 
   const getReminderTypeBadge = (type: string) => {
     switch (type) {
       case "initial":
-        return <Badge variant="default">Initial</Badge>;
+        return <Badge className={DashboardTheme.badge.upcoming} variant="outline">Initial</Badge>;
       case "follow_up":
-        return <Badge variant="secondary">Follow-up</Badge>;
+        return <Badge className={DashboardTheme.badge.pending} variant="outline">Follow-up</Badge>;
       case "final":
-        return <Badge variant="destructive">Final</Badge>;
+        return <Badge className={DashboardTheme.badge.failed} variant="outline">Final</Badge>;
       default:
         return <Badge variant="outline">{type}</Badge>;
     }
@@ -123,83 +124,79 @@ export function ScheduledRemindersTable({ reminders }: ScheduledRemindersTablePr
   };
 
   return (
-    <div className="rounded-md border">
+    <div className={DashboardTheme.table.wrapper}>
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead 
-              className="cursor-pointer hover:bg-muted/50"
+          <TableRow className={DashboardTheme.table.headerRow}>
+            <TableHead
+              className={`${DashboardTheme.table.headerCell} cursor-pointer hover:bg-muted/50`}
               onClick={() => handleSort("scheduledDate")}
             >
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
                 Scheduled Time
                 {sortBy === "scheduledDate" && (
                   <span className="text-xs">{sortOrder === "asc" ? "↑" : "↓"}</span>
                 )}
               </div>
             </TableHead>
-            <TableHead 
-              className="cursor-pointer hover:bg-muted/50"
+            <TableHead
+              className={`${DashboardTheme.table.headerCell} cursor-pointer hover:bg-muted/50`}
               onClick={() => handleSort("customerName")}
             >
               <div className="flex items-center gap-2">
-                <User className="h-4 w-4" />
                 Customer
                 {sortBy === "customerName" && (
                   <span className="text-xs">{sortOrder === "asc" ? "↑" : "↓"}</span>
                 )}
               </div>
             </TableHead>
-            <TableHead>
+            <TableHead className={DashboardTheme.table.headerCell}>
               <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
                 Invoice
               </div>
             </TableHead>
-            <TableHead 
-              className="cursor-pointer hover:bg-muted/50"
+            <TableHead
+              className={`${DashboardTheme.table.headerCell} cursor-pointer hover:bg-muted/50`}
               onClick={() => handleSort("amountDue")}
             >
               <div className="flex items-center gap-2">
-                <DollarSign className="h-4 w-4" />
                 Amount Due
                 {sortBy === "amountDue" && (
                   <span className="text-xs">{sortOrder === "asc" ? "↑" : "↓"}</span>
                 )}
               </div>
             </TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Status</TableHead>
+            <TableHead className={DashboardTheme.table.headerCell}>Type</TableHead>
+            <TableHead className={DashboardTheme.table.headerCell}>Status</TableHead>
             <TableHead className="w-[50px]"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {sortedReminders.map((reminder) => (
-            <TableRow key={reminder.id}>
-              <TableCell>
+            <TableRow key={reminder.id} className={DashboardTheme.table.row}>
+              <TableCell className={DashboardTheme.table.cell}>
                 <div className="font-medium">
                   {formatScheduledDate(reminder.scheduledDate)}
                 </div>
               </TableCell>
-              <TableCell>
+              <TableCell className={DashboardTheme.table.cell}>
                 <div className="font-medium">{reminder.invoice.customerName}</div>
               </TableCell>
-              <TableCell>
+              <TableCell className={DashboardTheme.table.cell}>
                 <div className="font-medium">{reminder.invoice.invoiceNumber}</div>
-                <div className="text-sm text-muted-foreground">
+                <div className={DashboardTheme.table.cellMuted}>
                   Due: {format(new Date(reminder.invoice.dueDate), "MMM d, yyyy")}
                 </div>
               </TableCell>
-              <TableCell>
+              <TableCell className={DashboardTheme.table.cell}>
                 <div className="font-medium">
                   ${reminder.invoice.amountDue.toFixed(2)}
                 </div>
               </TableCell>
-              <TableCell>
+              <TableCell className={DashboardTheme.table.cell}>
                 {getReminderTypeBadge(reminder.reminderType)}
               </TableCell>
-              <TableCell>
+              <TableCell className={DashboardTheme.table.cell}>
                 {getStatusBadge(reminder.status)}
               </TableCell>
               <TableCell>

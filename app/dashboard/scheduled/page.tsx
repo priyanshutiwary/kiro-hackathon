@@ -10,7 +10,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, RefreshCw, AlertCircle, Calendar, Clock } from "lucide-react";
+import { DashboardTheme } from "@/lib/dashboard-theme";
+import { Loader2, RefreshCw, AlertCircle, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import { ScheduledRemindersTable } from "./_components/scheduled-reminders-table";
 
@@ -38,15 +39,16 @@ export default function ScheduledPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchScheduledReminders();
+    fetchScheduledReminders(true);
   }, []);
 
-  const fetchScheduledReminders = async () => {
+  const fetchScheduledReminders = async (shouldLoad = false) => {
     try {
+      if (shouldLoad) setLoading(true);
       setError(null);
       // Use the dedicated scheduled reminders endpoint
       const response = await fetch("/api/reminders/scheduled");
-      
+
       if (!response.ok) {
         throw new Error("Failed to fetch scheduled reminders");
       }
@@ -60,13 +62,13 @@ export default function ScheduledPage() {
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
-      setLoading(false);
+      if (shouldLoad) setLoading(false);
     }
   };
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await fetchScheduledReminders();
+    await fetchScheduledReminders(false);
     setRefreshing(false);
     toast.success("Scheduled reminders refreshed");
   };
@@ -85,17 +87,20 @@ export default function ScheduledPage() {
   return (
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Scheduled Reminders</h1>
-          <p className="text-muted-foreground">
-            View and manage upcoming payment reminder calls
-          </p>
+        <div className="flex-1">
+          {/* Header removed */}
         </div>
-        <Button onClick={handleRefresh} disabled={refreshing} variant="outline">
+        <Button
+          onClick={handleRefresh}
+          disabled={refreshing}
+          variant="outline"
+          size="icon"
+          className="h-9 w-9"
+        >
           <RefreshCw
-            className={`mr-2 h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+            className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
           />
-          Refresh
+          <span className="sr-only">Refresh</span>
         </Button>
       </div>
 
@@ -109,17 +114,17 @@ export default function ScheduledPage() {
 
       {/* Summary Cards */}
       {reminders.length > 0 && (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-4 mb-6">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Total Scheduled</CardDescription>
-              <CardTitle className="text-2xl">{reminders.length}</CardTitle>
+        <div className={DashboardTheme.layout.gridcols3 + " md:grid-cols-4 mb-6"}>
+          <Card className={DashboardTheme.card.base}>
+            <CardHeader className={DashboardTheme.card.content + " py-4"}>
+              <CardDescription className={DashboardTheme.card.metricLabel}>Total Scheduled</CardDescription>
+              <CardTitle className={DashboardTheme.card.metricValue}>{reminders.length}</CardTitle>
             </CardHeader>
           </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Today</CardDescription>
-              <CardTitle className="text-2xl">
+          <Card className={DashboardTheme.card.base}>
+            <CardHeader className={DashboardTheme.card.content + " py-4"}>
+              <CardDescription className={DashboardTheme.card.metricLabel}>Today</CardDescription>
+              <CardTitle className={DashboardTheme.card.metricValue}>
                 {reminders.filter(r => {
                   const scheduledDate = new Date(r.scheduledDate);
                   const today = new Date();
@@ -128,18 +133,18 @@ export default function ScheduledPage() {
               </CardTitle>
             </CardHeader>
           </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Pending</CardDescription>
-              <CardTitle className="text-2xl">
+          <Card className={DashboardTheme.card.base}>
+            <CardHeader className={DashboardTheme.card.content + " py-4"}>
+              <CardDescription className={DashboardTheme.card.metricLabel}>Pending</CardDescription>
+              <CardTitle className={DashboardTheme.card.metricValue}>
                 {reminders.filter(r => r.status === "pending").length}
               </CardTitle>
             </CardHeader>
           </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Queued</CardDescription>
-              <CardTitle className="text-2xl">
+          <Card className={DashboardTheme.card.base}>
+            <CardHeader className={DashboardTheme.card.content + " py-4"}>
+              <CardDescription className={DashboardTheme.card.metricLabel}>Queued</CardDescription>
+              <CardTitle className={DashboardTheme.card.metricValue}>
                 {reminders.filter(r => r.status === "queued").length}
               </CardTitle>
             </CardHeader>
@@ -148,38 +153,34 @@ export default function ScheduledPage() {
       )}
 
       {/* Scheduled Reminders List */}
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-start">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                Upcoming Calls
-              </CardTitle>
-              <CardDescription>
-                {reminders.length > 0
-                  ? `${reminders.length} reminder${reminders.length !== 1 ? "s" : ""} scheduled`
-                  : "No scheduled reminders found"}
-              </CardDescription>
-            </div>
+      <section className={DashboardTheme.layout.sectionAnimateInDelayed}>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2 mb-2">
+          <div>
+            <h2 className={DashboardTheme.typography.sectionTitle}>Upcoming Calls</h2>
+            <p className={DashboardTheme.typography.subtext}>
+              {reminders.length > 0
+                ? `${reminders.length} reminder${reminders.length !== 1 ? "s" : ""} scheduled`
+                : "No scheduled reminders found"}
+            </p>
           </div>
-        </CardHeader>
-        <CardContent>
-          {reminders.length > 0 ? (
-            <ScheduledRemindersTable reminders={reminders} />
-          ) : (
-            <div className="text-center py-12">
-              <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-muted-foreground mb-2">
-                No scheduled reminders found
-              </p>
-              <p className="text-sm text-muted-foreground">
+        </div>
+
+        {reminders.length > 0 ? (
+          <ScheduledRemindersTable reminders={reminders} />
+        ) : (
+          <Card className={DashboardTheme.card.dashed}>
+            <CardContent className="flex flex-col items-center justify-center py-24 text-center">
+              <div className="bg-muted p-4 rounded-full mb-4">
+                <Calendar className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-semibold mb-1">No scheduled reminders found</h3>
+              <p className="text-muted-foreground max-w-sm mb-6">
                 Reminders will appear here once invoices are synced and scheduled
               </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        )}
+      </section>
     </div>
   );
 }

@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { DashboardTheme } from "@/lib/dashboard-theme";
 import { Loader2, RefreshCw, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { InvoicesTable } from "./_components/invoices-table";
@@ -58,10 +59,10 @@ export default function InvoicesPage() {
     fetchInvoices();
   }, []);
 
-  const fetchInvoices = async (page: number = 1) => {
+  const fetchInvoices = async (page: number = 1, shouldLoad = true) => {
     try {
-      setLoading(page === 1);
-      setRefreshing(page > 1);
+      if (shouldLoad) setLoading(page === 1);
+      if (page > 1) setRefreshing(true);
       setError(null);
 
       // Fetch from local database cache
@@ -94,13 +95,14 @@ export default function InvoicesPage() {
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
-      setLoading(false);
+      if (shouldLoad) setLoading(false);
       setRefreshing(false);
     }
   };
 
   const handleRefresh = () => {
-    fetchInvoices(1);
+    setRefreshing(true);
+    fetchInvoices(1, false);
   };
 
   const handleLoadMore = () => {
@@ -125,19 +127,22 @@ export default function InvoicesPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Invoices</h1>
-          <p className="text-muted-foreground">
-            View and manage your customer invoices (from local database)
-          </p>
+    <div className={DashboardTheme.layout.container}>
+      <div className="flex justify-between items-center mb-0">
+        <div className="flex-1">
+          {/* Header removed */}
         </div>
-        <Button onClick={handleRefresh} disabled={refreshing} variant="outline">
+        <Button
+          onClick={handleRefresh}
+          disabled={refreshing}
+          variant="outline"
+          size="icon"
+          className="h-9 w-9"
+        >
           <RefreshCw
-            className={`mr-2 h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+            className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
           />
-          Refresh
+          <span className="sr-only">Refresh</span>
         </Button>
       </div>
 
@@ -149,53 +154,55 @@ export default function InvoicesPage() {
         </Alert>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Your Invoices</CardTitle>
-          <CardDescription>
-            {invoices.length > 0
-              ? `Showing ${invoices.length} invoice${invoices.length !== 1 ? "s" : ""} from database cache`
-              : "No invoices found in database"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {invoices.length > 0 ? (
-            <>
-              <InvoicesTable 
-                invoices={invoices} 
-                onInvoiceClick={handleInvoiceClick}
-              />
-              {pagination.hasMorePage && (
-                <div className="mt-4 text-center">
-                  <Button
-                    onClick={handleLoadMore}
-                    disabled={refreshing}
-                    variant="outline"
-                  >
-                    {refreshing ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Loading...
-                      </>
-                    ) : (
-                      "Load More"
-                    )}
-                  </Button>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="text-center py-12">
+      <section className={DashboardTheme.layout.sectionAnimateInDelayed}>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2 mb-2">
+          <div>
+            <h2 className={DashboardTheme.typography.sectionTitle}>All Invoices</h2>
+            <p className={DashboardTheme.typography.subtext}>
+              {invoices.length > 0
+                ? `Showing ${invoices.length} invoice${invoices.length !== 1 ? "s" : ""} from database cache`
+                : "No invoices found in database"}
+            </p>
+          </div>
+        </div>
+        {invoices.length > 0 ? (
+          <>
+            <InvoicesTable
+              invoices={invoices}
+              onInvoiceClick={handleInvoiceClick}
+            />
+            {pagination.hasMorePage && (
+              <div className="mt-4 text-center">
+                <Button
+                  onClick={handleLoadMore}
+                  disabled={refreshing}
+                  variant="outline"
+                >
+                  {refreshing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    "Load More"
+                  )}
+                </Button>
+              </div>
+            )}
+          </>
+        ) : (
+          <Card className={DashboardTheme.card.dashed}>
+            <CardContent className="flex flex-col items-center justify-center py-24 text-center">
               <p className="text-muted-foreground mb-4">
                 No invoices found in database cache
               </p>
               <p className="text-sm text-muted-foreground">
                 Invoices will appear here after syncing from Zoho Books
               </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        )}
+      </section>
 
       <InvoiceDetailModal
         invoice={selectedInvoice}

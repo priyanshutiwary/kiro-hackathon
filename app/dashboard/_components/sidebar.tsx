@@ -1,7 +1,9 @@
 "use client";
-
+import { AnimatePresence, motion } from "framer-motion";
 import UserProfile from "@/components/user-profile";
 import clsx from "clsx";
+import { useTheme } from "next-themes";
+import { Switch } from "@/components/ui/switch";
 import {
   Banknote,
   HomeIcon,
@@ -16,10 +18,12 @@ import {
   Building2,
   ChevronLeft,
   ChevronRight,
+  Moon,
+  Sun
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface NavItem {
   label: string;
@@ -79,17 +83,23 @@ export default function DashboardSideBar() {
   const pathname = usePathname();
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
 
   return (
-    <aside
-      className={clsx(
-        "min-[1024px]:flex hidden flex-col h-full bg-sidebar border-r border-sidebar-border text-sidebar-foreground transition-all duration-300 ease-in-out relative",
-        isCollapsed ? "w-[70px]" : "w-64"
-      )}
+    <motion.aside
+      initial={false}
+      animate={{ width: isCollapsed ? 70 : 256 }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      className="min-[1024px]:flex hidden flex-col h-full bg-sidebar border-r border-sidebar-border text-sidebar-foreground relative z-20"
     >
       {/* Toggle Button */}
       <button
@@ -125,17 +135,22 @@ export default function DashboardSideBar() {
               <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
             </svg>
           </div>
-          <span
-            className={clsx(
-              "whitespace-nowrap transition-all duration-300 origin-left",
-              isCollapsed ? "w-0 opacity-0 overflow-hidden scale-0" : "w-auto opacity-100 scale-100"
+          <AnimatePresence>
+            {!isCollapsed && (
+              <motion.span
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: "auto" }}
+                exit={{ opacity: 0, width: 0 }}
+                transition={{ duration: 0.2 }}
+                className="whitespace-nowrap overflow-hidden"
+              >
+                <span className="flex items-center gap-0.5 ml-2">
+                  <span className="font-medium">Invo</span>
+                  <span className="font-extrabold">Call</span>
+                </span>
+              </motion.span>
             )}
-          >
-            <span className="flex items-center gap-0.5">
-              <span className="font-medium">Invo</span>
-              <span className="font-extrabold">Call</span>
-            </span>
-          </span>
+          </AnimatePresence>
         </Link>
       </div>
 
@@ -164,14 +179,19 @@ export default function DashboardSideBar() {
                     : "text-muted-foreground group-hover:text-sidebar-foreground"
                 )}
               />
-              <span
-                className={clsx(
-                  "whitespace-nowrap transition-all duration-300",
-                  isCollapsed ? "w-0 opacity-0 overflow-hidden" : "w-auto opacity-100"
+              <AnimatePresence>
+                {!isCollapsed && (
+                  <motion.span
+                    initial={{ opacity: 0, width: 0 }}
+                    animate={{ opacity: 1, width: "auto" }}
+                    exit={{ opacity: 0, width: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="whitespace-nowrap overflow-hidden ml-1"
+                  >
+                    {item.label}
+                  </motion.span>
                 )}
-              >
-                {item.label}
-              </span>
+              </AnimatePresence>
             </button>
           );
         })}
@@ -179,6 +199,45 @@ export default function DashboardSideBar() {
 
       {/* Footer / Settings */}
       <div className="p-3 border-t border-sidebar-border/50 space-y-1">
+        <style jsx global>{`
+          .sidebar-switch .data-[state=checked]:bg-primary {
+            background-color: hsl(var(--sidebar-primary));
+          }
+        `}</style>
+        <div
+          className={clsx(
+            "w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 group overflow-hidden text-muted-foreground hover:text-sidebar-foreground",
+            isCollapsed && "justify-center px-2"
+          )}
+          title={isCollapsed ? "Dark Mode" : undefined}
+        >
+          {theme === 'dark' ? (
+            <Moon className="h-4 w-4 shrink-0" />
+          ) : (
+            <Sun className="h-4 w-4 shrink-0" />
+          )}
+          <AnimatePresence>
+            {!isCollapsed && (
+              <motion.span
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: "auto" }}
+                exit={{ opacity: 0, width: 0 }}
+                transition={{ duration: 0.2 }}
+                className="whitespace-nowrap overflow-hidden flex items-center justify-between flex-1 ml-1"
+              >
+                <span>Dark Mode</span>
+                {mounted && (
+                  <Switch
+                    checked={theme === 'dark'}
+                    onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                    className="scale-75 sidebar-switch data-[state=unchecked]:bg-input/50 border-input"
+                  />
+                )}
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </div>
+
         <button
           onClick={() => router.push("/dashboard/settings")}
           className={clsx(
@@ -198,19 +257,24 @@ export default function DashboardSideBar() {
                 : "text-muted-foreground group-hover:text-sidebar-foreground"
             )}
           />
-          <span
-            className={clsx(
-              "whitespace-nowrap transition-all duration-300",
-              isCollapsed ? "w-0 opacity-0 overflow-hidden" : "w-auto opacity-100"
+          <AnimatePresence>
+            {!isCollapsed && (
+              <motion.span
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: "auto" }}
+                exit={{ opacity: 0, width: 0 }}
+                transition={{ duration: 0.2 }}
+                className="whitespace-nowrap overflow-hidden ml-1"
+              >
+                Settings
+              </motion.span>
             )}
-          >
-            Settings
-          </span>
+          </AnimatePresence>
         </button>
         <div className="pt-2">
           <UserProfile mini={isCollapsed} />
         </div>
       </div>
-    </aside>
+    </motion.aside>
   );
 }

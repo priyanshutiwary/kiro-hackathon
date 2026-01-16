@@ -9,6 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { DashboardTheme } from "@/lib/dashboard-theme";
 
 interface ZohoInvoice {
   invoiceId: string;
@@ -60,46 +61,46 @@ export function InvoicesTable({ invoices, onInvoiceClick }: InvoicesTableProps) 
     const config = statusConfig[status] || statusConfig.draft;
 
     return (
-      <Badge variant={config.variant} className={config.className}>
+      <Badge variant={config.variant} className={config.className + " " + (status === 'paid' ? DashboardTheme.badge.completed : status === 'overdue' ? DashboardTheme.badge.overdue : '')}>
         {config.label}
       </Badge>
     );
   };
 
   return (
-    <div className="rounded-md border">
+    <div className={DashboardTheme.table.wrapper}>
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>Customer</TableHead>
-            <TableHead>Invoice #</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>Due Date</TableHead>
-            <TableHead className="text-right">Amount</TableHead>
-            <TableHead className="text-right">Balance</TableHead>
-            <TableHead>Status</TableHead>
+          <TableRow className={DashboardTheme.table.headerRow}>
+            <TableHead className={DashboardTheme.table.headerCell}>Customer</TableHead>
+            <TableHead className={DashboardTheme.table.headerCell}>Invoice #</TableHead>
+            <TableHead className={DashboardTheme.table.headerCell}>Date</TableHead>
+            <TableHead className={DashboardTheme.table.headerCell}>Due Date</TableHead>
+            <TableHead className={DashboardTheme.table.headerCell + " text-right"}>Amount</TableHead>
+            <TableHead className={DashboardTheme.table.headerCell + " text-right"}>Balance</TableHead>
+            <TableHead className={DashboardTheme.table.headerCell}>Status</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {invoices.map((invoice) => (
-            <TableRow 
+            <TableRow
               key={invoice.invoiceId}
-              className="cursor-pointer hover:bg-muted/50"
+              className={DashboardTheme.table.row + " cursor-pointer"}
               onClick={() => onInvoiceClick(invoice)}
             >
-              <TableCell className="font-medium">
+              <TableCell className={DashboardTheme.table.cell + " font-medium"}>
                 {invoice.customerName}
               </TableCell>
-              <TableCell>{invoice.invoiceNumber}</TableCell>
-              <TableCell>{formatDate(invoice.date)}</TableCell>
-              <TableCell>{formatDate(invoice.dueDate)}</TableCell>
-              <TableCell className="text-right">
+              <TableCell className={DashboardTheme.table.cell}>{invoice.invoiceNumber}</TableCell>
+              <TableCell className={DashboardTheme.table.cell}>{formatDate(invoice.date)}</TableCell>
+              <TableCell className={DashboardTheme.table.cell}>{formatDate(invoice.dueDate)}</TableCell>
+              <TableCell className={DashboardTheme.table.cell + " text-right"}>
                 {formatCurrency(invoice.total, invoice.currencySymbol)}
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className={DashboardTheme.table.cell + " text-right"}>
                 {formatCurrency(invoice.balance, invoice.currencySymbol)}
               </TableCell>
-              <TableCell>{getStatusBadge(invoice.status)}</TableCell>
+              <TableCell className={DashboardTheme.table.cell}>{getStatusBadge(invoice.status)}</TableCell>
             </TableRow>
           ))}
         </TableBody>

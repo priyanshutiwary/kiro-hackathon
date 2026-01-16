@@ -17,6 +17,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Save, Building2 } from "lucide-react";
 import { toast } from "sonner";
+import { DashboardTheme } from "@/lib/dashboard-theme";
 
 interface BusinessProfile {
   id: string;
@@ -138,7 +139,7 @@ export default function BusinessProfilePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (wordCount > 500) {
       toast.error("Business description must be 500 words or less");
       return;
@@ -185,163 +186,172 @@ export default function BusinessProfilePage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <Building2 className="h-6 w-6" />
-        <h1 className="text-2xl font-bold">Business Profile</h1>
-      </div>
-
-      <Alert>
-        <AlertDescription>
-          This information helps our AI agent provide personalized and professional payment reminder calls
-          that represent your business appropriately.
-        </AlertDescription>
-      </Alert>
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Basic Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Basic Information</CardTitle>
-            <CardDescription>
-              Tell us about your business so our agent can represent you professionally.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="companyName">Company Name *</Label>
-                <Input
-                  id="companyName"
-                  value={formData.companyName}
-                  onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                  placeholder="Your Company Name"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="industry">Industry</Label>
-                <Select
-                  value={formData.industry}
-                  onValueChange={(value) => setFormData({ ...formData, industry: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your industry" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {INDUSTRIES.map((industry) => (
-                      <SelectItem key={industry} value={industry}>
-                        {industry}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="businessDescription">
-                Business Description * 
-                <span className={`ml-2 text-sm ${wordCount > 500 ? 'text-red-500' : 'text-gray-500'}`}>
-                  ({wordCount}/500 words)
-                </span>
-              </Label>
-              <Textarea
-                id="businessDescription"
-                value={formData.businessDescription}
-                onChange={(e) => handleDescriptionChange(e.target.value)}
-                placeholder="Describe what your business does, your services, and any important context that would help our agent represent you professionally during payment reminder calls..."
-                className="min-h-[120px]"
-                required
-              />
-              {wordCount > 500 && (
-                <p className="text-sm text-red-500">
-                  Description is too long. Please reduce by {wordCount - 500} words.
-                </p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Contact Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Contact Information</CardTitle>
-            <CardDescription>
-              How customers can reach you for questions or support.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="supportPhone">Support Phone *</Label>
-                <Input
-                  id="supportPhone"
-                  value={formData.supportPhone}
-                  onChange={(e) => setFormData({ ...formData, supportPhone: e.target.value })}
-                  placeholder="+1 (555) 123-4567"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="supportEmail">Support Email</Label>
-                <Input
-                  id="supportEmail"
-                  type="email"
-                  value={formData.supportEmail}
-                  onChange={(e) => setFormData({ ...formData, supportEmail: e.target.value })}
-                  placeholder="support@yourcompany.com"
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Payment Methods */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Preferred Payment Methods</CardTitle>
-            <CardDescription>
-              Select the payment methods you accept. The agent will mention these during calls.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {PAYMENT_METHODS.map((method) => (
-                <div key={method.id} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={method.id}
-                    checked={formData.preferredPaymentMethods.includes(method.id)}
-                    onCheckedChange={(checked) => 
-                      handlePaymentMethodChange(method.id, checked as boolean)
-                    }
-                  />
-                  <Label htmlFor={method.id} className="text-sm">
-                    {method.label}
-                  </Label>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Submit Button */}
-        <div className="flex justify-end">
-          <Button type="submit" disabled={saving || wordCount > 500}>
-            {saving ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="mr-2 h-4 w-4" />
-                Save Business Profile
-              </>
-            )}
-          </Button>
+    <div className={DashboardTheme.layout.container}>
+      <div className={DashboardTheme.layout.sectionAnimateInDelayed}>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2 mb-2">
+          <div>
+            <h2 className={DashboardTheme.typography.sectionTitle}>Business Profile</h2>
+            <p className={DashboardTheme.typography.subtext}>
+              {profile?.companyName || "Configure your business details"}
+            </p>
+          </div>
         </div>
-      </form>
+
+        <Alert>
+          <AlertDescription>
+            This information helps our AI agent provide personalized and professional payment reminder calls
+            that represent your business appropriately.
+          </AlertDescription>
+        </Alert>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Basic Information */}
+          <Card className={DashboardTheme.card.base}>
+            <CardHeader className={DashboardTheme.card.header}>
+              <CardTitle className="flex items-center gap-2">
+                <Building2 className="h-5 w-5" />
+                Basic Information
+              </CardTitle>
+              <CardDescription>
+                Tell us about your business so our agent can represent you professionally.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className={DashboardTheme.card.content + " space-y-4"}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="companyName">Company Name *</Label>
+                  <Input
+                    id="companyName"
+                    value={formData.companyName}
+                    onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                    placeholder="Your Company Name"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="industry">Industry</Label>
+                  <Select
+                    value={formData.industry}
+                    onValueChange={(value) => setFormData({ ...formData, industry: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select your industry" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {INDUSTRIES.map((industry) => (
+                        <SelectItem key={industry} value={industry}>
+                          {industry}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="businessDescription">
+                  Business Description *
+                  <span className={`ml-2 text-sm ${wordCount > 500 ? 'text-red-500' : 'text-gray-500'}`}>
+                    ({wordCount}/500 words)
+                  </span>
+                </Label>
+                <Textarea
+                  id="businessDescription"
+                  value={formData.businessDescription}
+                  onChange={(e) => handleDescriptionChange(e.target.value)}
+                  placeholder="Describe what your business does, your services, and any important context that would help our agent represent you professionally during payment reminder calls..."
+                  className="min-h-[120px]"
+                  required
+                />
+                {wordCount > 500 && (
+                  <p className="text-sm text-red-500">
+                    Description is too long. Please reduce by {wordCount - 500} words.
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Contact Information */}
+          <Card className={DashboardTheme.card.base}>
+            <CardHeader className={DashboardTheme.card.header}>
+              <CardTitle>Contact Information</CardTitle>
+              <CardDescription>
+                How customers can reach you for questions or support.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className={DashboardTheme.card.content + " space-y-4"}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="supportPhone">Support Phone *</Label>
+                  <Input
+                    id="supportPhone"
+                    value={formData.supportPhone}
+                    onChange={(e) => setFormData({ ...formData, supportPhone: e.target.value })}
+                    placeholder="+1 (555) 123-4567"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="supportEmail">Support Email</Label>
+                  <Input
+                    id="supportEmail"
+                    type="email"
+                    value={formData.supportEmail}
+                    onChange={(e) => setFormData({ ...formData, supportEmail: e.target.value })}
+                    placeholder="support@yourcompany.com"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Payment Methods */}
+          <Card className={DashboardTheme.card.base}>
+            <CardHeader className={DashboardTheme.card.header}>
+              <CardTitle>Preferred Payment Methods</CardTitle>
+              <CardDescription>
+                Select the payment methods you accept. The agent will mention these during calls.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className={DashboardTheme.card.content}>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {PAYMENT_METHODS.map((method) => (
+                  <div key={method.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={method.id}
+                      checked={formData.preferredPaymentMethods.includes(method.id)}
+                      onCheckedChange={(checked) =>
+                        handlePaymentMethodChange(method.id, checked as boolean)
+                      }
+                    />
+                    <Label htmlFor={method.id} className="text-sm">
+                      {method.label}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Submit Button */}
+          <div className="flex justify-end">
+            <Button type="submit" disabled={saving || wordCount > 500}>
+              {saving ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  Save Business Profile
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

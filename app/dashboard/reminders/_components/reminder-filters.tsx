@@ -17,6 +17,10 @@ interface ReminderFiltersProps {
   onStatusFilterChange: (status: string) => void;
 }
 
+import { DashboardTheme } from "@/lib/dashboard-theme";
+
+// ... existing imports
+
 export function ReminderFilters({
   dateRange,
   statusFilter,
@@ -35,42 +39,48 @@ export function ReminderFilters({
   };
 
   return (
-    <div className="flex gap-2 flex-wrap">
-      <div className="flex gap-1">
+    <div className={DashboardTheme.filters.container}>
+      <div className={DashboardTheme.filters.group}>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
           onClick={() => handleQuickFilter(7)}
+          className={DashboardTheme.filters.buttonBase}
         >
-          Last 7 Days
+          7D
         </Button>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
           onClick={() => handleQuickFilter(30)}
+          className={DashboardTheme.filters.buttonBase}
         >
-          Last 30 Days
+          30D
         </Button>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
           onClick={() => handleQuickFilter(90)}
+          className={DashboardTheme.filters.buttonBase}
         >
-          Last 90 Days
+          90D
         </Button>
         {(dateRange.from || dateRange.to) && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleClearDateRange}
-          >
-            <X className="h-4 w-4" />
-          </Button>
+          <div className="pl-1 border-l ml-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClearDateRange}
+              className="h-7 w-7 p-0 hover:bg-destructive/10 hover:text-destructive"
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
         )}
       </div>
 
       <Select value={statusFilter} onValueChange={onStatusFilterChange}>
-        <SelectTrigger className="w-[150px]">
+        <SelectTrigger className={DashboardTheme.filters.selectTrigger}>
           <SelectValue placeholder="Status" />
         </SelectTrigger>
         <SelectContent>

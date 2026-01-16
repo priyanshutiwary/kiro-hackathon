@@ -138,7 +138,7 @@ export default function UploadPage() {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight">File Upload</h1>
+
         <p className="text-muted-foreground mt-2">
           Upload images to Cloudflare R2 storage with drag and drop support
         </p>
@@ -158,11 +158,10 @@ export default function UploadPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div
-              className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                dragActive
+              className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${dragActive
                   ? "border-primary bg-primary/5"
                   : "border-muted-foreground/25 hover:border-muted-foreground/50"
-              }`}
+                }`}
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
               onDragOver={handleDrag}

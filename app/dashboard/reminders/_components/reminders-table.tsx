@@ -46,28 +46,33 @@ interface RemindersTableProps {
   reminders: Reminder[];
 }
 
+import { DashboardTheme } from "@/lib/dashboard-theme";
+
+// ... existing imports
+
 export function RemindersTable({ reminders }: RemindersTableProps) {
   const getStatusBadge = (status: string) => {
-    const statusConfig: Record<string, { variant: "default" | "destructive" | "outline" | "secondary"; icon: React.ComponentType<{ className?: string }>; label: string }> = {
-      pending: { variant: "secondary", icon: Clock, label: "Pending" },
-      queued: { variant: "default", icon: Clock, label: "Queued" },
-      in_progress: { variant: "default", icon: Phone, label: "In Progress" },
-      completed: { variant: "default", icon: CheckCircle, label: "Completed" },
-      skipped: { variant: "outline", icon: AlertCircle, label: "Skipped" },
-      failed: { variant: "destructive", icon: XCircle, label: "Failed" },
+    const statusConfig: Record<string, { variant: "default" | "destructive" | "outline" | "secondary"; className: string; icon: React.ComponentType<{ className?: string }>; label: string }> = {
+      pending: { variant: "secondary", className: DashboardTheme.badge.pending, icon: Clock, label: "Pending" },
+      queued: { variant: "default", className: DashboardTheme.badge.queued, icon: Clock, label: "Queued" },
+      in_progress: { variant: "default", className: DashboardTheme.badge.in_progress, icon: Phone, label: "In Progress" },
+      completed: { variant: "default", className: DashboardTheme.badge.completed, icon: CheckCircle, label: "Completed" },
+      skipped: { variant: "outline", className: DashboardTheme.badge.skipped, icon: AlertCircle, label: "Skipped" },
+      failed: { variant: "destructive", className: DashboardTheme.badge.failed, icon: XCircle, label: "Failed" },
     };
 
     const config = statusConfig[status] || statusConfig.pending;
     const Icon = config.icon;
 
     return (
-      <Badge variant={config.variant} className="flex items-center gap-1 w-fit">
+      <Badge variant="outline" className={`${DashboardTheme.badge.base} ${config.className}`}>
         <Icon className="h-3 w-3" />
         {config.label}
       </Badge>
     );
   };
 
+  // ... (getReminderTypeLabel, formatDuration, getCustomerResponseLabel methods - kept as is)
   const getReminderTypeLabel = (type: string) => {
     const typeMap: Record<string, string> = {
       "30_days_before": "30 Days Before",
@@ -104,171 +109,146 @@ export function RemindersTable({ reminders }: RemindersTableProps) {
   };
 
   return (
-    <div className="rounded-md border">
+    <div className={DashboardTheme.table.wrapper}>
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>Invoice</TableHead>
-            <TableHead>Customer</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Scheduled</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Attempts</TableHead>
-            <TableHead className="text-right">Amount</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+          <TableRow className={DashboardTheme.table.headerRow}>
+            <TableHead className={`pl-6 ${DashboardTheme.table.headerCell}`}>Invoice</TableHead>
+            <TableHead className={DashboardTheme.table.headerCell}>Customer</TableHead>
+            <TableHead className={DashboardTheme.table.headerCell}>Type</TableHead>
+            <TableHead className={DashboardTheme.table.headerCell}>Scheduled</TableHead>
+            <TableHead className={DashboardTheme.table.headerCell}>Status</TableHead>
+            <TableHead className={DashboardTheme.table.headerCell}>Attempts</TableHead>
+            <TableHead className={`text-right ${DashboardTheme.table.headerCell}`}>Amount</TableHead>
+            <TableHead className={`text-right pr-6 ${DashboardTheme.table.headerCell}`}></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {reminders.map((reminder) => (
-            <TableRow key={reminder.id}>
-              <TableCell className="font-medium">
+            <TableRow key={reminder.id} className={DashboardTheme.table.row}>
+              <TableCell className={`pl-6 ${DashboardTheme.table.cell}`}>
                 {reminder.invoice.invoiceNumber}
               </TableCell>
-              <TableCell>{reminder.invoice.customerName}</TableCell>
-              <TableCell className="text-sm">
-                {getReminderTypeLabel(reminder.reminderType)}
+              <TableCell className={DashboardTheme.table.cellMuted}>{reminder.invoice.customerName}</TableCell>
+              <TableCell className={DashboardTheme.table.cellMuted}>
+                <span className={DashboardTheme.badge.pill}>
+                  {getReminderTypeLabel(reminder.reminderType)}
+                </span>
               </TableCell>
-              <TableCell>
+              <TableCell className={DashboardTheme.table.cellMuted}>
                 {format(new Date(reminder.scheduledDate), "MMM dd, yyyy")}
               </TableCell>
               <TableCell>{getStatusBadge(reminder.status)}</TableCell>
-              <TableCell>{reminder.attemptCount}</TableCell>
-              <TableCell className="text-right">
+              <TableCell>
+                <span className={`${DashboardTheme.table.cellMuted} ml-2`}>{reminder.attemptCount}</span>
+              </TableCell>
+              <TableCell className={`text-right ${DashboardTheme.table.cell}`}>
                 ${reminder.invoice.amountDue.toFixed(2)}
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="text-right pr-6">
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button variant="ghost" size="sm">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary">
                       <Eye className="h-4 w-4" />
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
+                  <DialogContent className="max-w-2xl bg-card border-border/60">
                     <DialogHeader>
                       <DialogTitle>Reminder Details</DialogTitle>
                       <DialogDescription>
                         Detailed information about this reminder call
                       </DialogDescription>
                     </DialogHeader>
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">
-                            Invoice Number
+                    <div className="space-y-6 pt-4">
+                      <div className="grid grid-cols-2 gap-6">
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                            Invoice
                           </p>
-                          <p className="text-sm">{reminder.invoice.invoiceNumber}</p>
+                          <p className="text-base font-medium">{reminder.invoice.invoiceNumber}</p>
                         </div>
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                             Customer
                           </p>
-                          <p className="text-sm">{reminder.invoice.customerName}</p>
+                          <p className="text-base font-medium">{reminder.invoice.customerName}</p>
                         </div>
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                             Amount Due
                           </p>
-                          <p className="text-sm">
+                          <p className="text-base font-mono">
                             ${reminder.invoice.amountDue.toFixed(2)}
                           </p>
                         </div>
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                             Due Date
                           </p>
-                          <p className="text-sm">
+                          <p className="text-base">
                             {format(new Date(reminder.invoice.dueDate), "MMM dd, yyyy")}
                           </p>
                         </div>
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">
-                            Reminder Type
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                            Context
                           </p>
-                          <p className="text-sm">
+                          <p className="text-sm font-medium">
                             {getReminderTypeLabel(reminder.reminderType)}
                           </p>
                         </div>
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">
-                            Scheduled Date
-                          </p>
-                          <p className="text-sm">
-                            {format(new Date(reminder.scheduledDate), "MMM dd, yyyy")}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                             Status
                           </p>
-                          <div className="mt-1">{getStatusBadge(reminder.status)}</div>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">
-                            Attempts
-                          </p>
-                          <p className="text-sm">{reminder.attemptCount}</p>
+                          <div>{getStatusBadge(reminder.status)}</div>
                         </div>
                       </div>
 
+                      {(reminder.skipReason || reminder.callOutcome) && <div className="border-t border-border/50 my-4"></div>}
+
                       {reminder.skipReason && (
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">
-                            Skip Reason
+                        <div className="bg-destructive/10 p-4 rounded-lg border border-destructive/20">
+                          <p className="text-sm font-medium text-destructive mb-1">
+                            Skipped
                           </p>
-                          <p className="text-sm">{reminder.skipReason}</p>
+                          <p className="text-sm text-destructive/80">{reminder.skipReason}</p>
                         </div>
                       )}
 
                       {reminder.callOutcome && (
-                        <div className="border-t pt-4">
-                          <h4 className="text-sm font-semibold mb-3">Call Outcome</h4>
+                        <div className="bg-muted/30 p-4 rounded-lg border border-border/50">
+                          <h4 className="text-sm font-semibold mb-4 flex items-center gap-2">
+                            <Phone className="h-4 w-4" /> Call Outcome
+                          </h4>
                           <div className="grid grid-cols-2 gap-4">
                             <div>
-                              <p className="text-sm font-medium text-muted-foreground">
-                                Connected
-                              </p>
-                              <p className="text-sm">
+                              <p className="text-xs text-muted-foreground mb-1">Connected</p>
+                              <Badge variant={reminder.callOutcome.connected ? "default" : "secondary"}>
                                 {reminder.callOutcome.connected ? "Yes" : "No"}
-                              </p>
+                              </Badge>
                             </div>
                             <div>
-                              <p className="text-sm font-medium text-muted-foreground">
-                                Duration
-                              </p>
-                              <p className="text-sm">
+                              <p className="text-xs text-muted-foreground mb-1">Duration</p>
+                              <p className="text-sm font-mono">
                                 {formatDuration(reminder.callOutcome.duration)}
                               </p>
                             </div>
-                            <div>
-                              <p className="text-sm font-medium text-muted-foreground">
-                                Customer Response
-                              </p>
-                              <p className="text-sm">
+                            <div className="col-span-2">
+                              <p className="text-xs text-muted-foreground mb-1">Response</p>
+                              <p className="text-sm font-medium">
                                 {getCustomerResponseLabel(
                                   reminder.callOutcome.customerResponse
                                 )}
                               </p>
                             </div>
-                            {reminder.lastAttemptAt && (
-                              <div>
-                                <p className="text-sm font-medium text-muted-foreground">
-                                  Last Attempt
-                                </p>
-                                <p className="text-sm">
-                                  {format(
-                                    new Date(reminder.lastAttemptAt),
-                                    "MMM dd, yyyy HH:mm"
-                                  )}
-                                </p>
-                              </div>
-                            )}
                           </div>
                           {reminder.callOutcome.notes && (
-                            <div className="mt-3">
-                              <p className="text-sm font-medium text-muted-foreground">
+                            <div className="mt-4 pt-4 border-t border-border/40">
+                              <p className="text-xs text-muted-foreground mb-1">
                                 Notes
                               </p>
-                              <p className="text-sm">{reminder.callOutcome.notes}</p>
+                              <p className="text-sm italic text-muted-foreground/80">"{reminder.callOutcome.notes}"</p>
                             </div>
                           )}
                         </div>

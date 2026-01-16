@@ -90,13 +90,13 @@ export default function BillsPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        
+
         // Handle specific error cases
         if (errorData.action === "connect" || errorData.action === "reconnect") {
           setIsConnected(false);
           throw new Error(errorData.message || "Please connect your Zoho Books account");
         }
-        
+
         throw new Error(errorData.message || "Failed to fetch bills");
       }
 
@@ -153,7 +153,7 @@ export default function BillsPage() {
     return (
       <div className="flex flex-col gap-6 p-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Bills</h1>
+
           <p className="text-muted-foreground mt-2">
             View and manage your business bills from Zoho Books
           </p>
@@ -176,7 +176,7 @@ export default function BillsPage() {
     return (
       <div className="flex flex-col gap-6 p-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Bills</h1>
+
           <p className="text-muted-foreground mt-2">
             View and manage your business bills from Zoho Books
           </p>
@@ -204,7 +204,7 @@ export default function BillsPage() {
     return (
       <div className="flex flex-col gap-6 p-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Bills</h1>
+
           <p className="text-muted-foreground mt-2">
             View and manage your business bills from Zoho Books
           </p>
@@ -237,7 +237,7 @@ export default function BillsPage() {
       <div className="flex flex-col gap-6 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Bills</h1>
+
             <p className="text-muted-foreground mt-2">
               View and manage your business bills from Zoho Books
             </p>
@@ -278,7 +278,7 @@ export default function BillsPage() {
     <div className="flex flex-col gap-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Bills</h1>
+
           <p className="text-muted-foreground mt-2">
             View and manage your business bills from Zoho Books
           </p>

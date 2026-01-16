@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { ReminderStats } from "./reminders/_components/reminder-stats";
 import { ChartAreaInteractive } from "./_components/chart-interactive";
 import { useRouter } from "next/navigation";
+import { DashboardTheme } from "@/lib/dashboard-theme";
 
 interface ReminderStatsData {
   overall: {
@@ -87,22 +88,24 @@ export default function Dashboard() {
   }
 
   return (
-    <section className="flex flex-col items-start justify-start p-6 w-full">
-      <div className="w-full">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex flex-col items-start justify-center gap-2">
-            <h1 className="text-3xl font-semibold tracking-tight">
-              Payment Reminders Overview
-            </h1>
-            <p className="text-muted-foreground">
+    <div className={DashboardTheme.layout.container}>
+      <div className={DashboardTheme.layout.sectionAnimateInDelayed}>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2 mb-2">
+          <div>
+            <h2 className={DashboardTheme.typography.sectionTitle}>Dashboard Overview</h2>
+            <p className={DashboardTheme.typography.subtext}>
               Monitor your automated payment reminder performance and analytics.
             </p>
           </div>
-          <Button onClick={handleRefresh} disabled={refreshing} variant="outline">
-            <RefreshCw
-              className={`mr-2 h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
-            />
-            Refresh
+          <Button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            variant="outline"
+            size="icon"
+            className="h-9 w-9"
+          >
+            <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+            <span className="sr-only">Refresh</span>
           </Button>
         </div>
 
@@ -114,13 +117,11 @@ export default function Dashboard() {
           </Alert>
         )}
 
-        <div className="@container/main flex flex-1 flex-col gap-2">
-          <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-            {stats && <ReminderStats stats={stats} />}
-            <ChartAreaInteractive />
-          </div>
+        <div className="flex flex-col gap-4 py-4 md:gap-6">
+          {stats && <ReminderStats stats={stats} />}
+          <ChartAreaInteractive />
         </div>
       </div>
-    </section>
+    </div>
   );
 }

@@ -5,16 +5,13 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, RefreshCw, AlertCircle, Calendar, Phone } from "lucide-react";
+import { Loader2, RefreshCw, AlertCircle, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import { RemindersTable } from "./_components/reminders-table";
-import { InvoicesAwaitingPayment } from "./_components/invoices-awaiting-payment";
 import { ReminderFilters } from "./_components/reminder-filters";
+import { DashboardTheme } from "@/lib/dashboard-theme";
 
 interface Reminder {
   id: number;
@@ -39,23 +36,12 @@ interface Reminder {
   };
 }
 
-interface Invoice {
-  id: number;
-  invoiceNumber: string;
-  customerName: string;
-  amountDue: number;
-  dueDate: string;
-  status: string;
-  remindersCreated: boolean;
-}
-
 export default function RemindersPage() {
   const [reminders, setReminders] = useState<Reminder[]>([]);
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Filter states
   const [dateRange, setDateRange] = useState<{ from: Date | null; to: Date | null }>({
     from: null,
@@ -64,18 +50,15 @@ export default function RemindersPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
   useEffect(() => {
-    fetchAllData();
+    fetchAllData(true);
   }, [dateRange, statusFilter]);
 
-  const fetchAllData = async () => {
+  const fetchAllData = async (shouldLoad = false) => {
     try {
-      setLoading(true);
+      if (shouldLoad) setLoading(true);
       setError(null);
 
-      await Promise.all([
-        fetchReminders(),
-        fetchInvoices(),
-      ]);
+      await fetchReminders();
     } catch (error) {
       console.error("Error fetching data:", error);
       const errorMessage =
@@ -83,13 +66,13 @@ export default function RemindersPage() {
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
-      setLoading(false);
+      if (shouldLoad) setLoading(false);
     }
   };
 
   const fetchReminders = async () => {
     const params = new URLSearchParams();
-    
+
     if (dateRange.from) {
       params.append("startDate", dateRange.from.toISOString());
     }
@@ -101,7 +84,7 @@ export default function RemindersPage() {
     }
 
     const response = await fetch(`/api/reminders?${params.toString()}`);
-    
+
     if (!response.ok) {
       throw new Error("Failed to fetch reminders");
     }
@@ -110,20 +93,9 @@ export default function RemindersPage() {
     setReminders(data.reminders || []);
   };
 
-  const fetchInvoices = async () => {
-    const response = await fetch("/api/invoices");
-    
-    if (!response.ok) {
-      throw new Error("Failed to fetch invoices");
-    }
-
-    const data = await response.json();
-    setInvoices(data.invoices || []);
-  };
-
   const handleRefresh = async () => {
     setRefreshing(true);
-    await fetchAllData();
+    await fetchAllData(false);
     setRefreshing(false);
     toast.success("Data refreshed");
   };
@@ -148,76 +120,71 @@ export default function RemindersPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Payment Reminders</h1>
-          <p className="text-muted-foreground">
-            Monitor and manage automated payment reminder calls
-          </p>
-        </div>
-        <Button onClick={handleRefresh} disabled={refreshing} variant="outline">
-          <RefreshCw
-            className={`mr-2 h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
-          />
-          Refresh
-        </Button>
-      </div>
-
+    <div className={DashboardTheme.layout.container}>
       {error && (
-        <Alert variant="destructive" className="mb-6">
+        <Alert variant="destructive" className="animate-in fade-in slide-in-from-top-2">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
+          <AlertTitle>Error Loading Data</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
-      {/* Invoices Awaiting Payment */}
-      {invoices.length > 0 && (
-        <div className="mb-6">
-          <InvoicesAwaitingPayment invoices={invoices} />
-        </div>
-      )}
+      {/* Main Content Section */}
+      <section className={`${DashboardTheme.layout.sectionAnimateInDelayed} space-y-4`}>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
+          <div>
+            <h2 className={DashboardTheme.typography.sectionTitle}>Scheduled Calls</h2>
+            <p className={DashboardTheme.typography.subtext}>
+              {reminders.length > 0
+                ? `${reminders.length} ${reminders.length === 1 ? "call" : "calls"} found matching your criteria`
+                : "No reminders scheduled"}
+            </p>
+          </div>
 
-      {/* Reminders List with Filters */}
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-start">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Phone className="h-5 w-5" />
-                Reminder Calls
-              </CardTitle>
-              <CardDescription>
-                {reminders.length > 0
-                  ? `Showing ${reminders.length} reminder${reminders.length !== 1 ? "s" : ""}`
-                  : "No reminders found"}
-              </CardDescription>
-            </div>
+          <div className="flex items-center gap-2">
             <ReminderFilters
               dateRange={dateRange}
               statusFilter={statusFilter}
               onDateRangeChange={handleDateRangeChange}
               onStatusFilterChange={handleStatusFilterChange}
             />
+            <Button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              variant="outline"
+              size="icon"
+              className="h-9 w-9"
+            >
+              <RefreshCw
+                className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+              />
+              <span className="sr-only">Refresh Data</span>
+            </Button>
           </div>
-        </CardHeader>
-        <CardContent>
-          {reminders.length > 0 ? (
-            <RemindersTable reminders={reminders} />
-          ) : (
-            <div className="text-center py-12">
-              <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-muted-foreground mb-2">
-                No reminders found
+        </div>
+
+        {reminders.length > 0 ? (
+          <RemindersTable reminders={reminders} />
+        ) : !error ? (
+          <Card className={DashboardTheme.card.dashed}>
+            <CardContent className="flex flex-col items-center justify-center py-24 text-center">
+              <div className="bg-muted p-4 rounded-full mb-4">
+                <Calendar className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-semibold mb-1">No reminders found</h3>
+              <p className="text-muted-foreground max-w-sm mb-6">
+                There are no reminders matching your current filters. Try adjusting dates or status.
               </p>
-              <p className="text-sm text-muted-foreground">
-                Reminders will appear here once invoices are synced and scheduled
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              <Button variant="outline" onClick={() => {
+                setDateRange({ from: null, to: null });
+                setStatusFilter("all");
+              }}>
+                Clear Filters
+              </Button>
+            </CardContent>
+          </Card>
+        ) : null}
+      </section>
     </div>
   );
 }
