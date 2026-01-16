@@ -10,8 +10,14 @@ call_agent_smes/
 │   ├── dashboard/          # Business management dashboard
 │   │   ├── customers/     # Customer management & history
 │   │   ├── invoices/      # Invoice tracking & status
+│   │   ├── bills/         # Bills management & tracking
 │   │   ├── reminders/     # Payment reminder management
 │   │   ├── scheduled/     # Scheduled call management
+│   │   ├── chat/          # AI chat interface
+│   │   ├── configuration/ # System configuration
+│   │   ├── settings/      # User settings & preferences
+│   │   ├── upload/        # File upload interface
+│   │   ├── payment/       # Payment & subscription management
 │   │   ├── business-profile/ # Company settings & branding
 │   │   └── integrations/  # CRM integration management
 │   ├── api/               # API routes
@@ -20,22 +26,43 @@ call_agent_smes/
 │   │   │   ├── auth/      # OAuth flow & token management
 │   │   │   ├── contacts/  # Customer data sync
 │   │   │   └── invoices/  # Invoice data sync
+│   │   ├── livekit/       # LiveKit call management
+│   │   │   └── dispatch-call/ # Call dispatch endpoint
 │   │   ├── reminders/     # Payment reminder processing
+│   │   ├── reminder-settings/ # Reminder configuration
+│   │   ├── invoices/      # Invoice management API
+│   │   ├── chat/          # AI chat API
 │   │   ├── cron/          # Scheduled job endpoints
 │   │   │   ├── process-reminders/ # Automated reminder processing
-│   │   │   └── status/    # System health checks
+│   │   │   └── sync-invoices/ # Daily invoice sync
 │   │   ├── business-profile/ # Business configuration
+│   │   ├── subscription/  # Dodo Payments integration
+│   │   ├── webhooks/      # Payment webhooks
 │   │   └── db/            # Database operations
 │   │       ├── customers/ # Customer cache operations
 │   │       └── invoices/  # Invoice cache operations
+│   ├── pricing/           # Pricing page
+│   ├── sign-in/           # Authentication pages
+│   ├── sign-up/           # Registration pages
 │   └── page.tsx           # Landing page
 ├── lib/                   # Core business logic
 │   ├── payment-reminders/ # Payment reminder system
 │   │   ├── sync-engine.ts # Main payment sync automation
 │   │   ├── customer-sync-engine.ts # Customer data sync
+│   │   ├── call-executor.ts # Call execution logic
 │   │   ├── livekit-client.ts # Voice call integration
+│   │   ├── call-window.ts # Call timing management
 │   │   ├── phone-extractor.ts # Phone number validation
-│   │   └── pre-call-verification.ts # Call validation logic
+│   │   ├── pre-call-verification.ts # Call validation logic
+│   │   ├── reminder-scheduler.ts # Reminder scheduling
+│   │   ├── reminder-schedule.ts # Schedule management
+│   │   ├── settings-manager.ts # Settings management
+│   │   ├── customer-hash.ts # Customer data hashing
+│   │   ├── invoice-hash.ts # Invoice data hashing
+│   │   ├── zoho-books-client.ts # Zoho Books API client
+│   │   └── zoho-contacts-client.ts # Zoho Contacts API client
+│   ├── livekit/           # LiveKit integration
+│   │   └── call-dispatcher.ts # Call dispatch logic
 │   ├── business-profile/  # Business configuration
 │   │   ├── service.ts     # Profile management service
 │   │   └── __tests__/     # Business profile tests
@@ -43,6 +70,8 @@ call_agent_smes/
 │   ├── zoho-oauth.ts      # OAuth service
 │   ├── zoho-token-manager.ts # Token management
 │   ├── encryption.ts      # Token encryption utilities
+│   ├── dodo-payments.ts   # Payment processing
+│   ├── subscription.ts    # Subscription management
 │   └── utils.ts           # General utilities
 ├── components/
 │   ├── ui/                # shadcn/ui components
@@ -82,9 +111,9 @@ import { db } from "@/db/drizzle"
 
 **Public**: `/` (landing page)
 
-**Protected**: `/dashboard` • `/dashboard/customers` • `/dashboard/invoices` • `/dashboard/reminders` • `/dashboard/scheduled` • `/dashboard/business-profile` • `/dashboard/integrations`
+**Protected**: `/dashboard` • `/dashboard/customers` • `/dashboard/invoices` • `/dashboard/bills` • `/dashboard/reminders` • `/dashboard/scheduled` • `/dashboard/chat` • `/dashboard/configuration` • `/dashboard/settings` • `/dashboard/upload` • `/dashboard/payment` • `/dashboard/business-profile` • `/dashboard/integrations`
 
-**API**: `/api/auth/[...all]` • `/api/zoho/auth/*` • `/api/zoho/contacts` • `/api/zoho/invoices` • `/api/reminders` • `/api/reminders/scheduled` • `/api/cron/process-reminders` • `/api/cron/status` • `/api/business-profile` • `/api/db/customers` • `/api/db/invoices`
+**API**: `/api/auth/[...all]` • `/api/zoho/auth/*` • `/api/zoho/contacts` • `/api/zoho/invoices` • `/api/livekit/dispatch-call` • `/api/reminders` • `/api/reminder-settings` • `/api/invoices` • `/api/chat` • `/api/cron/process-reminders` • `/api/cron/sync-invoices` • `/api/business-profile` • `/api/subscription` • `/api/webhooks` • `/api/db/customers` • `/api/db/invoices`
 
 ## Configuration Files
 

@@ -48,10 +48,13 @@ An AI-powered call agent system that automates payment reminder calls for small 
 
 ### Business Management Dashboard
 - Comprehensive customer management with call history
-- Invoice tracking and payment status monitoring
+- Invoice and bills tracking with payment status monitoring
 - Reminder scheduling and campaign management
 - Integration management and status tracking
 - Call analytics and performance metrics
+- AI chat interface for customer support
+- File upload and document management
+- System configuration and settings management
 
 ### Modern Web Platform
 - Next.js 15 with Server Components for optimal performance
@@ -59,6 +62,7 @@ An AI-powered call agent system that automates payment reminder calls for small 
 - Dark/light theme support with professional design
 - Real-time updates and optimistic UI interactions
 - Mobile-friendly interface for on-the-go management
+- Subscription management with Dodo Payments integration
 
 ## Business Objectives
 1. **Payment Collection Efficiency**: Help SMEs reduce overdue payment collection time by 70%
@@ -74,15 +78,19 @@ An AI-powered call agent system that automates payment reminder calls for small 
 2. Connect Zoho Books/CRM integration via OAuth
 3. Configure LiveKit voice agent settings
 4. Set up call scripts and business branding
-5. Test voice agent with sample calls
-6. Configure reminder schedules and frequency
+5. Configure payment processing with Dodo Payments
+6. Test voice agent with sample calls
+7. Configure reminder schedules and frequency
+8. Set up AI chat and document upload preferences
 
 ### Daily Operations (5-10 minutes)
-1. Review dashboard for overdue invoices
+1. Review dashboard for overdue invoices and bills
 2. Check scheduled reminder calls for the day
 3. Monitor call success rates and customer responses
-4. Review integration status and data sync health
-5. Adjust call schedules based on customer feedback
+4. Use AI chat for quick customer inquiries
+5. Review integration status and data sync health
+6. Upload and manage relevant documents
+7. Adjust call schedules based on customer feedback
 
 ### Weekly Management (15-30 minutes)
 1. Analyze payment collection performance metrics

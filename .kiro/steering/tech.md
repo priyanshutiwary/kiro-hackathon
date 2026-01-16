@@ -6,24 +6,31 @@
 
 **Frontend**: Next.js 15.3.1 (App Router) • React 19 • TypeScript 5 • Tailwind CSS v4 • shadcn/ui • next-themes
 
-**Backend**: Next.js API Routes • Better Auth v1.2.8 • Drizzle ORM • Neon PostgreSQL
+**Backend**: Next.js API Routes • Better Auth v1.2.8 • Drizzle ORM • Neon PostgreSQL • TanStack Query
 
-**Voice AI**: LiveKit • Real-time voice calls • AI conversation flows • Call analytics
+**Voice AI**: LiveKit • Real-time voice calls • AI conversation flows • Call analytics • SIP integration
 
-**Services**: Zoho Books/CRM API • AES-256-GCM encryption • Vercel deployment
+**Payments**: Dodo Payments • Subscription management • Webhook processing
 
-**Tools**: TypeScript (strict) • ESLint • Drizzle Kit • Kiro CLI
+**Services**: Zoho Books/CRM API • AES-256-GCM encryption • Vercel deployment • PostHog analytics
+
+**UI/UX**: Radix UI components • Framer Motion • Recharts • React Hook Form • Lucide icons
+
+**Tools**: TypeScript (strict) • ESLint • Drizzle Kit • Vitest • Kiro CLI
 
 ## Architecture Overview
 
 **Layers**: Next.js App Router (RSC) → API Routes → Sync Engines → Drizzle ORM → Neon PostgreSQL
 
 **Key Components**:
-- Voice Agent: LiveKit integration for AI-powered calls
-- Sync Engines: Automated data synchronization with Zoho
+- Voice Agent: LiveKit integration for AI-powered calls with SIP trunking
+- Sync Engines: Automated data synchronization with Zoho Books/CRM
 - Authentication: Better Auth with secure session management
 - Database: Local caching with real-time sync capabilities
 - Integrations: Zoho Books/CRM OAuth with encrypted token storage
+- Payment Processing: Dodo Payments for subscription management
+- AI Chat: OpenAI integration for customer support
+- Analytics: PostHog integration for user behavior tracking
 
 ## Development Environment
 
@@ -37,7 +44,7 @@ npx drizzle-kit generate && npx drizzle-kit push
 npm run dev
 ```
 
-**Key Environment Variables**: `DATABASE_URL` • `BETTER_AUTH_SECRET` • `LIVEKIT_API_KEY/SECRET` • `LIVEKIT_URL` • `ZOHO_CLIENT_ID/SECRET` • `ENCRYPTION_KEY` • `NEXT_PUBLIC_APP_URL`
+**Key Environment Variables**: `DATABASE_URL` • `BETTER_AUTH_SECRET` • `LIVEKIT_API_KEY/SECRET` • `LIVEKIT_URL` • `LIVEKIT_SIP_TRUNK_ID` • `ZOHO_CLIENT_ID/SECRET` • `ENCRYPTION_KEY` • `NEXT_PUBLIC_APP_URL` • `DODO_PAYMENTS_API_KEY` • `POSTHOG_KEY`
 
 ## Code Standards
 
