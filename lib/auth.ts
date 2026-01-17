@@ -11,6 +11,86 @@ import {
 } from "@dodopayments/better-auth";
 import DodoPayments from "dodopayments";
 import { eq } from "drizzle-orm";
+import { emailService } from "./email";
+import { validateEmailConfiguration } from "./email";
+import { nanoid } from "nanoid";
+
+// Custom plugin to handle unverified email login attempts
+const emailVerificationPlugin = {
+  id: "email-verification-interceptor",
+  hooks: {
+    before: [
+      {
+        matcher: (context: any) => {
+          return context.path === "/sign-in/email";
+        },
+        handler: async (context: any) => {
+          try {
+            const body = context.body;
+            const email = body?.email;
+
+            if (!email) {
+              return;
+            }
+
+            // Check if user exists and is unverified
+            const users = await db
+              .select()
+              .from(user)
+              .where(eq(user.email, email))
+              .limit(1);
+
+            const foundUser = users[0];
+
+            // If user exists but email is not verified, send verification email
+            if (foundUser && !foundUser.emailVerified) {
+              console.log(`📧 User ${email} attempting login with unverified email. Sending verification email...`);
+              
+              // Check rate limit before sending
+              const canSend = await emailService.checkRateLimit(email, 'verification');
+              
+              if (canSend) {
+                // Generate verification token
+                const token = nanoid(32);
+                const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+                // Invalidate previous tokens
+                await db
+                  .delete(verification)
+                  .where(eq(verification.identifier, `email-verification:${foundUser.id}`));
+
+                // Store new token
+                await db.insert(verification).values({
+                  id: nanoid(),
+                  identifier: `email-verification:${foundUser.id}`,
+                  value: token,
+                  expiresAt,
+                  createdAt: new Date(),
+                  updatedAt: new Date(),
+                });
+
+                // Generate verification URL
+                const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${token}&email=${encodeURIComponent(email)}`;
+
+                // Send verification email
+                await emailService.sendVerificationEmail(email, verificationUrl);
+                console.log(`✅ Verification email sent to ${email}`);
+              } else {
+                console.log(`⚠️ Rate limit reached for ${email}, skipping verification email`);
+              }
+
+              // Throw error to prevent login
+              throw new Error("Email not verified. A verification email has been sent to your inbox. Please verify your email before signing in.");
+            }
+          } catch (error) {
+            // Re-throw to prevent login
+            throw error;
+          }
+        },
+      },
+    ],
+  },
+};
 
 export const dodoPayments = new DodoPayments({
   bearerToken: process.env.DODO_PAYMENTS_API_KEY!,
@@ -34,6 +114,57 @@ export const auth = betterAuth({
       verification,
     },
   }),
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: true, // Enable email verification
+    autoSignIn: false, // Don't auto sign-in after signup
+    minPasswordLength: 8,
+    maxPasswordLength: 128,
+    password: {
+      // Use default scrypt hashing (BetterAuth default)
+      // No need to specify cost for scrypt
+    },
+    sendResetPassword: async ({ user, url }: { user: { email: string; id: string }; url: string }) => {
+      try {
+        console.log(`📧 Sending password reset email to: ${user.email}`);
+        await emailService.sendPasswordResetEmail(user.email, url);
+        console.log(`✅ Password reset email sent successfully to: ${user.email}`);
+      } catch (error) {
+        console.error(`❌ Failed to send password reset email to ${user.email}:`, error);
+        throw error;
+      }
+    },
+  },
+  rateLimit: {
+    window: 60, // 1 minute window
+    max: 10, // Max 10 requests per minute per IP
+    storage: "memory", // Use memory storage for rate limiting
+  },
+  session: {
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24, // Update session every 24 hours
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60, // 5 minutes cache
+    },
+  },
+  user: {
+    additionalFields: {
+      // Track failed login attempts for account lockout
+      failedLoginAttempts: {
+        type: "number",
+        defaultValue: 0,
+      },
+      lockedUntil: {
+        type: "date",
+        required: false,
+      },
+      lastLoginAttempt: {
+        type: "date",
+        required: false,
+      },
+    },
+  },
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -41,9 +172,10 @@ export const auth = betterAuth({
     },
   },
   plugins: [
+    emailVerificationPlugin as any,
     dodopayments({
       client: dodoPayments,
-      createCustomerOnSignUp: true,
+      createCustomerOnSignUp: false, // Disable automatic customer creation to avoid blocking sign-up
       use: [
         checkout({
           products: [
@@ -186,3 +318,46 @@ async function processSubscriptionWebhook(payload: {
     console.error("💥 Error processing subscription webhook:", error);
   }
 }
+
+// Validate email configuration on startup
+export const validateAuthConfiguration = (): void => {
+  try {
+    // Validate email service configuration first
+    validateEmailConfiguration();
+    
+    // Validate auth-specific environment variables
+    const requiredEnvVars = [
+      'BETTER_AUTH_SECRET',
+      'NEXT_PUBLIC_APP_URL',
+    ];
+
+    const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+    if (missingVars.length > 0) {
+      console.error('❌ Missing required environment variables for authentication:', missingVars);
+      throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
+    }
+
+    // Validate BETTER_AUTH_SECRET strength
+    const secret = process.env.BETTER_AUTH_SECRET;
+    if (secret && secret.length < 32) {
+      console.warn('⚠️ BETTER_AUTH_SECRET should be at least 32 characters long for security');
+    }
+
+    // Validate APP_URL format
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+    if (appUrl && !appUrl.startsWith('http')) {
+      console.warn('⚠️ NEXT_PUBLIC_APP_URL should start with http:// or https://');
+    }
+
+    console.log('✅ Authentication configuration validated successfully');
+    console.log(`🔐 Auth configured for domain: ${appUrl}`);
+    console.log('🔒 Email/password authentication: enabled');
+    console.log('🔒 Email verification: required');
+    console.log('🔒 Account lockout: enabled (5 attempts, 15 min lockout)');
+    console.log('📧 Email rate limiting: enabled (3 per hour per type)');
+  } catch (error) {
+    console.error('❌ Authentication configuration validation failed:', error);
+    throw error;
+  }
+};

@@ -17,6 +17,10 @@ export const user = pgTable("user", {
   image: text("image"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
   updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+  // Security fields for account lockout
+  failedLoginAttempts: integer("failedLoginAttempts").notNull().default(0),
+  lockedUntil: timestamp("lockedUntil"),
+  lastLoginAttempt: timestamp("lastLoginAttempt"),
 });
 
 export const session = pgTable("session", {
@@ -30,6 +34,8 @@ export const session = pgTable("session", {
   userId: text("userId")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
+  // Track last authentication time for sensitive operations
+  lastAuthenticatedAt: timestamp("lastAuthenticatedAt").notNull().defaultNow(),
 });
 
 export const account = pgTable("account", {

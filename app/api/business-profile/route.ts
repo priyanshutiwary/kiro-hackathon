@@ -1,27 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { db } from "@/db/drizzle";
 import { businessProfiles } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
+import { checkAuthAndVerification } from "@/lib/auth-utils";
 
 /**
  * GET /api/business-profile
  * Fetch business profile for the authenticated user
+ * Requirements: 2.6, 4.4
  */
 export async function GET() {
   try {
-    // Authenticate user
-    const result = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!result?.session?.userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Authenticate user and check email verification
+    const authCheck = await checkAuthAndVerification(await headers());
+    
+    if (!authCheck.authenticated) {
+      return NextResponse.json({ error: authCheck.error }, { status: 401 });
+    }
+    
+    if (!authCheck.emailVerified) {
+      return NextResponse.json({ 
+        error: authCheck.error,
+        code: authCheck.errorCode
+      }, { status: 403 });
     }
 
-    const userId = result.session.userId;
+    const userId = authCheck.userId!;
 
     // Fetch business profile
     const profiles = await db
@@ -76,19 +82,25 @@ export async function GET() {
 /**
  * POST /api/business-profile
  * Create or update business profile for the authenticated user
+ * Requirements: 2.6, 4.4
  */
 export async function POST(request: NextRequest) {
   try {
-    // Authenticate user
-    const result = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!result?.session?.userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Authenticate user and check email verification
+    const authCheck = await checkAuthAndVerification(await headers());
+    
+    if (!authCheck.authenticated) {
+      return NextResponse.json({ error: authCheck.error }, { status: 401 });
+    }
+    
+    if (!authCheck.emailVerified) {
+      return NextResponse.json({ 
+        error: authCheck.error,
+        code: authCheck.errorCode
+      }, { status: 403 });
     }
 
-    const userId = result.session.userId;
+    const userId = authCheck.userId!;
 
     // Parse request body
     const body = await request.json();

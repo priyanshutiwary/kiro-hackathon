@@ -1,25 +1,30 @@
-import { auth } from "@/lib/auth";
 import { getUserSettings, updateUserSettings, ReminderSettings } from "@/lib/payment-reminders/settings-manager";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { checkAuthAndVerification } from "@/lib/auth-utils";
 
 /**
  * GET /api/reminder-settings
  * Fetches user's current reminder settings
- * Requirements: 11.1, 11.2
+ * Requirements: 11.1, 11.2, 2.6, 4.4
  */
 export async function GET() {
   try {
-    // Authenticate user
-    const result = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!result?.session?.userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Authenticate user and check email verification
+    const authCheck = await checkAuthAndVerification(await headers());
+    
+    if (!authCheck.authenticated) {
+      return NextResponse.json({ error: authCheck.error }, { status: 401 });
+    }
+    
+    if (!authCheck.emailVerified) {
+      return NextResponse.json({ 
+        error: authCheck.error,
+        code: authCheck.errorCode
+      }, { status: 403 });
     }
 
-    const userId = result.session.userId;
+    const userId = authCheck.userId!;
 
     // Get user settings
     const settings = await getUserSettings(userId);
@@ -40,20 +45,25 @@ export async function GET() {
 /**
  * PUT /api/reminder-settings
  * Updates user's reminder settings
- * Requirements: 11.3, 11.5, 19.9
+ * Requirements: 11.3, 11.5, 19.9, 2.6, 4.4
  */
 export async function PUT(request: Request) {
   try {
-    // Authenticate user
-    const result = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!result?.session?.userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Authenticate user and check email verification
+    const authCheck = await checkAuthAndVerification(await headers());
+    
+    if (!authCheck.authenticated) {
+      return NextResponse.json({ error: authCheck.error }, { status: 401 });
+    }
+    
+    if (!authCheck.emailVerified) {
+      return NextResponse.json({ 
+        error: authCheck.error,
+        code: authCheck.errorCode
+      }, { status: 403 });
     }
 
-    const userId = result.session.userId;
+    const userId = authCheck.userId!;
 
     // Parse request body
     const updates: Partial<ReminderSettings> = await request.json();

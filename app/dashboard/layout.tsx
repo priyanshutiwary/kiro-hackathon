@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import DashboardHeader from "./_components/dashboard-header";
 import DashboardSideBar from "./_components/sidebar";
 import Chatbot from "./_components/chatbot";
+import EmailVerificationBanner from "./_components/email-verification-banner";
 
 export default async function DashboardLayout({
   children,
@@ -14,6 +15,7 @@ export default async function DashboardLayout({
       <main className="flex-1 overflow-y-auto">
         <DashboardHeader />
         <div className="flex-1 p-6">
+          <EmailVerificationBanner />
           {children}
         </div>
       </main>
