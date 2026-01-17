@@ -172,8 +172,15 @@ export default function RemindersPage() {
                 <Calendar className="h-8 w-8 text-muted-foreground" />
               </div>
               <h3 className="text-lg font-semibold mb-1">No reminders found</h3>
-              <p className="text-muted-foreground max-w-sm mb-6">
+              <p className="text-muted-foreground max-w-sm mb-4">
                 There are no reminders matching your current filters. Try adjusting dates or status.
+              </p>
+              <p className="text-sm text-muted-foreground max-w-sm mb-6">
+                If you haven't set up any integrations yet, check your{" "}
+                <a href="/dashboard/settings?tab=integrations" className="text-primary underline hover:no-underline">
+                  integration settings
+                </a>{" "}
+                to connect your accounting software.
               </p>
               <Button variant="outline" onClick={() => {
                 setDateRange({ from: null, to: null });

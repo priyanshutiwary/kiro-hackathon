@@ -132,11 +132,18 @@ export default function CustomersPage() {
         ) : (
           <Card className={DashboardTheme.card.dashed}>
             <CardContent className="flex flex-col items-center justify-center py-24 text-center">
-              <p className="text-muted-foreground mb-4">
+              <p className="text-muted-foreground mb-2">
                 No customers found in database cache
               </p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground mb-4">
                 Customers will appear here after syncing from Zoho Books
+              </p>
+              <p className="text-sm text-muted-foreground max-w-sm">
+                If you haven't set up any integrations yet, check your{" "}
+                <a href="/dashboard/settings?tab=integrations" className="text-primary underline hover:no-underline">
+                  integration settings
+                </a>{" "}
+                to connect your accounting software.
               </p>
             </CardContent>
           </Card>

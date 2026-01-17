@@ -174,8 +174,15 @@ export default function ScheduledPage() {
                 <Calendar className="h-8 w-8 text-muted-foreground" />
               </div>
               <h3 className="text-lg font-semibold mb-1">No scheduled reminders found</h3>
-              <p className="text-muted-foreground max-w-sm mb-6">
+              <p className="text-muted-foreground max-w-sm mb-4">
                 Reminders will appear here once invoices are synced and scheduled
+              </p>
+              <p className="text-sm text-muted-foreground max-w-sm">
+                If you haven't set up any integrations yet, check your{" "}
+                <a href="/dashboard/settings?tab=integrations" className="text-primary underline hover:no-underline">
+                  integration settings
+                </a>{" "}
+                to connect your accounting software.
               </p>
             </CardContent>
           </Card>

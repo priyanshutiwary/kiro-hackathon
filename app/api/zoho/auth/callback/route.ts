@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { createZohoOAuthService } from "@/lib/zoho-oauth";
 import { createZohoTokenManager } from "@/lib/zoho-token-manager";
+import { syncInvoicesForUser } from "@/lib/payment-reminders/sync-engine";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -108,6 +109,21 @@ export async function GET(request: NextRequest) {
       organizationId,
       accountsUrl
     );
+
+    // Trigger initial sync in the background (don't wait for it)
+    console.log(`[Zoho OAuth] Triggering initial sync for user ${userId}...`);
+    syncInvoicesForUser(userId, organizationId)
+      .then((syncResult) => {
+        console.log(`[Zoho OAuth] Initial sync completed for user ${userId}:`, {
+          fetched: syncResult.invoicesFetched,
+          inserted: syncResult.invoicesInserted,
+          updated: syncResult.invoicesUpdated,
+          reminders: syncResult.remindersCreated,
+        });
+      })
+      .catch((error) => {
+        console.error(`[Zoho OAuth] Initial sync failed for user ${userId}:`, error);
+      });
 
     // Redirect to integrations page with success message
     return NextResponse.redirect(
