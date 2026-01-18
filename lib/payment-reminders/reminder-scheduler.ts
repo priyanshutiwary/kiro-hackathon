@@ -12,7 +12,7 @@ import { paymentReminders, reminderSettings } from "@/db/schema";
 import { eq, and, lte } from "drizzle-orm";
 import { canMakeCallNow } from "./call-window";
 import { getUserSettings, ReminderSettings } from "./settings-manager";
-import { initiateCall, handleCallOutcome, scheduleRetry } from "./call-executor";
+import { initiateCall } from "./call-executor";
 
 /**
  * Processes due reminders and queues eligible calls
@@ -119,32 +119,20 @@ export async function processReminders(): Promise<void> {
  * Queues a call for execution
  * 
  * This function:
- * 1. Updates reminder status to 'queued'
+ * 1. Updates reminder status to 'in_progress'
  * 2. Initiates the call via Call Executor
- * 3. Handles the call outcome
- * 4. Schedules retry if needed
+ * 3. Waits for webhook callback to handle outcome
  * 
- * Requirements: 15.5
+ * Requirements: 15.5, 2.1 (webhook flow)
  * 
  * @param reminderId - ID of the reminder to queue
- * @returns Promise that resolves when call is queued and processed
+ * @returns Promise that resolves when call is initiated
  */
 export async function queueCall(reminderId: string): Promise<void> {
   console.log(`[Reminder Scheduler] Queueing call for reminder ${reminderId}`);
   
   try {
-    // Update reminder status to 'queued' (Requirement 15.5)
-    await db
-      .update(paymentReminders)
-      .set({
-        status: 'queued',
-        updatedAt: new Date(),
-      })
-      .where(eq(paymentReminders.id, reminderId));
-    
-    console.log(`[Reminder Scheduler] Reminder ${reminderId} status updated to 'queued'`);
-    
-    // Update status to 'in_progress' before initiating call
+    // Update status to 'in_progress' before initiating call (Requirement 2.1)
     await db
       .update(paymentReminders)
       .set({
@@ -153,28 +141,19 @@ export async function queueCall(reminderId: string): Promise<void> {
       })
       .where(eq(paymentReminders.id, reminderId));
     
+    console.log(`[Reminder Scheduler] Reminder ${reminderId} status updated to 'in_progress'`);
+    
     // Initiate call via Call Executor (Requirement 15.5)
+    // The Python agent will report the outcome via webhook
     console.log(`[Reminder Scheduler] Initiating call for reminder ${reminderId}`);
-    const outcome = await initiateCall(reminderId);
+    await initiateCall(reminderId);
     
-    console.log(`[Reminder Scheduler] Call completed for reminder ${reminderId}:`, outcome);
-    
-    // Handle call outcome (Requirement 15.5)
-    await handleCallOutcome(reminderId, outcome);
-    
-    // If call failed to connect and not at max retries, schedule retry
-    if (!outcome.connected && outcome.customerResponse === 'no_answer') {
-      console.log(`[Reminder Scheduler] Call failed to connect, scheduling retry for reminder ${reminderId}`);
-      await scheduleRetry(reminderId);
-    } else if (!outcome.connected && outcome.customerResponse === 'no_phone_number') {
-      console.log(`[Reminder Scheduler] No phone number available, reminder ${reminderId} permanently skipped`);
-      // No retry needed - already marked as skipped
-    }
+    console.log(`[Reminder Scheduler] Call initiated for reminder ${reminderId}, waiting for webhook callback`);
     
   } catch (error) {
     console.error(`[Reminder Scheduler] Error queueing call for reminder ${reminderId}:`, error);
     
-    // Update reminder status to 'failed' on error
+    // Update reminder status to 'failed' on error (room creation failure)
     await db
       .update(paymentReminders)
       .set({

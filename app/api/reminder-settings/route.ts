@@ -2,6 +2,41 @@ import { getUserSettings, updateUserSettings, ReminderSettings } from "@/lib/pay
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { checkAuthAndVerification } from "@/lib/auth-utils";
+import { db } from "@/db/drizzle";
+import { agentIntegrations } from "@/db/schema";
+import { eq, and } from "drizzle-orm";
+
+/**
+ * Helper function to get organization ID from agent integrations
+ */
+async function getOrganizationIdFromIntegration(userId: string): Promise<string | null> {
+  try {
+    const integrations = await db
+      .select({
+        config: agentIntegrations.config,
+      })
+      .from(agentIntegrations)
+      .where(
+        and(
+          eq(agentIntegrations.userId, userId),
+          eq(agentIntegrations.provider, 'zoho_books'),
+          eq(agentIntegrations.enabled, true),
+          eq(agentIntegrations.status, 'active')
+        )
+      )
+      .limit(1);
+
+    if (integrations.length === 0 || !integrations[0].config) {
+      return null;
+    }
+
+    const config = JSON.parse(integrations[0].config);
+    return config.organizationId || config.organization_id || null;
+  } catch (error) {
+    console.error('Error fetching organization ID from integration:', error);
+    return null;
+  }
+}
 
 /**
  * GET /api/reminder-settings
@@ -28,6 +63,16 @@ export async function GET() {
 
     // Get user settings
     const settings = await getUserSettings(userId);
+
+    // If organizationId is missing, try to populate it from agentIntegrations
+    if (!settings.organizationId) {
+      const orgId = await getOrganizationIdFromIntegration(userId);
+      if (orgId) {
+        // Update settings with organizationId
+        await updateUserSettings(userId, { organizationId: orgId });
+        settings.organizationId = orgId;
+      }
+    }
 
     return NextResponse.json(settings);
   } catch (error) {
@@ -67,6 +112,14 @@ export async function PUT(request: Request) {
 
     // Parse request body
     const updates: Partial<ReminderSettings> = await request.json();
+
+    // If organizationId is not provided in updates, try to get it from agentIntegrations
+    if (!updates.organizationId) {
+      const orgId = await getOrganizationIdFromIntegration(userId);
+      if (orgId) {
+        updates.organizationId = orgId;
+      }
+    }
 
     // Update user settings (includes validation)
     const updateResult = await updateUserSettings(userId, updates);

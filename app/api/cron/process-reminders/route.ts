@@ -9,6 +9,7 @@
 
 import { NextResponse } from "next/server";
 import { processReminders } from "@/lib/payment-reminders/reminder-scheduler";
+import { checkTimeouts } from "@/lib/payment-reminders/timeout-monitor";
 
 /**
  * POST handler for the cron job
@@ -42,6 +43,17 @@ export async function POST(request: Request) {
     
     // Track errors for alerting
     let processingErrors = 0;
+    
+    // Run timeout check before processing new reminders (Requirement 6.4)
+    try {
+      console.log('[Cron] Running timeout check...');
+      await checkTimeouts();
+      console.log('[Cron] Timeout check completed successfully');
+    } catch (error) {
+      processingErrors++;
+      console.error('[Cron] Error during timeout check:', error);
+      // Continue with reminder processing even if timeout check fails
+    }
     
     // Process all due reminders
     try {
@@ -112,6 +124,17 @@ export async function GET(request: Request) {
     
     // Track errors for alerting
     let processingErrors = 0;
+    
+    // Run timeout check before processing new reminders (Requirement 6.4)
+    try {
+      console.log('[Cron] Running timeout check...');
+      await checkTimeouts();
+      console.log('[Cron] Timeout check completed successfully');
+    } catch (error) {
+      processingErrors++;
+      console.error('[Cron] Error during timeout check:', error);
+      // Continue with reminder processing even if timeout check fails
+    }
     
     // Process all due reminders
     try {

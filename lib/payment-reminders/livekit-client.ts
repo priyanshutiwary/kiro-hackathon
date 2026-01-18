@@ -85,10 +85,12 @@ export async function makeCall(
   context: CallContext
 ): Promise<CallOutcome> {
   console.log(`[LiveKit Client] Initiating call to ${phoneNumber}`);
+  console.log(`[LiveKit Client] Reminder ID: ${context.reminderId}`);
 
   try {
     // Dispatch the call via the LiveKit dispatcher
     const result = await dispatchPaymentCall({
+      reminderId: context.reminderId,
       customerName: context.customerName,
       customerPhone: phoneNumber,
       invoiceNumber: context.invoiceNumber,

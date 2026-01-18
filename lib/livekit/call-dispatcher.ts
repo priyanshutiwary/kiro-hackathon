@@ -14,6 +14,7 @@ import crypto from 'crypto';
  * Payment context for the call
  */
 export interface PaymentCallContext {
+  reminderId: string; // Added for webhook integration
   customerName: string;
   customerPhone: string;
   invoiceNumber: string;
@@ -171,8 +172,9 @@ export async function dispatchPaymentCall(
     };
   }
 
-  // Generate unique room name
-  const roomName = `payment-reminder-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+  // Generate unique room name with reminder_id for webhook integration
+  // Format: payment-reminder-{reminderId}-{timestamp}-{random}
+  const roomName = `payment-reminder-${context.reminderId}-${Date.now()}-${Math.random().toString(36).substring(7)}`;
 
   console.log(`[LiveKit Dispatcher] Starting call dispatch for ${cleanedPhone}`);
   console.log(`[LiveKit Dispatcher] Room: ${roomName}`);

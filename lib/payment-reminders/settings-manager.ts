@@ -312,6 +312,41 @@ export function getSupportedTimezones(): string[] {
 }
 
 /**
+ * Helper function to get organization ID from agent integrations
+ */
+async function getOrganizationIdFromIntegration(userId: string): Promise<string | null> {
+  try {
+    const { agentIntegrations } = await import("@/db/schema");
+    const { and } = await import("drizzle-orm");
+    
+    const integrations = await db
+      .select({
+        config: agentIntegrations.config,
+      })
+      .from(agentIntegrations)
+      .where(
+        and(
+          eq(agentIntegrations.userId, userId),
+          eq(agentIntegrations.provider, 'zoho_books'),
+          eq(agentIntegrations.enabled, true),
+          eq(agentIntegrations.status, 'active')
+        )
+      )
+      .limit(1);
+
+    if (integrations.length === 0 || !integrations[0].config) {
+      return null;
+    }
+
+    const config = JSON.parse(integrations[0].config);
+    return config.organizationId || config.organization_id || null;
+  } catch (error) {
+    console.error('Error fetching organization ID from integration:', error);
+    return null;
+  }
+}
+
+/**
  * Gets user reminder settings from database
  * If settings don't exist, returns default settings
  * Requirements: 11.1, 11.2
@@ -324,10 +359,13 @@ export async function getUserSettings(userId: string): Promise<ReminderSettings>
     .limit(1);
   
   if (settings.length === 0) {
+    // Try to get organizationId from agentIntegrations
+    const orgId = await getOrganizationIdFromIntegration(userId);
+    
     // Return default settings for new users
     return {
       userId,
-      organizationId: null,
+      organizationId: orgId,
       ...DEFAULT_REMINDER_SETTINGS,
     };
   }
@@ -459,6 +497,14 @@ export async function updateUserSettings(
   
   try {
     if (existing.length === 0) {
+      // If organizationId is not provided, try to get it from agentIntegrations
+      if (!dbData.organizationId) {
+        const orgId = await getOrganizationIdFromIntegration(userId);
+        if (orgId) {
+          dbData.organizationId = orgId;
+        }
+      }
+      
       // Create new settings with defaults merged with updates
       const newSettings = {
         id: crypto.randomUUID(),

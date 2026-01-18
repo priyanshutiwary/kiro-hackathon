@@ -111,6 +111,9 @@ export async function initiateCall(reminderId: string): Promise<CallOutcome> {
   // Step 3: Prepare fresh context (Requirement 7.6, 8.2)
   console.log(`[Call Executor] Preparing call context...`);
   const context = await prepareFreshContext(invoice.id, reminder.userId);
+  
+  // Add reminder_id to context for webhook integration
+  context.reminderId = reminderId;
 
   // Get user language and voice preferences
   const { reminderSettings } = await import("@/db/schema");

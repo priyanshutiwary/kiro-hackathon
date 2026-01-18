@@ -1,5 +1,5 @@
 import { db } from "@/db/drizzle";
-import { account, session, user, verification, subscription } from "@/db/schema";
+import { account, session, user, verification, subscription, reminderSettings } from "@/db/schema";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
@@ -14,6 +14,7 @@ import { eq } from "drizzle-orm";
 import { emailService } from "./email";
 import { validateEmailConfiguration } from "./email";
 import { nanoid } from "nanoid";
+import { DEFAULT_REMINDER_SETTINGS } from "./payment-reminders/settings-manager";
 
 // Custom plugin to handle unverified email login attempts
 const emailVerificationPlugin = {
@@ -85,6 +86,56 @@ const emailVerificationPlugin = {
           } catch (error) {
             // Re-throw to prevent login
             throw error;
+          }
+        },
+      },
+    ],
+    after: [
+      {
+        matcher: (context: any) => {
+          // Match both email sign-up and OAuth sign-up
+          return context.path === "/sign-up/email" || context.path?.includes("/callback/");
+        },
+        handler: async (context: any) => {
+          try {
+            // Get the created user from the response
+            const userId = context.context?.returned?.user?.id;
+            
+            if (!userId) {
+              console.log('⚠️ No user ID found in sign-up response, skipping reminder settings creation');
+              return;
+            }
+
+            console.log(`🔧 Creating default reminder settings for new user: ${userId}`);
+
+            // Check if reminder settings already exist (shouldn't happen, but just in case)
+            const existingSettings = await db
+              .select()
+              .from(reminderSettings)
+              .where(eq(reminderSettings.userId, userId))
+              .limit(1);
+
+            if (existingSettings.length > 0) {
+              console.log(`⚠️ Reminder settings already exist for user ${userId}, skipping creation`);
+              return;
+            }
+
+            // Create default reminder settings
+            await db.insert(reminderSettings).values({
+              id: nanoid(),
+              userId,
+              organizationId: null, // Will be populated when user connects Zoho Books
+              ...DEFAULT_REMINDER_SETTINGS,
+              customReminderDays: JSON.stringify(DEFAULT_REMINDER_SETTINGS.customReminderDays),
+              callDaysOfWeek: JSON.stringify(DEFAULT_REMINDER_SETTINGS.callDaysOfWeek),
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            });
+
+            console.log(`✅ Default reminder settings created for user ${userId}`);
+          } catch (error) {
+            // Log error but don't fail the sign-up process
+            console.error('❌ Error creating default reminder settings:', error);
           }
         },
       },

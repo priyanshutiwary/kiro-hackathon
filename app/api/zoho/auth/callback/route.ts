@@ -110,6 +110,17 @@ export async function GET(request: NextRequest) {
       accountsUrl
     );
 
+    // Update reminder settings with organizationId if not already set
+    console.log(`[Zoho OAuth] Updating reminder settings with organizationId for user ${userId}...`);
+    try {
+      const { updateUserSettings } = await import("@/lib/payment-reminders/settings-manager");
+      await updateUserSettings(userId, { organizationId });
+      console.log(`[Zoho OAuth] Reminder settings updated with organizationId: ${organizationId}`);
+    } catch (error) {
+      console.error(`[Zoho OAuth] Failed to update reminder settings:`, error);
+      // Don't fail the OAuth flow if this fails
+    }
+
     // Trigger initial sync in the background (don't wait for it)
     console.log(`[Zoho OAuth] Triggering initial sync for user ${userId}...`);
     syncInvoicesForUser(userId, organizationId)
