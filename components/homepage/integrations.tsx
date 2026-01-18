@@ -2,15 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Phone,
-  Zap,
-  Clock,
-  BarChart3,
-  Shield,
-  Workflow,
-  TrendingUp
-} from "lucide-react";
+import { Zap } from "lucide-react";
 import { brandColors } from "@/lib/brand-colors";
 import { motion } from "framer-motion";
 
@@ -65,121 +57,76 @@ export default function Integrations() {
           className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
         >
           <FeatureCard
-            icon={<Phone className="h-6 w-6" />}
+            image="/feature-voice-call.png"
             title="AI Voice Collection Calls"
             description="Professional, natural-sounding AI agents make payment reminder calls automatically. Improve collection rates with personalized conversations."
-            gradient={brandColors.features.voice}
           />
 
           <FeatureCard
-            icon={<Workflow className="h-6 w-6" />}
+            image="/feature-integration.png"
             title="CRM & Accounting Integration"
             description="Seamlessly sync with Zoho Books, Zoho CRM, and other platforms. Automatic invoice tracking and payment status updates."
-            gradient={brandColors.features.integration}
           />
 
           <FeatureCard
-            icon={<Clock className="h-6 w-6" />}
+            image="/feature-scheduling.png"
             title="Smart Call Scheduling"
             description="Optimal timing based on customer time zones and preferences. Automated follow-ups and retry logic for maximum efficiency."
-            gradient={brandColors.features.scheduling}
           />
 
           <FeatureCard
-            icon={<Shield className="h-6 w-6" />}
+            image="/feature-security.png"
             title="Secure & Compliant"
             description="Bank-level encryption for payment data. GDPR and PCI compliant with full audit trails and secure call recordings."
-            gradient={brandColors.features.security}
           />
 
           <FeatureCard
-            icon={<BarChart3 className="h-6 w-6" />}
+            image="/feature-analytics.png"
             title="Real-time Analytics Dashboard"
             description="Track collection rates, call success metrics, and payment trends. Data-driven insights to optimize your collection strategy."
-            gradient={brandColors.features.analytics}
           />
 
           <FeatureCard
-            icon={<TrendingUp className="h-6 w-6" />}
+            image="/feature-success.png"
             title="85% Collection Success Rate"
             description="Proven results with automated payment reminders. Reduce DSO (Days Sales Outstanding) and improve working capital."
-            gradient={brandColors.features.success}
           />
         </motion.div>
 
-        {/* How It Works */}
-        <div className="mt-24">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-12"
-          >
-            <Badge variant="outline" className={`mb-4 ${brandColors.border.default} backdrop-blur-sm`}>
-              Simple Process
-            </Badge>
-            <h3 className={`text-3xl font-bold ${brandColors.text.primary}`}>
-              Start collecting payments in 3 simple steps
-            </h3>
-            <p className={`mt-3 text-lg ${brandColors.text.secondary}`}>
-              Setup takes minutes, not days
-            </p>
-          </motion.div>
 
-          <motion.div
-            variants={container}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            className="grid gap-8 md:grid-cols-3"
-          >
-            <StepCard
-              step="1"
-              title="Connect Your CRM"
-              description="Link your Zoho Books or CRM account. We automatically sync overdue invoices and customer contact information."
-            />
-            <StepCard
-              step="2"
-              title="Configure Call Scripts"
-              description="Customize AI voice agent scripts, set your business profile, and define payment reminder schedules."
-            />
-            <StepCard
-              step="3"
-              title="Automate Collections"
-              description="Our AI agents make professional payment reminder calls automatically. Track results and watch your cash flow improve."
-            />
-          </motion.div>
-        </div>
       </div>
     </section>
   );
 }
 
 const FeatureCard = ({
-  icon,
+  image,
   title,
   description,
-  gradient,
 }: {
-  icon: React.ReactNode;
+  image: string;
   title: string;
   description: string;
-  gradient: string;
 }) => {
   return (
     <motion.div variants={item} className="h-full">
-      <Card className={`relative overflow-hidden p-6 hover:shadow-2xl transition-all duration-300 border border-white/20 dark:border-white/10 ${brandColors.backgrounds.glass} backdrop-blur-xl rounded-2xl h-full group`}>
+      <Card className={`relative overflow-hidden p-5 hover:shadow-2xl transition-all duration-300 border border-white/20 dark:border-white/10 ${brandColors.backgrounds.glass} backdrop-blur-xl rounded-2xl h-full group`}>
         {/* Hover Glow Effect */}
         <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-        <div className={`inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${gradient} text-white shadow-lg shadow-blue-500/20 mb-4 transition-transform duration-300 group-hover:scale-110 relative z-10`}>
-          {icon}
+        <div className="mb-4 relative overflow-hidden rounded-xl h-48 w-full flex items-center justify-center">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-brand-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <img
+            src={image}
+            alt={title}
+            className="object-contain w-full h-full transform transition-transform duration-500 group-hover:scale-110 p-2 relative z-10"
+          />
         </div>
-        <h3 className={`text-xl font-semibold ${brandColors.text.primary} mb-2 relative z-10`}>
+
+        <h3 className={`text-lg font-semibold ${brandColors.text.primary} mb-1.5 relative z-10`}>
           {title}
         </h3>
-        <p className={`${brandColors.text.secondary} leading-relaxed relative z-10`}>
+        <p className={`text-sm ${brandColors.text.secondary} leading-relaxed relative z-10 line-clamp-3`}>
           {description}
         </p>
       </Card>
@@ -187,30 +134,4 @@ const FeatureCard = ({
   );
 };
 
-const StepCard = ({
-  step,
-  title,
-  description,
-}: {
-  step: string;
-  title: string;
-  description: string;
-}) => {
-  return (
-    <motion.div variants={item} className="relative">
-      <div className="flex items-start gap-4">
-        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${brandColors.primary.gradientBr} text-white font-bold shadow-lg shadow-blue-500/30`}>
-          {step}
-        </div>
-        <div>
-          <h4 className={`text-lg font-semibold ${brandColors.text.primary} mb-2`}>
-            {title}
-          </h4>
-          <p className={brandColors.text.secondary}>
-            {description}
-          </p>
-        </div>
-      </div>
-    </motion.div>
-  );
-};
+

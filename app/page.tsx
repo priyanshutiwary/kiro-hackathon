@@ -4,6 +4,7 @@ import Integrations from "@/components/homepage/integrations";
 import Navbar from "@/components/homepage/navbar";
 import SocialProof from "@/components/homepage/social-proof";
 import Faq from "@/components/homepage/faq";
+import HowItWorks from "@/components/homepage/how-it-works";
 import { getSubscriptionDetails } from "@/lib/subscription";
 import PricingTable from "./pricing/_component/pricing-table";
 import type { Metadata } from "next";
@@ -155,6 +156,7 @@ export default async function Home() {
 
       <Navbar />
       <HeroSection />
+      <HowItWorks />
       <Integrations />
       <SocialProof />
       <PricingTable subscriptionDetails={subscriptionDetails} />
