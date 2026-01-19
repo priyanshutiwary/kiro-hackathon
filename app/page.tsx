@@ -5,9 +5,11 @@ import Navbar from "@/components/homepage/navbar";
 import SocialProof from "@/components/homepage/social-proof";
 import Faq from "@/components/homepage/faq";
 import HowItWorks from "@/components/homepage/how-it-works";
-import { getSubscriptionDetails } from "@/lib/subscription";
-import PricingTable from "./pricing/_component/pricing-table";
+import PricingTableWrapper from "./pricing/_component/pricing-table-wrapper";
 import type { Metadata } from "next";
+
+// No need for dynamic config - page is fully static now
+// Subscription check happens client-side via API route
 
 export const metadata: Metadata = {
   title: "AI Payment Reminder Calls | Automated Invoice Collection Software",
@@ -82,9 +84,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function Home() {
-  const subscriptionDetails = await getSubscriptionDetails();
-
+export default function Home() {
   // Structured Data for SEO
   const jsonLd = {
     "@context": "https://schema.org",
@@ -159,7 +159,7 @@ export default async function Home() {
       <HowItWorks />
       <Integrations />
       <SocialProof />
-      <PricingTable subscriptionDetails={subscriptionDetails} />
+      <PricingTableWrapper />
       <Faq />
       <FooterSection />
     </>

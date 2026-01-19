@@ -13,7 +13,7 @@ import { calculateInvoiceHash, detectChanges, InvoiceChanges } from "./invoice-h
 import { buildReminderSchedule, ReminderScheduleItem } from "./reminder-schedule";
 import { ReminderSettings, getUserSettings } from "./settings-manager";
 import { getMaxReminderDays } from "./reminder-schedule";
-import { syncCustomersForUser, CustomerSyncResult } from "./customer-sync-engine";
+import { syncCustomersForUser} from "./customer-sync-engine";
 
 /**
  * Process and upsert invoice into cache

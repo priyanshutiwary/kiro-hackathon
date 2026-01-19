@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { Phone, Mail, MapPin } from "lucide-react";
+import { Phone} from "lucide-react";
 import { brandColors } from "@/lib/brand-colors";
 
-const footerLinks = {
+const _footerLinks = {
   product: [
     { title: "Features", href: "#features" },
     { title: "Pricing", href: "#pricing" },

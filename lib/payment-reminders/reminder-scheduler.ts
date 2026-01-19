@@ -8,10 +8,10 @@
  */
 
 import { db } from "@/db/drizzle";
-import { paymentReminders, reminderSettings } from "@/db/schema";
+import { paymentReminders} from "@/db/schema";
 import { eq, and, lte } from "drizzle-orm";
 import { canMakeCallNow } from "./call-window";
-import { getUserSettings, ReminderSettings } from "./settings-manager";
+import { getUserSettings} from "./settings-manager";
 import { initiateCall } from "./call-executor";
 
 /**

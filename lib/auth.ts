@@ -22,10 +22,10 @@ const emailVerificationPlugin = {
   hooks: {
     before: [
       {
-        matcher: (context: any) => {
+        matcher: (context: { path?: string }) => {
           return context.path === "/sign-in/email";
         },
-        handler: async (context: any) => {
+        handler: async (context: { body?: { email?: string } }) => {
           try {
             const body = context.body;
             const email = body?.email;
@@ -92,11 +92,11 @@ const emailVerificationPlugin = {
     ],
     after: [
       {
-        matcher: (context: any) => {
+        matcher: (context: { path?: string }) => {
           // Match both email sign-up and OAuth sign-up
           return context.path === "/sign-up/email" || context.path?.includes("/callback/");
         },
-        handler: async (context: any) => {
+        handler: async (context: { context?: { returned?: { user?: { id?: string } } } }) => {
           try {
             // Get the created user from the response
             const userId = context.context?.returned?.user?.id;
@@ -223,6 +223,7 @@ export const auth = betterAuth({
     },
   },
   plugins: [
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     emailVerificationPlugin as any,
     dodopayments({
       client: dodoPayments,
@@ -241,14 +242,14 @@ export const auth = betterAuth({
         portal(),
         webhooks({
           webhookKey: process.env.DODO_PAYMENTS_WEBHOOK_SECRET || "fallback-secret",
-          onPayload: async (payload) => {
-            console.log("🎯 Received Dodo webhook:", payload.type || payload.event_type);
+          onPayload: async (payload: { type: string; data?: Record<string, unknown> }) => {
+            console.log("🎯 Received Dodo webhook:", payload.type);
             console.log("📦 Payload:", JSON.stringify(payload, null, 2));
             console.log("🔑 Webhook Key:", process.env.DODO_PAYMENTS_WEBHOOK_SECRET ? "✅ Set" : "❌ Missing");
             
             // Process subscription events
-            if (payload.type === "subscription.active" || payload.type === "subscription.created") {
-              await processSubscriptionWebhook(payload);
+            if (payload.type === "subscription.active") {
+              await processSubscriptionWebhook(payload as SubscriptionWebhookPayload);
             }
           },
         }),
@@ -258,8 +259,8 @@ export const auth = betterAuth({
   ],
 });
 
-// Process subscription webhook events
-async function processSubscriptionWebhook(payload: {
+// Type for subscription webhook payload
+interface SubscriptionWebhookPayload {
   type: string;
   data: {
     subscription_id: string;
@@ -277,7 +278,10 @@ async function processSubscriptionWebhook(payload: {
     discount_id?: string;
     metadata?: Record<string, unknown>;
   };
-}) {
+}
+
+// Process subscription webhook events
+async function processSubscriptionWebhook(payload: SubscriptionWebhookPayload) {
   try {
     console.log("🔄 Processing subscription webhook...");
     

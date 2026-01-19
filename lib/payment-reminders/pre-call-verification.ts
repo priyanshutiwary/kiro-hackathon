@@ -11,7 +11,7 @@ import { db } from "@/db/drizzle";
 import { invoicesCache, customersCache } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { ZohoBooksClient, ZohoInvoice } from "./zoho-books-client";
-import { getBusinessProfile, getDefaultBusinessProfile, formatPaymentMethods } from "@/lib/business-profile/service";
+import { getBusinessProfile, getDefaultBusinessProfile} from "@/lib/business-profile/service";
 
 /**
  * Invoice verification result

@@ -50,6 +50,7 @@ export default function BillsPage() {
 
   useEffect(() => {
     checkConnectionAndFetchBills();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkConnectionAndFetchBills = async () => {
@@ -260,7 +261,7 @@ export default function BillsPage() {
           <CardHeader>
             <CardTitle>No Bills Found</CardTitle>
             <CardDescription>
-              You don't have any bills in your Zoho Books account yet.
+              You don&apos;t have any bills in your Zoho Books account yet.
             </CardDescription>
           </CardHeader>
           <CardContent>

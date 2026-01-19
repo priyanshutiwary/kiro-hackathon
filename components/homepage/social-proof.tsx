@@ -129,7 +129,7 @@ export default function SocialProof() {
                     ))}
                   </div>
                   <p className={`${brandColors.text.primary} text-lg mb-6 leading-relaxed font-medium`}>
-                    "{testimonial.content}"
+                    &quot;{testimonial.content}&quot;
                   </p>
                 </div>
                 <div className="flex items-center gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">

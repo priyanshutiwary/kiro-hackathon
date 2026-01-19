@@ -15,7 +15,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { authClient } from "@/lib/auth-client";
 import { brandColors } from "@/lib/brand-colors";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -32,7 +32,6 @@ function SignInContent() {
 
   const searchParams = useSearchParams();
   const returnTo = searchParams.get("returnTo");
-  const router = useRouter();
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

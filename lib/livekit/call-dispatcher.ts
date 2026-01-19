@@ -92,7 +92,26 @@ function generateAccessToken(
   };
 
   const now = Math.floor(Date.now() / 1000);
-  const payload: any = {
+  const payload: {
+    iss: string;
+    sub: string;
+    exp: number;
+    nbf: number;
+    video: {
+      room: string;
+      roomCreate: boolean;
+      roomJoin: boolean;
+      roomAdmin: boolean;
+      roomList: boolean;
+    };
+    sip?: {
+      admin: boolean;
+      call: boolean;
+    };
+    agent?: {
+      dispatch: boolean;
+    };
+  } = {
     iss: apiKey,
     sub: apiKey,
     exp: now + 3600, // 1 hour expiry

@@ -4,7 +4,7 @@
  */
 
 import crypto from 'crypto';
-import { ZohoContact } from './zoho-contacts-client';
+import { ZohoContact, ZohoContactPerson } from './zoho-contacts-client';
 
 /**
  * Customer changes detected during sync
@@ -130,8 +130,8 @@ export function detectCustomerChanges(
  * @returns true if arrays are equal, false otherwise
  */
 function areContactPersonsEqual(
-  existing: any[],
-  updated: any[]
+  existing: ZohoContactPerson[],
+  updated: ZohoContactPerson[]
 ): boolean {
   // Different lengths means changed
   if (existing.length !== updated.length) {

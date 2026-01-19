@@ -18,7 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Calendar, DollarSign, User, FileText } from "lucide-react";
+import { MoreHorizontal} from "lucide-react";
 import { format, isToday, isTomorrow, isThisWeek } from "date-fns";
 
 interface ScheduledReminder {

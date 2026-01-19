@@ -30,7 +30,7 @@ const staticIntegrations: Integration[] = [];
 
 export default function IntegrationsPage() {
   const [integrations, setIntegrations] = useState<Integration[]>(staticIntegrations);
-  const [zohoStatus, setZohoStatus] = useState<Integration | null>(null);
+  const [_zohoStatus, setZohoStatus] = useState<Integration | null>(null);
   const [isLoadingZoho, setIsLoadingZoho] = useState(true);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
 

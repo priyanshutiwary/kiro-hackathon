@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import Link from "next/link";
-import { Phone } from "lucide-react";
 import { brandColors } from "@/lib/brand-colors";
 
 export default function Navbar() {

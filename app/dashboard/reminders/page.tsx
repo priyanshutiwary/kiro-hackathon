@@ -51,6 +51,7 @@ export default function RemindersPage() {
 
   useEffect(() => {
     fetchAllData(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dateRange, statusFilter]);
 
   const fetchAllData = async (shouldLoad = false) => {
@@ -176,7 +177,7 @@ export default function RemindersPage() {
                 There are no reminders matching your current filters. Try adjusting dates or status.
               </p>
               <p className="text-sm text-muted-foreground max-w-sm mb-6">
-                If you haven't set up any integrations yet, check your{" "}
+                If you haven&apos;t set up any integrations yet, check your{" "}
                 <a href="/dashboard/settings?tab=integrations" className="text-primary underline hover:no-underline">
                   integration settings
                 </a>{" "}

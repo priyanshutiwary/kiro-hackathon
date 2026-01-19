@@ -84,6 +84,7 @@ export default function BusinessProfilePage() {
   // Load existing profile
   useEffect(() => {
     fetchProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchProfile = async () => {

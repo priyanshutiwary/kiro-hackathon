@@ -89,23 +89,24 @@ export function CustomerDetailModal({
 
   if (!contact) return null;
 
-  const formatAddress = (address: any) => {
-    if (!address) return null;
-    
-    const parts = [];
-    if (address.address) parts.push(address.address);
-    if (address.street2) parts.push(address.street2);
-    
-    const cityStateZip = [];
-    if (address.city) cityStateZip.push(address.city);
-    if (address.state) cityStateZip.push(address.state);
-    if (address.zip) cityStateZip.push(address.zip);
-    if (cityStateZip.length > 0) parts.push(cityStateZip.join(", "));
-    
-    if (address.country) parts.push(address.country);
-    
-    return parts.length > 0 ? parts.join("\n") : null;
-  };
+  // Utility function to format address (currently unused, but kept for future use)
+  // const formatAddress = (address: Record<string, unknown>) => {
+  //   if (!address) return null;
+  //   
+  //   const parts = [];
+  //   if (address.address) parts.push(address.address);
+  //   if (address.street2) parts.push(address.street2);
+  //   
+  //   const cityStateZip = [];
+  //   if (address.city) cityStateZip.push(address.city);
+  //   if (address.state) cityStateZip.push(address.state);
+  //   if (address.zip) cityStateZip.push(address.zip);
+  //   if (cityStateZip.length > 0) parts.push(cityStateZip.join(", "));
+  //   
+  //   if (address.country) parts.push(address.country);
+  //   
+  //   return parts.length > 0 ? parts.join("\n") : null;
+  // };
 
   const getPrimaryPhone = (contact: Contact): string | null => {
     if (contact.mobile) return contact.mobile;

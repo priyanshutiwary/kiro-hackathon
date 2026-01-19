@@ -6,11 +6,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { db } from '@/db/drizzle';
 import { user, invoicesCache, paymentReminders, reminderSettings, syncMetadata } from '@/db/schema';
-import { eq, and } from 'drizzle-orm';
-import { syncInvoicesForUser } from '../sync-engine';
-import { processReminders } from '../reminder-scheduler';
+import { eq} from 'drizzle-orm';
+
 import { getUserSettings, updateUserSettings } from '../settings-manager';
-import { calculateInvoiceHash } from '../invoice-hash';
+
 
 // Mock external services
 vi.mock('../zoho-books-client');
@@ -31,7 +30,7 @@ describe('Integration Tests - Payment Reminder Calls', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       });
-    } catch (error) {
+    } catch (_error) {
       // User might already exist, that's okay
     }
     
@@ -97,10 +96,11 @@ describe('Integration Tests - Payment Reminder Calls', () => {
         ];
       });
       
-      const mockZohoClient: any = {
+      const mockZohoClient = {
         getInvoices: mockGetInvoices,
         getInvoiceById: vi.fn(),
-      };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any;
       
       // Mock the createZohoBooksClient function
       vi.mocked(createZohoBooksClient).mockReturnValue(mockZohoClient);
@@ -155,7 +155,6 @@ describe('Integration Tests - Payment Reminder Calls', () => {
       // Requirements: 7.1-7.6, 8.1-8.8, 15.1-15.7
       
       const { processReminders } = await import('../reminder-scheduler');
-      const { canMakeCallNow } = await import('../call-window');
       const livekitClient = await import('../livekit-client');
       const zohoClient = await import('../zoho-books-client');
       
@@ -185,6 +184,7 @@ describe('Integration Tests - Payment Reminder Calls', () => {
       vi.spyOn(zohoClient, 'createZohoBooksClient').mockReturnValue({
         getInvoiceById: mockGetInvoiceById,
         getInvoices: vi.fn(),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
       
       // Set up user settings with call window that allows calls now
@@ -224,7 +224,8 @@ describe('Integration Tests - Payment Reminder Calls', () => {
         remindersCreated: true,
         createdAt: new Date(),
         updatedAt: new Date(),
-      });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
       
       // Create a due reminder
       const reminderId = crypto.randomUUID();
@@ -270,7 +271,6 @@ describe('Integration Tests - Payment Reminder Calls', () => {
     it('should save settings, adjust sync window, and respect new settings', async () => {
       // Requirements: 1.13, 11.5, 11.6
       
-      const { syncInvoicesForUser } = await import('../sync-engine');
       const { getMaxReminderDays } = await import('../reminder-schedule');
       
       // Initial settings with 7-day reminders
@@ -329,7 +329,7 @@ describe('Integration Tests - Payment Reminder Calls', () => {
             createdAt: new Date(),
             updatedAt: new Date(),
           });
-        } catch (error) {
+        } catch (_error) {
           // User might already exist, that's okay
         }
         
@@ -368,7 +368,8 @@ describe('Integration Tests - Payment Reminder Calls', () => {
           remindersCreated: false,
           createdAt: new Date(),
           updatedAt: new Date(),
-        });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any);
         
         const invoice2Id = crypto.randomUUID();
         await db.insert(invoicesCache).values({
@@ -391,7 +392,8 @@ describe('Integration Tests - Payment Reminder Calls', () => {
           remindersCreated: false,
           createdAt: new Date(),
           updatedAt: new Date(),
-        });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any);
         
         // Create reminders for both users
         await db.insert(paymentReminders).values({

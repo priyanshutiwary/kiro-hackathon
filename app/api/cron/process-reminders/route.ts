@@ -106,7 +106,7 @@ export async function POST(request: Request) {
  * This allows manual triggering of the reminder processing for testing purposes.
  * In production, you may want to disable this or add authentication.
  */
-export async function GET(request: Request) {
+export async function GET(_request: Request) {
   // Check if manual trigger is allowed
   const allowManualTrigger = process.env.ALLOW_MANUAL_CRON_TRIGGER === 'true';
   

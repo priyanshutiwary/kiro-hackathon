@@ -1,11 +1,11 @@
-import { getSubscriptionDetails } from "@/lib/subscription";
 import { ThemeToggle } from "@/components/theme-toggle";
-import PricingTable from "./_component/pricing-table";
+import PricingTableWrapper from "./_component/pricing-table-wrapper";
 import { brandColors } from "@/lib/brand-colors";
 
-export default async function PricingPage() {
-  const subscriptionDetails = await getSubscriptionDetails();
+// No need for dynamic config - page is fully static now
+// Subscription check happens client-side via API route
 
+export default function PricingPage() {
   return (
     <div className={`flex flex-col items-center justify-center w-full min-h-screen relative overflow-hidden ${brandColors.backgrounds.hero}`}>
       {/* Background Elements */}
@@ -18,7 +18,7 @@ export default async function PricingPage() {
       </div>
 
       <div className="relative z-10 w-full">
-        <PricingTable subscriptionDetails={subscriptionDetails} />
+        <PricingTableWrapper />
       </div>
     </div>
   );

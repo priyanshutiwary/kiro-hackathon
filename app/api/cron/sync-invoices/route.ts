@@ -9,7 +9,7 @@
 
 import { NextResponse } from "next/server";
 import { db } from "@/db/drizzle";
-import { user, agentIntegrations } from "@/db/schema";
+import { agentIntegrations } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { syncInvoicesForUser } from "@/lib/payment-reminders/sync-engine";
 

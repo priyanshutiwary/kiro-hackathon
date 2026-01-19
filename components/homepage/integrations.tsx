@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Zap } from "lucide-react";
 import { brandColors } from "@/lib/brand-colors";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 const container = {
   hidden: { opacity: 0 },
@@ -116,9 +117,11 @@ const FeatureCard = ({
 
         <div className="mb-4 relative overflow-hidden rounded-xl h-48 w-full flex items-center justify-center">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-brand-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <img
+          <Image
             src={image}
             alt={title}
+            width={400}
+            height={300}
             className="object-contain w-full h-full transform transition-transform duration-500 group-hover:scale-110 p-2 relative z-10"
           />
         </div>

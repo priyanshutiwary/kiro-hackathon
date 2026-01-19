@@ -13,7 +13,6 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { brandColors } from "@/lib/brand-colors";
 import { ThemeToggle } from "@/components/theme-toggle";
-import Link from "next/link";
 import { motion } from "framer-motion";
 
 export default function SuccessPage() {

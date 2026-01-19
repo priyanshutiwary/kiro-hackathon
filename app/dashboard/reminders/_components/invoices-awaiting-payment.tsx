@@ -1,7 +1,6 @@
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -14,7 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, AlertTriangle } from "lucide-react";
+import { DollarSign} from "lucide-react";
 import { format, isPast } from "date-fns";
 
 interface Invoice {

@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
 
     // Extract OAuth callback parameters
     const code = searchParams.get("code");
-    const state = searchParams.get("state");
+    const _state = searchParams.get("state");
     const location = searchParams.get("location"); // Multi-DC parameter
     const accountsServer = searchParams.get("accounts-server"); // Multi-DC parameter
     const error = searchParams.get("error");

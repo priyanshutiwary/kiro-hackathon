@@ -58,7 +58,7 @@ export async function GET(
 
     // Fetch detailed invoice data directly from Zoho API
     const endpoint = `/books/v3/invoices/${invoiceId}?organization_id=${organizationId}`;
-    const response = await apiClient["makeRequest"]<{ invoice: any }>(userId, endpoint);
+    const response = await apiClient["makeRequest"]<{ invoice: Record<string, unknown> }>(userId, endpoint);
 
     return NextResponse.json({
       success: true,

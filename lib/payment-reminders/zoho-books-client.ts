@@ -288,7 +288,7 @@ export class ZohoBooksClient {
    * @param context - Additional context
    * @throws Appropriate error type based on error content
    */
-  private handleError(error: unknown, operation: string, context?: Record<string, any>): never {
+  private handleError(error: unknown, operation: string, context?: Record<string, unknown>): never {
     const errorMessage = error instanceof Error ? error.message : String(error);
     const contextStr = context ? ` (${JSON.stringify(context)})` : '';
 

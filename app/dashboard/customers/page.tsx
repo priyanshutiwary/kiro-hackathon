@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 import { Loader2, RefreshCw } from "lucide-react";
@@ -139,7 +139,7 @@ export default function CustomersPage() {
                 Customers will appear here after syncing from Zoho Books
               </p>
               <p className="text-sm text-muted-foreground max-w-sm">
-                If you haven't set up any integrations yet, check your{" "}
+                If you haven&apos;t set up any integrations yet, check your{" "}
                 <a href="/dashboard/settings?tab=integrations" className="text-primary underline hover:no-underline">
                   integration settings
                 </a>{" "}

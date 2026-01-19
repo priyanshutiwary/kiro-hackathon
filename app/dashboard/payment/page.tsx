@@ -11,6 +11,8 @@ import Link from "next/link";
 import ManageSubscription from "./_components/manage-subscription";
 import { DashboardTheme } from "@/lib/dashboard-theme";
 
+// Note: This page inherits dynamic = 'force-dynamic' from dashboard layout
+
 export default async function PaymentPage() {
   const subscriptionDetails = await getSubscriptionDetails();
 

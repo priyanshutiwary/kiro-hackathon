@@ -4,6 +4,11 @@ import DashboardSideBar from "./_components/sidebar";
 import Chatbot from "./_components/chatbot";
 import EmailVerificationBanner from "./_components/email-verification-banner";
 
+// All dashboard pages require authentication and should be dynamic
+// This applies to all pages under /dashboard/*
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function DashboardLayout({
   children,
 }: {

@@ -178,7 +178,7 @@ export default function ScheduledPage() {
                 Reminders will appear here once invoices are synced and scheduled
               </p>
               <p className="text-sm text-muted-foreground max-w-sm">
-                If you haven't set up any integrations yet, check your{" "}
+                If you haven&apos;t set up any integrations yet, check your{" "}
                 <a href="/dashboard/settings?tab=integrations" className="text-primary underline hover:no-underline">
                   integration settings
                 </a>{" "}

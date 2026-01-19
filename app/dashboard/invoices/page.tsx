@@ -4,10 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+  CardContent
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { DashboardTheme } from "@/lib/dashboard-theme";
@@ -57,6 +54,7 @@ export default function InvoicesPage() {
   // Fetch invoices on mount
   useEffect(() => {
     fetchInvoices();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchInvoices = async (page: number = 1, shouldLoad = true) => {
@@ -200,7 +198,7 @@ export default function InvoicesPage() {
                 Invoices will appear here after syncing from Zoho Books
               </p>
               <p className="text-sm text-muted-foreground max-w-sm">
-                If you haven't set up any integrations yet, check your{" "}
+                If you haven&apos;t set up any integrations yet, check your{" "}
                 <a href="/dashboard/settings?tab=integrations" className="text-primary underline hover:no-underline">
                   integration settings
                 </a>{" "}

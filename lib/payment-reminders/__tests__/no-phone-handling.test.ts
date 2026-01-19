@@ -5,7 +5,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { db } from '@/db/drizzle';
 import { invoicesCache, paymentReminders } from '@/db/schema';
-import { eq } from 'drizzle-orm';
 import { createRemindersForInvoice } from '../sync-engine';
 import { initiateCall } from '../call-executor';
 import { ReminderSettings } from '../settings-manager';
@@ -62,7 +61,9 @@ describe('No Phone Number Handling', () => {
         }),
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (db.select as any).mockImplementation(mockSelect);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (db.update as any).mockImplementation(mockUpdate);
 
       await createRemindersForInvoice(invoiceId, userId, dueDate, mockSettings);
@@ -101,8 +102,11 @@ describe('No Phone Number Handling', () => {
         }),
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (db.select as any).mockImplementation(mockSelect);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (db.insert as any).mockImplementation(mockInsert);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (db.update as any).mockImplementation(mockUpdate);
 
       await createRemindersForInvoice(invoiceId, userId, dueDate, mockSettings);
@@ -150,6 +154,7 @@ describe('No Phone Number Handling', () => {
         }),
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (db.select as any)
         .mockImplementationOnce(mockReminderSelect)
         .mockImplementationOnce(mockInvoiceSelect);

@@ -248,7 +248,7 @@ export function RemindersTable({ reminders }: RemindersTableProps) {
                               <p className="text-xs text-muted-foreground mb-1">
                                 Notes
                               </p>
-                              <p className="text-sm italic text-muted-foreground/80">"{reminder.callOutcome.notes}"</p>
+                              <p className="text-sm italic text-muted-foreground/80">&quot;{reminder.callOutcome.notes}&quot;</p>
                             </div>
                           )}
                         </div>

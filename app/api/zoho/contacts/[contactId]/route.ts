@@ -58,7 +58,7 @@ export async function GET(
 
     // Fetch detailed contact data directly from Zoho API
     const endpoint = `/books/v3/contacts/${contactId}?organization_id=${organizationId}`;
-    const response = await apiClient["makeRequest"]<{ contact: any }>(userId, endpoint);
+    const response = await apiClient["makeRequest"]<{ contact: Record<string, unknown> }>(userId, endpoint);
 
     return NextResponse.json({
       success: true,

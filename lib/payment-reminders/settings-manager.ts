@@ -428,7 +428,7 @@ export async function updateUserSettings(
     .limit(1);
   
   // Prepare the data for database
-  const dbData: any = {
+  const dbData: Partial<typeof reminderSettings.$inferInsert> = {
     userId,
     updatedAt: new Date(),
   };

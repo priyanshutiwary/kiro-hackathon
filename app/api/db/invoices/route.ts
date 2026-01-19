@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { db } from "@/db/drizzle";
 import { invoicesCache, customersCache } from "@/db/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 /**
  * GET /api/db/invoices
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
     const resultInvoices = hasMorePage ? invoices.slice(0, perPage) : invoices;
 
     // Map to response format
-    const mappedInvoices = resultInvoices.map((invoice: any) => ({
+    const mappedInvoices = resultInvoices.map((invoice) => ({
       invoiceId: invoice.zohoInvoiceId,
       customerId: invoice.customerId || "",
       customerName: invoice.customerName || "Unknown Customer",

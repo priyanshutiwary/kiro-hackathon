@@ -22,7 +22,7 @@ export async function GET() {
       recentActivity: recentReminders.length,
       status: 'healthy'
     });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({
       success: false,
       error: 'Failed to check cron status',

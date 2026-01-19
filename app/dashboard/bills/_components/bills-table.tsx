@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 
 interface ZohoBill {
   billId: string;
@@ -51,7 +50,7 @@ export function BillsTable({ bills }: BillsTableProps) {
         maximumFractionDigits: 2,
       });
       return formatter.format(amount);
-    } catch (error) {
+    } catch (_error) {
       // Fallback to manual formatting if currency code is invalid
       return `${currencySymbol}${amount.toFixed(2)}`;
     }
@@ -69,7 +68,7 @@ export function BillsTable({ bills }: BillsTableProps) {
         month: "short",
         day: "numeric",
       });
-    } catch (error) {
+    } catch (_error) {
       return dateString;
     }
   };
