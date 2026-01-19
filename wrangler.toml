@@ -10,3 +10,8 @@
   [assets]
   directory = ".open-next/assets"
   binding = "ASSETS"
+  
+  # R2 bucket binding
+  [[r2_buckets]]
+  binding = "R2_BUCKET"
+  bucket_name = "your-bucket-name"

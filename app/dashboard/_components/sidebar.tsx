@@ -79,7 +79,11 @@ const navItems: NavItem[] = [
   },
 ];
 
-export default function DashboardSideBar() {
+interface SidebarProps {
+  isMobile?: boolean;
+}
+
+export default function DashboardSideBar({ isMobile = false }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -94,26 +98,23 @@ export default function DashboardSideBar() {
     setIsCollapsed(!isCollapsed);
   };
 
-  return (
-    <motion.aside
-      initial={false}
-      animate={{ width: isCollapsed ? 70 : 256 }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className="min-[1024px]:flex hidden flex-col h-full bg-sidebar border-r border-sidebar-border text-sidebar-foreground relative z-20"
-    >
-      {/* Toggle Button */}
-      <button
-        onClick={toggleSidebar}
-        className="absolute -right-3 top-6 z-50 rounded-full border border-sidebar-border bg-sidebar p-1 text-sidebar-foreground shadow-sm hover:bg-sidebar-accent transition-colors focus:outline-none focus:ring-2 focus:ring-sidebar-ring"
-      >
-        {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-      </button>
+  const sidebarContent = (
+    <>
+      {/* Toggle Button - Desktop only */}
+      {!isMobile && (
+        <button
+          onClick={toggleSidebar}
+          className="absolute -right-3 top-6 z-50 rounded-full border border-sidebar-border bg-sidebar p-1 text-sidebar-foreground shadow-sm hover:bg-sidebar-accent transition-colors focus:outline-none focus:ring-2 focus:ring-sidebar-ring"
+        >
+          {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+        </button>
+      )}
 
       {/* Header */}
       <div
         className={clsx(
           "flex h-16 items-center",
-          isCollapsed ? "justify-center px-0" : "px-6"
+          isMobile ? "px-6 border-b border-sidebar-border" : (isCollapsed ? "justify-center px-0" : "px-6")
         )}
       >
         <Link
@@ -135,22 +136,29 @@ export default function DashboardSideBar() {
               <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
             </svg>
           </div>
-          <AnimatePresence>
-            {!isCollapsed && (
-              <motion.span
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: "auto" }}
-                exit={{ opacity: 0, width: 0 }}
-                transition={{ duration: 0.2 }}
-                className="whitespace-nowrap overflow-hidden"
-              >
-                <span className="flex items-center gap-0.5 ml-2">
-                  <span className="font-medium">Invo</span>
-                  <span className="font-extrabold">Call</span>
-                </span>
-              </motion.span>
-            )}
-          </AnimatePresence>
+          {isMobile ? (
+            <span className="flex items-center gap-0.5 ml-2">
+              <span className="font-medium">Invo</span>
+              <span className="font-extrabold">Call</span>
+            </span>
+          ) : (
+            <AnimatePresence>
+              {!isCollapsed && (
+                <motion.span
+                  initial={{ opacity: 0, width: 0 }}
+                  animate={{ opacity: 1, width: "auto" }}
+                  exit={{ opacity: 0, width: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="whitespace-nowrap overflow-hidden"
+                >
+                  <span className="flex items-center gap-0.5 ml-2">
+                    <span className="font-medium">Invo</span>
+                    <span className="font-extrabold">Call</span>
+                  </span>
+                </motion.span>
+              )}
+            </AnimatePresence>
+          )}
         </Link>
       </div>
 
@@ -179,19 +187,23 @@ export default function DashboardSideBar() {
                     : "text-muted-foreground group-hover:text-sidebar-foreground"
                 )}
               />
-              <AnimatePresence>
-                {!isCollapsed && (
-                  <motion.span
-                    initial={{ opacity: 0, width: 0 }}
-                    animate={{ opacity: 1, width: "auto" }}
-                    exit={{ opacity: 0, width: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="whitespace-nowrap overflow-hidden ml-1"
-                  >
-                    {item.label}
-                  </motion.span>
-                )}
-              </AnimatePresence>
+              {isMobile ? (
+                <span className="ml-1">{item.label}</span>
+              ) : (
+                <AnimatePresence>
+                  {!isCollapsed && (
+                    <motion.span
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: "auto" }}
+                      exit={{ opacity: 0, width: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="whitespace-nowrap overflow-hidden ml-1"
+                    >
+                      {item.label}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              )}
             </button>
           );
         })}
@@ -216,26 +228,39 @@ export default function DashboardSideBar() {
           ) : (
             <Sun className="h-4 w-4 shrink-0" />
           )}
-          <AnimatePresence>
-            {!isCollapsed && (
-              <motion.span
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: "auto" }}
-                exit={{ opacity: 0, width: 0 }}
-                transition={{ duration: 0.2 }}
-                className="whitespace-nowrap overflow-hidden flex items-center justify-between flex-1 ml-1"
-              >
-                <span>Dark Mode</span>
-                {mounted && (
-                  <Switch
-                    checked={theme === 'dark'}
-                    onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
-                    className="scale-75 sidebar-switch data-[state=unchecked]:bg-input/50 border-input"
-                  />
-                )}
-              </motion.span>
-            )}
-          </AnimatePresence>
+          {isMobile ? (
+            <span className="flex items-center justify-between flex-1 ml-1">
+              <span>Dark Mode</span>
+              {mounted && (
+                <Switch
+                  checked={theme === 'dark'}
+                  onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                  className="scale-75"
+                />
+              )}
+            </span>
+          ) : (
+            <AnimatePresence>
+              {!isCollapsed && (
+                <motion.span
+                  initial={{ opacity: 0, width: 0 }}
+                  animate={{ opacity: 1, width: "auto" }}
+                  exit={{ opacity: 0, width: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="whitespace-nowrap overflow-hidden flex items-center justify-between flex-1 ml-1"
+                >
+                  <span>Dark Mode</span>
+                  {mounted && (
+                    <Switch
+                      checked={theme === 'dark'}
+                      onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                      className="scale-75 sidebar-switch data-[state=unchecked]:bg-input/50 border-input"
+                    />
+                  )}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          )}
         </div>
 
         <button
@@ -257,24 +282,47 @@ export default function DashboardSideBar() {
                 : "text-muted-foreground group-hover:text-sidebar-foreground"
             )}
           />
-          <AnimatePresence>
-            {!isCollapsed && (
-              <motion.span
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: "auto" }}
-                exit={{ opacity: 0, width: 0 }}
-                transition={{ duration: 0.2 }}
-                className="whitespace-nowrap overflow-hidden ml-1"
-              >
-                Settings
-              </motion.span>
-            )}
-          </AnimatePresence>
+          {isMobile ? (
+            <span className="ml-1">Settings</span>
+          ) : (
+            <AnimatePresence>
+              {!isCollapsed && (
+                <motion.span
+                  initial={{ opacity: 0, width: 0 }}
+                  animate={{ opacity: 1, width: "auto" }}
+                  exit={{ opacity: 0, width: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="whitespace-nowrap overflow-hidden ml-1"
+                >
+                  Settings
+                </motion.span>
+              )}
+            </AnimatePresence>
+          )}
         </button>
         <div className="pt-2">
-          <UserProfile mini={isCollapsed} />
+          <UserProfile mini={isMobile ? false : isCollapsed} />
         </div>
       </div>
+    </>
+  );
+
+  if (isMobile) {
+    return (
+      <div className="flex flex-col h-full bg-sidebar text-sidebar-foreground">
+        {sidebarContent}
+      </div>
+    );
+  }
+
+  return (
+    <motion.aside
+      initial={false}
+      animate={{ width: isCollapsed ? 70 : 256 }}
+      transition={{ type: "spring" as const, stiffness: 300, damping: 30 }}
+      className="min-[1024px]:flex hidden flex-col h-full bg-sidebar border-r border-sidebar-border text-sidebar-foreground relative z-20"
+    >
+      {sidebarContent}
     </motion.aside>
   );
 }

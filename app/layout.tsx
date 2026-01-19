@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
 import { ThemeProvider } from "../components/provider";
 import "./globals.css";
-import { Analytics } from "@vercel/analytics/next";
+
 export const metadata: Metadata = {
   title: "InvoCall - AI Payment Reminder Calls",
   description:
@@ -42,7 +42,6 @@ export default function RootLayout({
         >
           {children}
           <Toaster />
-          <Analytics />
         </ThemeProvider>
       </body>
     </html>

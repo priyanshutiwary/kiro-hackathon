@@ -1,10 +1,10 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-
-// Wait, the sidebar is custom (from checking sidebar.tsx). The sidebar has its own mini/expand logic.
-// The user asked to "remove top nav bar", which had the mobile trigger.
-// For now, I will build the header with just the title. If mobile trigger is needed, I'll address it.
+import { Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import DashboardSideBar from "./sidebar";
 
 const getPageTitle = (pathname: string) => {
     if (pathname === "/dashboard") return "Overview";
@@ -26,6 +26,17 @@ export default function DashboardHeader() {
 
     return (
         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/95 px-6 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <Sheet>
+                <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon" className="min-[1024px]:hidden">
+                        <Menu className="h-5 w-5" />
+                        <span className="sr-only">Toggle menu</span>
+                    </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-[280px] p-0">
+                    <DashboardSideBar isMobile={true} />
+                </SheetContent>
+            </Sheet>
             <h1 className="text-lg font-semibold">{title}</h1>
         </header>
     );
