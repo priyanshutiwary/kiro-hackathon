@@ -17,6 +17,9 @@ An intelligent call agent system that automates payment reminder calls for small
 - Intelligent phone number extraction and validation
 - Scheduled reminder processing with cron jobs
 - Business profile-specific call configurations
+- **Webhook Status Tracking** - Real-time call outcome reporting
+- Automatic retry logic for failed or unanswered calls
+- Timeout monitoring for stuck reminders
 
 ### 🏢 Business Management
 - **Customer Management** - Comprehensive customer database with sync
@@ -133,6 +136,9 @@ ZOHO_REDIRECT_URI="http://localhost:3000/api/zoho/auth/callback"
 # Encryption for secure token storage
 ENCRYPTION_KEY="your-32-character-encryption-key"
 
+# Webhook for call status updates
+WEBHOOK_SECRET="your-webhook-secret-key"
+
 # App Configuration
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
@@ -154,7 +160,13 @@ npx drizzle-kit push
 - Configure OAuth scopes: `ZohoBooks.contacts.READ`, `ZohoBooks.invoices.READ`
 - Set up webhook endpoints for real-time updates
 
-7. **Start Development Server**
+7. **Python Agent Setup**
+- Navigate to the `agent` directory
+- Follow the setup instructions in `agent/README.md`
+- Configure webhook URL and secret to match your backend
+- The agent will report call status updates automatically
+
+8. **Start Development Server**
 ```bash
 npm run dev
 ```
@@ -174,6 +186,12 @@ Open [http://localhost:3000](http://localhost:3000) to access your call agent da
 - **Customer Sync**: Two-way synchronization with CRM data
 - **Phone Extraction**: Intelligent parsing and validation of contact numbers
 - **Business Profiles**: Company-specific call scripts and configurations
+- **Webhook Status Tracking**: Event-driven architecture for accurate call lifecycle tracking
+  - Real-time status updates from Python agent via HMAC-authenticated webhooks
+  - Automatic status transitions: pending → in_progress → processing → completed/failed
+  - Timeout monitoring detects stuck reminders (10-minute threshold)
+  - Retry logic with exponential backoff ensures webhook delivery
+  - No-answer calls automatically scheduled for retry
 
 ### CRM Integration
 - **Zoho OAuth**: Secure Multi-DC authentication with encrypted token storage

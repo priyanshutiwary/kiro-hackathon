@@ -259,6 +259,52 @@ Building an AI-powered call agent system that automates payment reminder calls f
 - Created robust cron job system for scheduled reminder processing
 - Developed modular sync engines for scalable customer management
 
+---
+
+## Day 9 (Jan 19) - Webhook Status Tracking & Call Lifecycle [8h]
+
+**Morning (4h)**: Webhook infrastructure and status tracking
+- Created comprehensive spec for reminder status webhook using Kiro's spec workflow
+- Implemented webhook endpoint (`/api/webhooks/call-status`) with HMAC authentication
+- Built status update handler with proper state transitions (in_progress → processing → completed)
+- Added call outcome recording with customer response types and duration tracking
+- **Kiro Usage**: Used `@spec` workflow to create requirements, design, and tasks documents
+
+**Afternoon (4h)**: Timeout monitoring and agent integration
+- Implemented timeout monitor to detect stuck reminders (10-minute threshold)
+- Integrated timeout checking into cron job for automatic cleanup
+- Updated call executor to use webhook-based flow instead of immediate completion
+- Built Python agent webhook client with retry logic and exponential backoff
+- Added webhook authentication and event reporting (call_answered, call_completed, call_failed)
+- **Challenge**: Ensuring reminders don't get stuck in 'in_progress' state forever
+- **Solution**: Created timeout monitor that runs on each cron execution to mark stale reminders as failed
+
+**Technical Decisions**:
+- **Event-Driven Architecture**: Python agent reports call events via webhooks for accurate lifecycle tracking
+- **HMAC Authentication**: Used shared secret for secure webhook communication between agent and backend
+- **Timeout Handling**: 10-minute threshold with automatic failure marking and retry capability
+- **Status Progression**: Clear state machine (pending → in_progress → processing → completed/failed)
+- **Retry Logic**: Exponential backoff (immediate, 2s, 4s) for webhook delivery failures
+
+**Key Implementation Details**:
+- Webhook endpoint validates authentication, reminder existence, and event types
+- Status handler manages transitions based on call outcomes (answered, completed, failed, no_answer)
+- Timeout monitor queries for stale reminders and marks them as failed with descriptive skip_reason
+- Python agent extracts reminder_id from room metadata and reports events at key lifecycle points
+- Call outcome data includes connection status, duration, customer response, and optional notes
+
+**Kiro Spec Workflow Benefits**:
+- Requirements document with EARS patterns defined 6 clear user stories with acceptance criteria
+- Design document with 14 correctness properties for property-based testing approach
+- Tasks document broke down implementation into 9 sequential tasks with requirement traceability
+- Architecture diagram clarified event flow between cron scheduler, call executor, agent, and webhook handler
+
+**Current Status**:
+- Core webhook infrastructure complete and tested
+- Timeout monitoring integrated with cron job
+- Python agent webhook client implemented with retry logic
+- Ready for end-to-end testing and property-based test implementation
+
 ### Future Enhancements
 - Add more OAuth providers (GitHub, Microsoft)
 - Implement team/organization support
@@ -271,3 +317,5 @@ Building an AI-powered call agent system that automates payment reminder calls f
 - Complete voice agent testing and deployment
 - Add call analytics and success rate tracking
 - Implement smart scheduling based on customer preferences
+- Implement property-based tests for webhook status tracking (14 properties defined)
+- Add integration tests for complete reminder lifecycle with webhooks
