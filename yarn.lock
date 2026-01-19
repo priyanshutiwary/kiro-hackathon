@@ -645,18 +645,18 @@
   resolved "https://registry.npmjs.org/@babel/runtime/-/runtime-7.28.4.tgz"
   integrity sha512-Q/N6JNWvIvPnLDvjlE1OUBLPQHH6l3CltCEsHIujp45zQUSSh8K+gHnaEX45yAT1nyngnINhvWtzN+Nb9D8RAQ==
 
-"@better-auth/core@1.4.10":
-  version "1.4.10"
-  resolved "https://registry.npmjs.org/@better-auth/core/-/core-1.4.10.tgz"
-  integrity sha512-AThrfb6CpG80wqkanfrbN2/fGOYzhGladHFf3JhaWt/3/Vtf4h084T6PJLrDE7M/vCCGYvDI1DkvP3P1OB2HAg==
+"@better-auth/core@1.4.15":
+  version "1.4.15"
+  resolved "https://registry.npmjs.org/@better-auth/core/-/core-1.4.15.tgz"
+  integrity sha512-uAvq8YA7SaS7v+TrvH/Kwt7LAJihzUqB3FX8VweDsqu3gn5t51M+Bve+V1vVWR9qBAtC6cN68V6b+scxZxDY4A==
   dependencies:
     "@standard-schema/spec" "^1.0.0"
     zod "^4.1.12"
 
-"@better-auth/telemetry@1.4.10":
-  version "1.4.10"
-  resolved "https://registry.npmjs.org/@better-auth/telemetry/-/telemetry-1.4.10.tgz"
-  integrity sha512-Dq4XJX6EKsUu0h3jpRagX739p/VMOTcnJYWRrLtDYkqtZFg+sFiFsSWVcfapZoWpRSUGYX9iKwl6nDHn6Ju2oQ==
+"@better-auth/telemetry@1.4.15":
+  version "1.4.15"
+  resolved "https://registry.npmjs.org/@better-auth/telemetry/-/telemetry-1.4.15.tgz"
+  integrity sha512-7NW/2PS4RN85rv+ozpAezP/kSLPZeWkxqcA6RA/CFXqWp2YR2e5q5E6Hym1qBgVBkoAQa3lWFdX3b+jEs+vvrQ==
   dependencies:
     "@better-auth/utils" "0.3.0"
     "@better-fetch/fetch" "1.1.21"
@@ -671,7 +671,7 @@
   resolved "https://registry.npmjs.org/@better-fetch/fetch/-/fetch-1.1.21.tgz"
   integrity sha512-/ImESw0sskqlVR94jB+5+Pxjf+xBwDZF/N5+y2/q4EqD7IARUTSpPfIo8uf39SYpCxyOCtbyYpUrZ3F/k0zT4A==
 
-"@dodopayments/better-auth@^1.2.0":
+"@dodopayments/better-auth@^1.4.2":
   version "1.4.2"
   resolved "https://registry.npmjs.org/@dodopayments/better-auth/-/better-auth-1.4.2.tgz"
   integrity sha512-RrQXBg8exg43b7eafMeDuBkdLSxxkwxfdr1VAGzaoY28w2Sbc8pgQ8zrnhbzTEjmN97doCRp+9lACj0UdobWxQ==
@@ -2770,28 +2770,28 @@ balloons-js@^0.0.3:
   resolved "https://registry.npmjs.org/balloons-js/-/balloons-js-0.0.3.tgz"
   integrity sha512-5Mfy2VH2lC0WhX9jUvlkeKac+47reQq6naaNys+xFM2l+n+4jXoxGwwfnCyAdeXJh2IcRK+2LdD0cpOtyxEZzA==
 
-better-auth@^1.2.8:
-  version "1.4.10"
-  resolved "https://registry.npmjs.org/better-auth/-/better-auth-1.4.10.tgz"
-  integrity sha512-0kqwEBJLe8eyFzbUspRG/htOriCf9uMLlnpe34dlIJGdmDfPuQISd4shShvUrvIVhPxsY1dSTXdXPLpqISYOYg==
+better-auth@^1.4.15:
+  version "1.4.15"
+  resolved "https://registry.npmjs.org/better-auth/-/better-auth-1.4.15.tgz"
+  integrity sha512-XZr4GnFPbjvf8wip8AAjTrpGNn3Sba600zT+DgsR3NNCMWCt9aD8+nuRah6BHwHWnVP1nfnby07tPmti72SRBw==
   dependencies:
-    "@better-auth/core" "1.4.10"
-    "@better-auth/telemetry" "1.4.10"
+    "@better-auth/core" "1.4.15"
+    "@better-auth/telemetry" "1.4.15"
     "@better-auth/utils" "0.3.0"
     "@better-fetch/fetch" "1.1.21"
     "@noble/ciphers" "^2.0.0"
     "@noble/hashes" "^2.0.0"
-    better-call "1.1.7"
+    better-call "1.1.8"
     defu "^6.1.4"
     jose "^6.1.0"
     kysely "^0.28.5"
     nanostores "^1.0.1"
     zod "^4.1.12"
 
-better-call@1.1.7:
-  version "1.1.7"
-  resolved "https://registry.npmjs.org/better-call/-/better-call-1.1.7.tgz"
-  integrity sha512-6gaJe1bBIEgVebQu/7q9saahVzvBsGaByEnE8aDVncZEDiJO7sdNB28ot9I6iXSbR25egGmmZ6aIURXyQHRraQ==
+better-call@1.1.8:
+  version "1.1.8"
+  resolved "https://registry.npmjs.org/better-call/-/better-call-1.1.8.tgz"
+  integrity sha512-XMQ2rs6FNXasGNfMjzbyroSwKwYbZ/T3IxruSS6U2MJRsSYh3wYtG3o6H00ZlKZ/C/UPOAD97tqgQJNsxyeTXw==
   dependencies:
     "@better-auth/utils" "^0.3.0"
     "@better-fetch/fetch" "^1.1.4"
@@ -6919,12 +6919,12 @@ zod-to-json-schema@^3.24.1:
   resolved "https://registry.npmjs.org/zod-to-json-schema/-/zod-to-json-schema-3.25.1.tgz"
   integrity sha512-pM/SU9d3YAggzi6MtR4h7ruuQlqKtad8e9S0fmxcMi+ueAK5Korys/aWcV9LIIHTVbj01NdzxcnXSN+O74ZIVA==
 
-zod@^3.0.0, zod@^3.23.8, zod@^3.24.3, "zod@^3.25 || ^4", "zod@^3.25.0 || ^4.0.0", zod@^4.0.0:
+zod@^3.0.0, zod@^3.23.8, zod@^3.24.3, "zod@^3.25 || ^4", "zod@^3.25.0 || ^4.0.0":
   version "3.25.76"
   resolved "https://registry.npmjs.org/zod/-/zod-3.25.76.tgz"
   integrity sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==
 
-zod@^4.1.12:
+zod@^4.0.0, zod@^4.1.12:
   version "4.3.5"
   resolved "https://registry.npmjs.org/zod/-/zod-4.3.5.tgz"
   integrity sha512-k7Nwx6vuWx1IJ9Bjuf4Zt1PEllcwe7cls3VNzm4CQ1/hgtFUK2bRNG3rvnpPUhFjmqJKAKtjV576KnUkHocg/g==
