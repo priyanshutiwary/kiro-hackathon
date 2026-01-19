@@ -5,6 +5,7 @@
 .env.development
 .env.production
 .env.test
+.dev.vars
 
 # Dependencies
 node_modules/
@@ -16,7 +17,7 @@ node_modules/
 out/
 build/
 dist/
-
+/.open-next/
 # Cache and logs
 .turbo/
 *.log
