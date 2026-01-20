@@ -3,9 +3,7 @@
   compatibility_date = "2026-01-19"
   compatibility_flags = ["nodejs_compat"]
   
-  # Environment variables for preview/dev
-  [vars]
-  NEXT_PUBLIC_APP_URL = "http://localhost:8788"
+
   
   [assets]
   directory = ".open-next/assets"

@@ -6,6 +6,8 @@
 .env.production
 .env.test
 .dev.vars
+.dev.vars.local
+
 
 # Dependencies
 node_modules/
