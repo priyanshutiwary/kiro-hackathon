@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { Webhook } from "standardwebhooks";
+export const dynamic = 'force-dynamic';
 
 const webhook = new Webhook(process.env.DODO_PAYMENTS_WEBHOOK_SECRET || "");
 
