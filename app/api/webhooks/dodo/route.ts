@@ -6,7 +6,15 @@ import { NextResponse } from "next/server";
 import { Webhook } from "standardwebhooks";
 export const dynamic = 'force-dynamic';
 
-const webhook = new Webhook(process.env.DODO_PAYMENTS_WEBHOOK_SECRET || "");
+// Lazy initialization of webhook to avoid build-time errors
+let _webhook: Webhook | null = null;
+const getWebhook = () => {
+  if (!_webhook) {
+    const secret = process.env.DODO_PAYMENTS_WEBHOOK_SECRET || "dummy-webhook-secret-for-build-only";
+    _webhook = new Webhook(secret);
+  }
+  return _webhook;
+};
 
 // Utility function to safely parse dates
 function safeParseDate(value: string | Date | null | undefined): Date | null {
@@ -32,7 +40,7 @@ export async function POST(request: Request) {
     };
 
     try {
-      await webhook.verify(rawBody, webhookHeaders);
+      await getWebhook().verify(rawBody, webhookHeaders);
     } catch (error) {
       console.error("Webhook verification failed:", error);
       return NextResponse.json(
