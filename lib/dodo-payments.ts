@@ -1,8 +1,23 @@
 import DodoPayments from "dodopayments";
 
-// Initialize Dodo Payments client
-export const dodoClient = new DodoPayments({
-  bearerToken: process.env.DODO_PAYMENTS_API_KEY,
+// Lazy initialization to avoid build-time errors
+let _dodoClient: DodoPayments | null = null;
+
+const getDodoClient = () => {
+  if (!_dodoClient) {
+    _dodoClient = new DodoPayments({
+      bearerToken: process.env.DODO_PAYMENTS_API_KEY || 'dummy-key-for-build',
+    });
+  }
+  return _dodoClient;
+};
+
+// Export a getter instead of direct client
+export const dodoClient = new Proxy({} as DodoPayments, {
+  get(target, prop) {
+    const client = getDodoClient();
+    return Reflect.get(client, prop);
+  }
 });
 
 // Type definitions for Dodo Payments
