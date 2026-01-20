@@ -24,6 +24,9 @@ import { checkTimeouts } from "@/lib/payment-reminders/timeout-monitor";
  * 
  * Requirements: 15.7
  */
+export const dynamic = 'force-dynamic';
+
+
 export async function POST(request: Request) {
   try {
     // Verify cron secret (if using Vercel Cron)

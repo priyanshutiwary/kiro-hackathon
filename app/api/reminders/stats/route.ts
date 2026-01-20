@@ -10,6 +10,10 @@ import { NextResponse } from "next/server";
  * Calculate reminder success rates and statistics
  * Requirements: 18.3
  */
+
+export const dynamic = 'force-dynamic';
+
+
 export async function GET() {
   try {
     // Authenticate user

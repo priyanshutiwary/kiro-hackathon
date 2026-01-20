@@ -6,6 +6,10 @@ import { NextResponse } from "next/server";
  * Returns list of supported IANA timezones
  * Requirements: 2.7
  */
+
+export const dynamic = 'force-dynamic';
+
+
 export async function GET() {
   try {
     const timezones = getSupportedTimezones();

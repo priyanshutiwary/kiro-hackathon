@@ -9,6 +9,10 @@ import { NextResponse } from "next/server";
  * Disconnects Zoho Books integration
  * Requirements: 2.5
  */
+
+export const dynamic = 'force-dynamic';
+
+
 export async function POST() {
   try {
     // Authenticate user

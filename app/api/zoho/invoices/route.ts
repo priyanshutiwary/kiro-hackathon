@@ -7,6 +7,9 @@ import { NextRequest, NextResponse } from "next/server";
  * GET /api/zoho/invoices
  * Fetches invoices from Zoho Books
  */
+export const dynamic = 'force-dynamic';
+
+
 export async function GET(request: NextRequest) {
   try {
     // Authenticate user

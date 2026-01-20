@@ -9,6 +9,10 @@ import { headers } from "next/headers";
  * GET /api/reminders/scheduled
  * Fetches scheduled reminders (pending and queued) for current user
  */
+
+export const dynamic = 'force-dynamic';
+
+
 export async function GET(_request: NextRequest) {
   try {
     // Authenticate user

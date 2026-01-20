@@ -4,6 +4,9 @@ import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 
+
+export const dynamic = 'force-dynamic';
+
 /**
  * Webhook endpoint for receiving call status updates from the Python agent
  * 

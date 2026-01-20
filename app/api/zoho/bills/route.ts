@@ -9,6 +9,9 @@ import { NextRequest, NextResponse } from "next/server";
  * Fetches bills from Zoho Books API
  * Requirements: 3.1, 3.2, 3.3, 3.6, 7.1, 7.2, 7.4
  */
+export const dynamic = 'force-dynamic';
+
+
 export async function GET(request: NextRequest) {
   try {
     // Authenticate user

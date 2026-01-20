@@ -9,6 +9,9 @@ import crypto from "crypto";
  * Initiates OAuth flow by redirecting to Zoho authorization page
  * Requirements: 1.1, 1.2
  */
+export const dynamic = 'force-dynamic';
+
+
 export async function GET() {
   try {
     // Authenticate user

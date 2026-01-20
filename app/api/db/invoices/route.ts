@@ -9,6 +9,10 @@ import { eq, desc } from "drizzle-orm";
  * GET /api/db/invoices
  * Fetch invoices from local database cache
  */
+
+export const dynamic = 'force-dynamic';
+
+
 export async function GET(request: NextRequest) {
   try {
     // Authenticate user

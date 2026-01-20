@@ -10,6 +10,9 @@ import { NextResponse } from "next/server";
  * Fetches invoices awaiting payment for current user with reminder status
  * Requirements: 18.4
  */
+export const dynamic = 'force-dynamic';
+
+
 export async function GET() {
   try {
     // Authenticate user

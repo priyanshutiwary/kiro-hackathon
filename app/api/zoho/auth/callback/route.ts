@@ -10,6 +10,9 @@ import { NextRequest, NextResponse } from "next/server";
  * Handles OAuth callback from Zoho
  * Requirements: 1.3, 1.4, 1.5
  */
+export const dynamic = 'force-dynamic';
+
+
 export async function GET(request: NextRequest) {
   try {
     // Authenticate user

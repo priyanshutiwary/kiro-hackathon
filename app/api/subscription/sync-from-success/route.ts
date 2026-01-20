@@ -6,6 +6,10 @@ import { subscription, user } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { getSubscriptionFromDodo } from "@/lib/dodo-payments";
 
+
+export const dynamic = 'force-dynamic';
+
+
 function safeParseDate(value: string | Date | null | undefined): Date | null {
   if (!value) return null;
   if (value instanceof Date) return value;

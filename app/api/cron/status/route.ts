@@ -3,6 +3,9 @@ import { db } from "@/db/drizzle";
 import { paymentReminders as reminders } from "@/db/schema";
 import { desc } from "drizzle-orm";
 
+export const dynamic = 'force-dynamic';
+
+
 export async function GET() {
   try {
     // Get the most recent reminder activity

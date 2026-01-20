@@ -11,6 +11,8 @@ import { checkAuthAndVerification } from "@/lib/auth-utils";
  * Fetch business profile for the authenticated user
  * Requirements: 2.6, 4.4
  */
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     // Authenticate user and check email verification

@@ -7,6 +7,9 @@ import { createZohoAPIClient } from "@/lib/zoho-api-client";
  * GET /api/zoho/contacts/[contactId]
  * Fetch detailed contact information from Zoho Books
  */
+export const dynamic = 'force-dynamic';
+
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ contactId: string }> }

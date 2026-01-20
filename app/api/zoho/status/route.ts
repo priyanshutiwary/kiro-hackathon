@@ -8,6 +8,9 @@ import { NextResponse } from "next/server";
  * Checks Zoho Books integration status
  * Requirements: 5.1, 5.2, 5.3
  */
+export const dynamic = 'force-dynamic';
+
+
 export async function GET() {
   try {
     // Authenticate user

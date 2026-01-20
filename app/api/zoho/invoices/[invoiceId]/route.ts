@@ -7,6 +7,9 @@ import { createZohoAPIClient } from "@/lib/zoho-api-client";
  * GET /api/zoho/invoices/[invoiceId]
  * Fetch detailed invoice information from Zoho Books
  */
+export const dynamic = 'force-dynamic';
+
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ invoiceId: string }> }

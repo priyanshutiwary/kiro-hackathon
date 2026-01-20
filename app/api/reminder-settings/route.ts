@@ -9,6 +9,10 @@ import { eq, and } from "drizzle-orm";
 /**
  * Helper function to get organization ID from agent integrations
  */
+
+export const dynamic = 'force-dynamic';
+
+
 async function getOrganizationIdFromIntegration(userId: string): Promise<string | null> {
   try {
     const integrations = await db

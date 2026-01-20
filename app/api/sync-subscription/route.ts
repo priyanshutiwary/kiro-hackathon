@@ -3,6 +3,10 @@ import { subscription, user } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
+
+export const dynamic = 'force-dynamic';
+
+
 export async function POST(request: Request) {
   try {
     const { email } = await request.json();

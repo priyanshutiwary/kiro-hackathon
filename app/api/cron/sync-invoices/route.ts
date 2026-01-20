@@ -24,6 +24,10 @@ import { syncInvoicesForUser } from "@/lib/payment-reminders/sync-engine";
  * - Or API key authentication
  * - Or IP whitelist
  */
+
+export const dynamic = 'force-dynamic';
+
+
 export async function POST(request: Request) {
   try {
     // Verify cron secret (if using Vercel Cron)

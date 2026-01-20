@@ -33,6 +33,10 @@ import { dispatchPaymentCall, PaymentCallContext } from "@/lib/livekit/call-disp
  *   error?: string;
  * }
  */
+
+export const dynamic = 'force-dynamic';
+
+
 export async function POST(request: Request) {
   try {
     const context: PaymentCallContext = await request.json();

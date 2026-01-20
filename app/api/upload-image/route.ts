@@ -1,6 +1,10 @@
 import { uploadImageAssets } from "@/lib/upload-image";
 import { NextRequest, NextResponse } from "next/server";
 
+
+export const dynamic = 'force-dynamic';
+
+
 export const config = {
   api: { bodyParser: false }, // Disable default body parsing
 };
