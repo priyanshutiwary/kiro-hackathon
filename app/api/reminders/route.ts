@@ -10,6 +10,8 @@ import { NextResponse } from "next/server";
  * Fetches reminders for current user with optional filtering
  * Requirements: 18.1, 18.2, 18.5, 18.6
  */
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   try {
     // Authenticate user
