@@ -7,6 +7,8 @@ import { headers } from "next/headers";
  * Test endpoint to fetch raw contact data directly from Zoho API
  * This helps debug what data is actually available in Zoho Books
  */
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const result = await auth.api.getSession({

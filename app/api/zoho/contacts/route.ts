@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { db } from "@/db/drizzle";
 import { customersCache } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
