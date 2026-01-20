@@ -511,12 +511,26 @@ const emailVerificationPlugin = {
   },
 };
 
-export const dodoPayments = new DodoPayments({
-  bearerToken: process.env.DODO_PAYMENTS_API_KEY!,
-  environment: process.env.NODE_ENV === "production" ? "live_mode" : "test_mode",
-});
+// Lazy initialization to avoid errors during build time
+let _dodoPayments: DodoPayments | null = null;
 
-export const auth = betterAuth({
+const getDodoPayments = () => {
+  if (!_dodoPayments) {
+    _dodoPayments = new DodoPayments({
+      bearerToken: process.env.DODO_PAYMENTS_API_KEY || 'dummy-key-for-build',
+      environment: process.env.NODE_ENV === "production" ? "live_mode" : "test_mode",
+    });
+  }
+  return _dodoPayments;
+};
+
+// Lazy initialization of auth to avoid build-time errors
+let _auth: ReturnType<typeof betterAuth> | null = null;
+
+const initAuth = () => {
+  if (_auth) return _auth;
+
+  _auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET || "your-secret-key-change-in-production",
   trustedOrigins: [`${process.env.NEXT_PUBLIC_APP_URL}`],
   allowedDevOrigins: [`${process.env.NEXT_PUBLIC_APP_URL}`],
@@ -594,7 +608,7 @@ export const auth = betterAuth({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     emailVerificationPlugin as any,
     dodopayments({
-      client: dodoPayments,
+      client: getDodoPayments(),
       createCustomerOnSignUp: false, // Disable automatic customer creation to avoid blocking sign-up
       use: [
         checkout({
@@ -625,6 +639,17 @@ export const auth = betterAuth({
     }),
     nextCookies(),
   ],
+});
+
+  return _auth;
+};
+
+// Export a proxy that lazy-loads auth
+export const auth = new Proxy({} as ReturnType<typeof betterAuth>, {
+  get(target, prop) {
+    const authInstance = initAuth();
+    return Reflect.get(authInstance, prop);
+  }
 });
 
 // Type for subscription webhook payload
