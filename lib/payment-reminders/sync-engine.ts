@@ -89,10 +89,6 @@ export async function processAndUpsertInvoice(
       userId,
       zohoInvoiceId: zohoInvoice.invoice_id,
       customerId, // Store customerId reference (Requirement FR-3)
-      customerName: zohoInvoice.customer_name, // Keep for backward compatibility during migration
-      customerPhone: zohoInvoice.customer_phone || null, // Keep for backward compatibility during migration
-      customerCountryCode: null, // Not provided by Zoho API
-      customerTimezone: null, // Not provided by Zoho API
       invoiceNumber: zohoInvoice.invoice_number,
       amountTotal: zohoInvoice.total.toString(),
       amountDue: zohoInvoice.balance.toString(),
@@ -125,7 +121,7 @@ export async function processAndUpsertInvoice(
           amountDue: existingInvoice.amountDue || '0',
           dueDate: existingInvoice.dueDate,
           status: existingInvoice.status || '',
-          customerPhone: existingInvoice.customerPhone || '',
+          customerPhone: '', // Deprecated field
           syncHash: existingInvoice.syncHash || '',
         },
         zohoInvoice
@@ -136,8 +132,6 @@ export async function processAndUpsertInvoice(
         .update(invoicesCache)
         .set({
           customerId, // Update customerId reference (Requirement FR-3)
-          customerName: zohoInvoice.customer_name, // Keep for backward compatibility during migration
-          customerPhone: zohoInvoice.customer_phone || null, // Keep for backward compatibility during migration
           invoiceNumber: zohoInvoice.invoice_number,
           amountTotal: zohoInvoice.total.toString(),
           amountDue: zohoInvoice.balance.toString(),
@@ -444,12 +438,20 @@ export async function cleanupInvoicesOutsideWindow(
   
   console.log(`[Sync Engine] Found ${invoicesToDelete.length} invoices to delete (outside window, not overdue, not paid)`);
   
-  // Delete invoices (cascade delete will handle reminders) (Requirement 10.2, 10.5)
-  for (const invoice of invoicesToDelete) {
-    console.log(`[Sync Engine] Deleting invoice ${invoice.id} (${invoice.invoiceNumber})`);
-    await db
-      .delete(invoicesCache)
-      .where(eq(invoicesCache.id, invoice.id));
+  // Delete invoices in batches (cascade delete will handle reminders) (Requirement 10.2, 10.5)
+  if (invoicesToDelete.length > 0) {
+    const DELETE_CHUNK_SIZE = 10;
+    for (let i = 0; i < invoicesToDelete.length; i += DELETE_CHUNK_SIZE) {
+      const chunk = invoicesToDelete.slice(i, i + DELETE_CHUNK_SIZE);
+      console.log(`[Sync Engine] Deleting batch ${Math.floor(i / DELETE_CHUNK_SIZE) + 1} of ${Math.ceil(invoicesToDelete.length / DELETE_CHUNK_SIZE)} (${chunk.length} invoices)`);
+      
+      await Promise.all(
+        chunk.map(invoice => {
+          console.log(`[Sync Engine] Deleting invoice ${invoice.id} (${invoice.invoiceNumber})`);
+          return db.delete(invoicesCache).where(eq(invoicesCache.id, invoice.id));
+        })
+      );
+    }
   }
   
   console.log(`[Sync Engine] Cleanup complete: ${invoicesToDelete.length} invoices deleted`);
@@ -638,47 +640,331 @@ export async function syncInvoicesForUser(
     result.invoicesFetched = allInvoices.length;
     console.log(`[Sync Engine] Total invoices to process: ${allInvoices.length} (after deduplication)`);
     
-    // 5. Process and upsert each invoice (Requirement 3.1)
-    console.log(`[Sync Engine] Processing invoices...`);
-    for (const invoice of allInvoices) {
+    // 5. BATCH PROCESSING: Fetch all data upfront to minimize database queries
+    console.log(`[Sync Engine] Fetching existing invoices and customers for batch processing...`);
+    
+    // Fetch all existing invoices for this user (1 query)
+    const existingInvoicesMap = new Map<string, typeof invoicesCache.$inferSelect>();
+    const existingInvoices = await db
+      .select()
+      .from(invoicesCache)
+      .where(eq(invoicesCache.userId, userId));
+    
+    existingInvoices.forEach(inv => {
+      if (inv.zohoInvoiceId) {
+        existingInvoicesMap.set(inv.zohoInvoiceId, inv);
+      }
+    });
+    console.log(`[Sync Engine] Loaded ${existingInvoicesMap.size} existing invoices into memory`);
+    
+    // Fetch all customers for this user (1 query)
+    const customersMap = new Map<string, typeof customersCache.$inferSelect>();
+    const customers = await db
+      .select()
+      .from(customersCache)
+      .where(eq(customersCache.userId, userId));
+    
+    customers.forEach(customer => {
+      if (customer.zohoCustomerId) {
+        customersMap.set(customer.zohoCustomerId, customer);
+      }
+    });
+    console.log(`[Sync Engine] Loaded ${customersMap.size} customers into memory`);
+    
+    // Prepare batch operations
+    const invoicesToInsert: Array<typeof invoicesCache.$inferInsert> = [];
+    const invoicesToUpdate: Array<{ id: string; data: Partial<typeof invoicesCache.$inferInsert> }> = [];
+    const remindersToInsert: Array<typeof paymentReminders.$inferInsert> = [];
+    const remindersToDelete: string[] = []; // Invoice IDs whose reminders need deletion
+    const remindersToSkip: string[] = []; // Invoice IDs whose reminders need to be marked as skipped
+    const invoicesToMarkProcessed: string[] = []; // Invoice IDs to mark reminders_created = true
+    
+    // 6. Process invoices in memory (no database queries)
+    console.log(`[Sync Engine] Processing ${allInvoices.length} invoices in memory...`);
+    
+    for (const zohoInvoice of allInvoices) {
       try {
-        // Track if this is a new invoice
-        const existingInvoices = await db
-          .select()
-          .from(invoicesCache)
-          .where(
-            and(
-              eq(invoicesCache.userId, userId),
-              eq(invoicesCache.zohoInvoiceId, invoice.invoice_id)
-            )
-          )
-          .limit(1);
+        // Calculate hash for change detection
+        const syncHash = calculateInvoiceHash(zohoInvoice);
         
-        const isNewInvoice = existingInvoices.length === 0;
+        // Look up customer in memory
+        const customer = zohoInvoice.customer_id 
+          ? customersMap.get(zohoInvoice.customer_id) 
+          : null;
         
-        await processAndUpsertInvoice(userId, invoice, settings);
+        const customerId = customer?.id || null;
         
-        if (isNewInvoice) {
-          result.invoicesInserted++;
-        } else {
-          result.invoicesUpdated++;
+        if (!customer && zohoInvoice.customer_id) {
+          console.warn(`[Sync Engine] Customer not found in cache for Zoho customer ${zohoInvoice.customer_id} (invoice ${zohoInvoice.invoice_id})`);
         }
         
-        // Count reminders created (approximate - we'd need to track this in processAndUpsertInvoice)
-        // For now, we'll just increment for new invoices
-        if (isNewInvoice) {
-          result.remindersCreated++;
+        // Look up existing invoice in memory
+        const existingInvoice = existingInvoicesMap.get(zohoInvoice.invoice_id);
+        
+        const dueDate = new Date(zohoInvoice.due_date);
+        const zohoLastModifiedAt = new Date(zohoInvoice.last_modified_time);
+        
+        if (!existingInvoice) {
+          // New invoice - prepare for batch insert
+          const newInvoiceId = crypto.randomUUID();
+          console.log(`[Sync Engine] New invoice detected: ${zohoInvoice.invoice_id} (${zohoInvoice.invoice_number})`);
+          
+          invoicesToInsert.push({
+            id: newInvoiceId,
+            userId,
+            zohoInvoiceId: zohoInvoice.invoice_id,
+            customerId,
+            invoiceNumber: zohoInvoice.invoice_number,
+            amountTotal: zohoInvoice.total.toString(),
+            amountDue: zohoInvoice.balance.toString(),
+            currencyCode: zohoInvoice.currency_code || 'USD',
+            dueDate,
+            status: zohoInvoice.status,
+            zohoLastModifiedAt,
+            localLastSyncedAt: now,
+            syncHash,
+            remindersCreated: false,
+            createdAt: now,
+            updatedAt: now,
+          });
+          
+          // Prepare reminders for this new invoice
+          if (customerId && customer?.primaryPhone) {
+            const schedule = buildReminderSchedule(dueDate, settings);
+            
+            if (schedule.length > 0) {
+              const reminderRecords = schedule.map((item: ReminderScheduleItem) => ({
+                id: crypto.randomUUID(),
+                invoiceId: newInvoiceId,
+                userId,
+                reminderType: item.reminderType,
+                scheduledDate: item.scheduledDate,
+                status: 'pending' as const,
+                attemptCount: 0,
+                lastAttemptAt: null,
+                callOutcome: null,
+                skipReason: null,
+                createdAt: now,
+                updatedAt: now,
+              }));
+              
+              remindersToInsert.push(...reminderRecords);
+              console.log(`[Sync Engine] Prepared ${reminderRecords.length} reminders for new invoice ${zohoInvoice.invoice_number}`);
+            }
+            
+            // Mark as processed
+            invoicesToMarkProcessed.push(newInvoiceId);
+          } else {
+            // No customer or no phone - mark as processed without reminders
+            console.log(`[Sync Engine] Skipping reminders for invoice ${zohoInvoice.invoice_number}: ${!customerId ? 'customer not found' : 'no phone number'}`);
+            invoicesToMarkProcessed.push(newInvoiceId);
+          }
+          
+          result.invoicesInserted++;
+        } else {
+          // Existing invoice - check for changes
+          if (existingInvoice.syncHash !== syncHash) {
+            console.log(`[Sync Engine] Invoice ${zohoInvoice.invoice_id} (${zohoInvoice.invoice_number}) has changes`);
+            
+            // Detect specific changes
+            const changes = detectChanges(
+              {
+                invoiceNumber: existingInvoice.invoiceNumber || '',
+                amountTotal: existingInvoice.amountTotal || '0',
+                amountDue: existingInvoice.amountDue || '0',
+                dueDate: existingInvoice.dueDate,
+                status: existingInvoice.status || '',
+                customerPhone: '', // Deprecated field, no longer in schema
+                syncHash: existingInvoice.syncHash || '',
+              },
+              zohoInvoice
+            );
+            
+            // Prepare update
+            invoicesToUpdate.push({
+              id: existingInvoice.id,
+              data: {
+                customerId,
+                invoiceNumber: zohoInvoice.invoice_number,
+                amountTotal: zohoInvoice.total.toString(),
+                amountDue: zohoInvoice.balance.toString(),
+                currencyCode: zohoInvoice.currency_code || 'USD',
+                dueDate,
+                status: zohoInvoice.status,
+                zohoLastModifiedAt,
+                localLastSyncedAt: now,
+                syncHash,
+                updatedAt: now,
+              },
+            });
+            
+            // Handle status change to paid
+            if (changes.statusChanged && zohoInvoice.status === 'paid') {
+              console.log(`[Sync Engine] Invoice ${zohoInvoice.invoice_number} marked as paid, will cancel pending reminders`);
+              remindersToSkip.push(existingInvoice.id);
+            }
+            
+            // Handle due date change
+            if (changes.dueDateChanged) {
+              console.log(`[Sync Engine] Due date changed for invoice ${zohoInvoice.invoice_number}, will recreate reminders`);
+              remindersToDelete.push(existingInvoice.id);
+              
+              // Prepare new reminders
+              if (customerId && customer?.primaryPhone) {
+                const schedule = buildReminderSchedule(dueDate, settings);
+                
+                if (schedule.length > 0) {
+                  const reminderRecords = schedule.map((item: ReminderScheduleItem) => ({
+                    id: crypto.randomUUID(),
+                    invoiceId: existingInvoice.id,
+                    userId,
+                    reminderType: item.reminderType,
+                    scheduledDate: item.scheduledDate,
+                    status: 'pending' as const,
+                    attemptCount: 0,
+                    lastAttemptAt: null,
+                    callOutcome: null,
+                    skipReason: null,
+                    createdAt: now,
+                    updatedAt: now,
+                  }));
+                  
+                  remindersToInsert.push(...reminderRecords);
+                }
+              }
+              
+              // Mark as processed
+              invoicesToMarkProcessed.push(existingInvoice.id);
+            }
+            
+            result.invoicesUpdated++;
+          } else {
+            // No changes - just update sync timestamp
+            invoicesToUpdate.push({
+              id: existingInvoice.id,
+              data: {
+                localLastSyncedAt: now,
+                updatedAt: now,
+              },
+            });
+          }
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        result.errors.push(`Failed to process invoice ${invoice.invoice_id}: ${errorMessage}`);
-        console.error(`[Sync Engine] Error processing invoice ${invoice.invoice_id}:`, error);
+        result.errors.push(`Failed to process invoice ${zohoInvoice.invoice_id}: ${errorMessage}`);
+        console.error(`[Sync Engine] Error processing invoice ${zohoInvoice.invoice_id}:`, error);
       }
+    }
+    
+    console.log(`[Sync Engine] Memory processing complete. Prepared: ${invoicesToInsert.length} inserts, ${invoicesToUpdate.length} updates, ${remindersToInsert.length} reminders`);
+    
+    // 7. Execute batch database operations
+    console.log(`[Sync Engine] Executing batch database operations...`);
+    
+    try {
+      // Batch insert new invoices
+      if (invoicesToInsert.length > 0) {
+        console.log(`[Sync Engine] Batch inserting ${invoicesToInsert.length} new invoices...`);
+        await db.insert(invoicesCache).values(invoicesToInsert);
+      }
+      
+      // Batch update existing invoices
+      if (invoicesToUpdate.length > 0) {
+        console.log(`[Sync Engine] Batch updating ${invoicesToUpdate.length} invoices...`);
+        // Note: Drizzle doesn't support bulk updates with different values per row
+        // We need to do individual updates, but we can batch them in chunks to reduce overhead
+        const UPDATE_CHUNK_SIZE = 10;
+        for (let i = 0; i < invoicesToUpdate.length; i += UPDATE_CHUNK_SIZE) {
+          const chunk = invoicesToUpdate.slice(i, i + UPDATE_CHUNK_SIZE);
+          await Promise.all(
+            chunk.map(update =>
+              db
+                .update(invoicesCache)
+                .set(update.data)
+                .where(eq(invoicesCache.id, update.id))
+            )
+          );
+        }
+      }
+      
+      // Delete reminders for invoices with due date changes
+      if (remindersToDelete.length > 0) {
+        console.log(`[Sync Engine] Deleting pending reminders for ${remindersToDelete.length} invoices with due date changes...`);
+        for (const invoiceId of remindersToDelete) {
+          await db
+            .delete(paymentReminders)
+            .where(
+              and(
+                eq(paymentReminders.invoiceId, invoiceId),
+                eq(paymentReminders.status, 'pending')
+              )
+            );
+        }
+      }
+      
+      // Skip reminders for paid invoices
+      if (remindersToSkip.length > 0) {
+        console.log(`[Sync Engine] Marking reminders as skipped for ${remindersToSkip.length} paid invoices...`);
+        for (const invoiceId of remindersToSkip) {
+          await db
+            .update(paymentReminders)
+            .set({
+              status: 'skipped',
+              skipReason: 'Invoice marked as paid',
+              updatedAt: now,
+            })
+            .where(
+              and(
+                eq(paymentReminders.invoiceId, invoiceId),
+                eq(paymentReminders.status, 'pending')
+              )
+            );
+        }
+      }
+      
+      // Batch insert reminders
+      if (remindersToInsert.length > 0) {
+        console.log(`[Sync Engine] Batch inserting ${remindersToInsert.length} reminders...`);
+        // Insert in chunks to avoid hitting limits
+        const REMINDER_CHUNK_SIZE = 100;
+        for (let i = 0; i < remindersToInsert.length; i += REMINDER_CHUNK_SIZE) {
+          const chunk = remindersToInsert.slice(i, i + REMINDER_CHUNK_SIZE);
+          await db.insert(paymentReminders).values(chunk);
+        }
+        result.remindersCreated = remindersToInsert.length;
+      }
+      
+      // Mark invoices as processed
+      if (invoicesToMarkProcessed.length > 0) {
+        console.log(`[Sync Engine] Marking ${invoicesToMarkProcessed.length} invoices as processed...`);
+        const MARK_CHUNK_SIZE = 10;
+        for (let i = 0; i < invoicesToMarkProcessed.length; i += MARK_CHUNK_SIZE) {
+          const chunk = invoicesToMarkProcessed.slice(i, i + MARK_CHUNK_SIZE);
+          await Promise.all(
+            chunk.map(invoiceId =>
+              db
+                .update(invoicesCache)
+                .set({
+                  remindersCreated: true,
+                  updatedAt: now,
+                })
+                .where(eq(invoicesCache.id, invoiceId))
+            )
+          );
+        }
+      }
+      
+      console.log(`[Sync Engine] Batch operations complete`);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      result.errors.push(`Batch operation failed: ${errorMessage}`);
+      console.error('[Sync Engine] Error during batch operations:', error);
+      throw error; // Re-throw to trigger outer catch block
     }
     
     console.log(`[Sync Engine] Invoice processing complete: ${result.invoicesInserted} inserted, ${result.invoicesUpdated} updated`);
     
-    // 6. Cleanup invoices outside window (Requirement 10.1-10.5)
+    // 8. Cleanup invoices outside window (Requirement 10.1-10.5)
     console.log(`[Sync Engine] Cleaning up invoices outside sync window...`);
     try {
       await cleanupInvoicesOutsideWindow(userId, windowStart, windowEnd);
@@ -689,7 +975,7 @@ export async function syncInvoicesForUser(
       console.error('[Sync Engine] Error cleaning up invoices:', error);
     }
     
-    // 7. Update sync metadata
+    // 9. Update sync metadata
     console.log(`[Sync Engine] Updating sync metadata...`);
     const syncTime = new Date();
     
