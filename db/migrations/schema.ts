@@ -1,25 +1,7 @@
-import { pgTable, foreignKey, unique, text, timestamp, integer, boolean, index, uniqueIndex } from "drizzle-orm/pg-core"
+import { pgTable, foreignKey, text, timestamp, integer, boolean, unique, index, uniqueIndex } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 
-
-export const session = pgTable("session", {
-	id: text().primaryKey().notNull(),
-	expiresAt: timestamp({ mode: 'string' }).notNull(),
-	token: text().notNull(),
-	createdAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
-	updatedAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
-	ipAddress: text(),
-	userAgent: text(),
-	userId: text().notNull(),
-}, (table) => [
-	foreignKey({
-			columns: [table.userId],
-			foreignColumns: [user.id],
-			name: "session_userId_user_id_fk"
-		}).onDelete("cascade"),
-	unique("session_token_unique").on(table.token),
-]);
 
 export const subscription = pgTable("subscription", {
 	id: text().primaryKey().notNull(),
@@ -53,6 +35,25 @@ export const subscription = pgTable("subscription", {
 		}),
 ]);
 
+export const session = pgTable("session", {
+	id: text().primaryKey().notNull(),
+	expiresAt: timestamp({ mode: 'string' }).notNull(),
+	token: text().notNull(),
+	createdAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
+	ipAddress: text(),
+	userAgent: text(),
+	userId: text().notNull(),
+	lastAuthenticatedAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [user.id],
+			name: "session_userId_user_id_fk"
+		}).onDelete("cascade"),
+	unique("session_token_unique").on(table.token),
+]);
+
 export const account = pgTable("account", {
 	id: text().primaryKey().notNull(),
 	accountId: text().notNull(),
@@ -84,18 +85,6 @@ export const verification = pgTable("verification", {
 	updatedAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
 });
 
-export const user = pgTable("user", {
-	id: text().primaryKey().notNull(),
-	name: text().notNull(),
-	email: text().notNull(),
-	emailVerified: boolean().default(false).notNull(),
-	image: text(),
-	createdAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
-	updatedAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
-}, (table) => [
-	unique("user_email_unique").on(table.email),
-]);
-
 export const agentIntegrations = pgTable("agentIntegrations", {
 	id: text().primaryKey().notNull(),
 	userId: text().notNull(),
@@ -118,6 +107,21 @@ export const agentIntegrations = pgTable("agentIntegrations", {
 			foreignColumns: [user.id],
 			name: "agentIntegrations_userId_user_id_fk"
 		}).onDelete("cascade"),
+]);
+
+export const user = pgTable("user", {
+	id: text().primaryKey().notNull(),
+	name: text().notNull(),
+	email: text().notNull(),
+	emailVerified: boolean().default(false).notNull(),
+	image: text(),
+	createdAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
+	failedLoginAttempts: integer().default(0).notNull(),
+	lockedUntil: timestamp({ mode: 'string' }),
+	lastLoginAttempt: timestamp({ mode: 'string' }),
+}, (table) => [
+	unique("user_email_unique").on(table.email),
 ]);
 
 export const syncMetadata = pgTable("sync_metadata", {
@@ -161,37 +165,6 @@ export const customersCache = pgTable("customers_cache", {
 			columns: [table.userId],
 			foreignColumns: [user.id],
 			name: "customers_cache_userId_user_id_fk"
-		}).onDelete("cascade"),
-]);
-
-export const invoicesCache = pgTable("invoices_cache", {
-	id: text().primaryKey().notNull(),
-	userId: text().notNull(),
-	zohoInvoiceId: text().notNull(),
-	customerId: text(),
-	customerName: text(),
-	customerPhone: text(),
-	customerCountryCode: text(),
-	customerTimezone: text(),
-	invoiceNumber: text(),
-	amountTotal: text(),
-	amountDue: text(),
-	dueDate: timestamp({ mode: 'string' }).notNull(),
-	status: text(),
-	zohoLastModifiedAt: timestamp({ mode: 'string' }),
-	localLastSyncedAt: timestamp({ mode: 'string' }),
-	syncHash: text(),
-	remindersCreated: boolean().default(false).notNull(),
-	createdAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
-	updatedAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
-}, (table) => [
-	index("invoices_cache_user_due_date_idx").using("btree", table.userId.asc().nullsLast().op("timestamp_ops"), table.dueDate.asc().nullsLast().op("text_ops")),
-	index("invoices_cache_user_status_idx").using("btree", table.userId.asc().nullsLast().op("text_ops"), table.status.asc().nullsLast().op("text_ops")),
-	uniqueIndex("invoices_cache_user_zoho_invoice_idx").using("btree", table.userId.asc().nullsLast().op("text_ops"), table.zohoInvoiceId.asc().nullsLast().op("text_ops")),
-	foreignKey({
-			columns: [table.userId],
-			foreignColumns: [user.id],
-			name: "invoices_cache_userId_user_id_fk"
 		}).onDelete("cascade"),
 ]);
 
@@ -247,6 +220,8 @@ export const reminderSettings = pgTable("reminder_settings", {
 	retryDelayHours: integer().default(2).notNull(),
 	createdAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
 	updatedAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
+	language: text().default('en').notNull(),
+	voiceGender: text().default('female').notNull(),
 }, (table) => [
 	foreignKey({
 			columns: [table.userId],
@@ -254,4 +229,58 @@ export const reminderSettings = pgTable("reminder_settings", {
 			name: "reminder_settings_userId_user_id_fk"
 		}).onDelete("cascade"),
 	unique("reminder_settings_userId_unique").on(table.userId),
+]);
+
+export const businessProfiles = pgTable("business_profiles", {
+	id: text().primaryKey().notNull(),
+	userId: text().notNull(),
+	companyName: text().notNull(),
+	businessDescription: text().notNull(),
+	industry: text(),
+	supportPhone: text().notNull(),
+	supportEmail: text(),
+	businessHours: text(),
+	preferredPaymentMethods: text().default('[]').notNull(),
+	createdAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [user.id],
+			name: "business_profiles_userId_user_id_fk"
+		}).onDelete("cascade"),
+	unique("business_profiles_userId_unique").on(table.userId),
+]);
+
+export const invoicesCache = pgTable("invoices_cache", {
+	id: text().primaryKey().notNull(),
+	userId: text().notNull(),
+	zohoInvoiceId: text().notNull(),
+	customerId: text(),
+	invoiceNumber: text(),
+	amountTotal: text(),
+	amountDue: text(),
+	dueDate: timestamp({ mode: 'string' }).notNull(),
+	status: text(),
+	zohoLastModifiedAt: timestamp({ mode: 'string' }),
+	localLastSyncedAt: timestamp({ mode: 'string' }),
+	syncHash: text(),
+	remindersCreated: boolean().default(false).notNull(),
+	createdAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
+	currencyCode: text().default('USD').notNull(),
+}, (table) => [
+	index("invoices_cache_user_due_date_idx").using("btree", table.userId.asc().nullsLast().op("timestamp_ops"), table.dueDate.asc().nullsLast().op("text_ops")),
+	index("invoices_cache_user_status_idx").using("btree", table.userId.asc().nullsLast().op("text_ops"), table.status.asc().nullsLast().op("text_ops")),
+	uniqueIndex("invoices_cache_user_zoho_invoice_idx").using("btree", table.userId.asc().nullsLast().op("text_ops"), table.zohoInvoiceId.asc().nullsLast().op("text_ops")),
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [user.id],
+			name: "invoices_cache_userId_user_id_fk"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.customerId],
+			foreignColumns: [customersCache.id],
+			name: "invoices_cache_customerId_customers_cache_id_fk"
+		}).onDelete("set null"),
 ]);

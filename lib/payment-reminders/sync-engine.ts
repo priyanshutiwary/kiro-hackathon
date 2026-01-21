@@ -96,6 +96,7 @@ export async function processAndUpsertInvoice(
       invoiceNumber: zohoInvoice.invoice_number,
       amountTotal: zohoInvoice.total.toString(),
       amountDue: zohoInvoice.balance.toString(),
+      currencyCode: zohoInvoice.currency_code || 'USD', // Store currency code
       dueDate,
       status: zohoInvoice.status,
       zohoLastModifiedAt: new Date(zohoInvoice.last_modified_time),
@@ -140,6 +141,7 @@ export async function processAndUpsertInvoice(
           invoiceNumber: zohoInvoice.invoice_number,
           amountTotal: zohoInvoice.total.toString(),
           amountDue: zohoInvoice.balance.toString(),
+          currencyCode: zohoInvoice.currency_code || 'USD', // Update currency code
           dueDate,
           status: zohoInvoice.status,
           zohoLastModifiedAt: new Date(zohoInvoice.last_modified_time),

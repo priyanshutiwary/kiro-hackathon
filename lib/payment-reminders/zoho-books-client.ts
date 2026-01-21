@@ -20,6 +20,7 @@ export interface ZohoInvoice {
   due_date: string;
   status: string;
   last_modified_time: string;
+  currency_code: string;
 }
 
 /**
@@ -81,6 +82,7 @@ interface ZohoAPIInvoiceDetailResponse {
   due_date: string;
   status: string;
   last_modified_time: string;
+  currency_code: string;
   customer?: {
     contact_persons?: Array<{
       phone?: string;
@@ -214,6 +216,7 @@ export class ZohoBooksClient {
       due_date: invoice.due_date,
       status: invoice.status,
       last_modified_time: invoice.last_modified_time,
+      currency_code: invoice.currency_code || 'USD', // Default to USD if not provided
     };
   }
 

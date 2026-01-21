@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { db } from "@/db/drizzle";
 import { invoicesCache, customersCache } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
+import { getCurrencySymbol } from "@/lib/currency-utils";
 
 /**
  * GET /api/db/invoices
@@ -50,6 +51,7 @@ export async function GET(request: NextRequest) {
         invoiceNumber: invoicesCache.invoiceNumber,
         amountTotal: invoicesCache.amountTotal,
         amountDue: invoicesCache.amountDue,
+        currencyCode: invoicesCache.currencyCode,
         dueDate: invoicesCache.dueDate,
         status: invoicesCache.status,
         zohoLastModifiedAt: invoicesCache.zohoLastModifiedAt,
@@ -79,8 +81,8 @@ export async function GET(request: NextRequest) {
       status: invoice.status || "draft",
       total: parseFloat(invoice.amountTotal || "0"),
       balance: parseFloat(invoice.amountDue || "0"),
-      currencyCode: "USD", // Default, will be fetched from Zoho on detail view
-      currencySymbol: "$", // Default, will be fetched from Zoho on detail view
+      currencyCode: invoice.currencyCode || "USD",
+      currencySymbol: getCurrencySymbol(invoice.currencyCode || "USD"),
     }));
 
     return NextResponse.json({

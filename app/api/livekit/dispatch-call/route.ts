@@ -20,6 +20,8 @@ import { dispatchPaymentCall, PaymentCallContext } from "@/lib/livekit/call-disp
  *   customerPhone: string;
  *   invoiceNumber: string;
  *   amountDue: number;
+ *   currencyCode: string;
+ *   currencySymbol: string;
  *   dueDate: string;
  *   companyName: string;
  *   supportPhone: string;
@@ -38,7 +40,7 @@ export async function POST(request: Request) {
     const context: PaymentCallContext = await request.json();
 
     // Validate required fields
-    const requiredFields = ['customerName', 'customerPhone', 'invoiceNumber', 'amountDue', 'dueDate', 'companyName'];
+    const requiredFields = ['customerName', 'customerPhone', 'invoiceNumber', 'amountDue', 'currencyCode', 'dueDate', 'companyName'];
     const missingFields = requiredFields.filter(field => !context[field as keyof PaymentCallContext]);
 
     if (missingFields.length > 0) {

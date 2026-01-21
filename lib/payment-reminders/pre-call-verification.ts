@@ -12,6 +12,7 @@ import { invoicesCache, customersCache } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { ZohoBooksClient, ZohoInvoice } from "./zoho-books-client";
 import { getBusinessProfile, getDefaultBusinessProfile} from "@/lib/business-profile/service";
+import { getCurrencySymbol } from "@/lib/currency-utils";
 
 /**
  * Invoice verification result
@@ -45,6 +46,8 @@ export interface CallContext {
   invoiceNumber: string;
   originalAmount: number;
   amountDue: number;
+  currencyCode: string; // ISO currency code (USD, INR, EUR, etc.)
+  currencySymbol: string; // Currency symbol ($, ₹, €, etc.)
   dueDate: string;
   daysUntilDue: number;
   isOverdue: boolean;
@@ -168,6 +171,7 @@ export async function prepareFreshContext(
       invoiceNumber: invoicesCache.invoiceNumber,
       amountTotal: invoicesCache.amountTotal,
       amountDue: invoicesCache.amountDue,
+      currencyCode: invoicesCache.currencyCode,
       dueDate: invoicesCache.dueDate,
       customerName: customersCache.customerName,
     })
@@ -223,11 +227,16 @@ export async function prepareFreshContext(
   };
   
   // Build call context (Requirements 14.1-14.9)
+  const currencyCode = invoice.currencyCode || 'USD';
+  const currencySymbol = getCurrencySymbol(currencyCode);
+  
   const context: CallContext = {
     customerName: invoice.customerName || 'Customer', // Requirement 14.1
     invoiceNumber: invoice.invoiceNumber || 'Unknown', // Requirement 14.2
     originalAmount: parseFloat(invoice.amountTotal || '0'), // Requirement 14.3
     amountDue: parseFloat(invoice.amountDue || '0'), // Requirement 14.4
+    currencyCode, // Currency code for the invoice
+    currencySymbol, // Currency symbol for voice agent
     dueDate: dueDateFormatted, // Requirement 14.5
     daysUntilDue, // Requirement 14.6
     isOverdue,

@@ -204,6 +204,7 @@ export const invoicesCache = pgTable("invoices_cache", {
   invoiceNumber: text("invoiceNumber"),
   amountTotal: text("amountTotal"), // Store as string to avoid precision issues
   amountDue: text("amountDue"), // Store as string to avoid precision issues
+  currencyCode: text("currencyCode").notNull().default("USD"), // ISO currency code (USD, INR, EUR, etc.)
   dueDate: timestamp("dueDate").notNull(),
   status: text("status"),
 

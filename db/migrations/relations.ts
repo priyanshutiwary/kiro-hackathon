@@ -1,28 +1,29 @@
 import { relations } from "drizzle-orm/relations";
-import { user, session, subscription, account, agentIntegrations, syncMetadata, customersCache, invoicesCache, paymentReminders, reminderSettings } from "./schema";
+import { user, subscription, session, account, agentIntegrations, syncMetadata, customersCache, invoicesCache, paymentReminders, reminderSettings, businessProfiles } from "./schema";
 
-export const sessionRelations = relations(session, ({one}) => ({
+export const subscriptionRelations = relations(subscription, ({one}) => ({
 	user: one(user, {
-		fields: [session.userId],
+		fields: [subscription.userId],
 		references: [user.id]
 	}),
 }));
 
 export const userRelations = relations(user, ({many}) => ({
-	sessions: many(session),
 	subscriptions: many(subscription),
+	sessions: many(session),
 	accounts: many(account),
 	agentIntegrations: many(agentIntegrations),
 	syncMetadata: many(syncMetadata),
 	customersCaches: many(customersCache),
-	invoicesCaches: many(invoicesCache),
 	paymentReminders: many(paymentReminders),
 	reminderSettings: many(reminderSettings),
+	businessProfiles: many(businessProfiles),
+	invoicesCaches: many(invoicesCache),
 }));
 
-export const subscriptionRelations = relations(subscription, ({one}) => ({
+export const sessionRelations = relations(session, ({one}) => ({
 	user: one(user, {
-		fields: [subscription.userId],
+		fields: [session.userId],
 		references: [user.id]
 	}),
 }));
@@ -48,19 +49,12 @@ export const syncMetadataRelations = relations(syncMetadata, ({one}) => ({
 	}),
 }));
 
-export const customersCacheRelations = relations(customersCache, ({one}) => ({
+export const customersCacheRelations = relations(customersCache, ({one, many}) => ({
 	user: one(user, {
 		fields: [customersCache.userId],
 		references: [user.id]
 	}),
-}));
-
-export const invoicesCacheRelations = relations(invoicesCache, ({one, many}) => ({
-	user: one(user, {
-		fields: [invoicesCache.userId],
-		references: [user.id]
-	}),
-	paymentReminders: many(paymentReminders),
+	invoicesCaches: many(invoicesCache),
 }));
 
 export const paymentRemindersRelations = relations(paymentReminders, ({one}) => ({
@@ -74,9 +68,28 @@ export const paymentRemindersRelations = relations(paymentReminders, ({one}) => 
 	}),
 }));
 
+export const invoicesCacheRelations = relations(invoicesCache, ({one, many}) => ({
+	paymentReminders: many(paymentReminders),
+	user: one(user, {
+		fields: [invoicesCache.userId],
+		references: [user.id]
+	}),
+	customersCache: one(customersCache, {
+		fields: [invoicesCache.customerId],
+		references: [customersCache.id]
+	}),
+}));
+
 export const reminderSettingsRelations = relations(reminderSettings, ({one}) => ({
 	user: one(user, {
 		fields: [reminderSettings.userId],
+		references: [user.id]
+	}),
+}));
+
+export const businessProfilesRelations = relations(businessProfiles, ({one}) => ({
+	user: one(user, {
+		fields: [businessProfiles.userId],
 		references: [user.id]
 	}),
 }));

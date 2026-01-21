@@ -19,6 +19,8 @@ export interface PaymentCallContext {
   customerPhone: string;
   invoiceNumber: string;
   amountDue: number;
+  currencyCode: string; // ISO currency code (USD, INR, EUR, etc.)
+  currencySymbol: string; // Currency symbol ($, ₹, €, etc.)
   dueDate: string;
   companyName: string;
   supportPhone: string;
@@ -204,6 +206,8 @@ export async function dispatchPaymentCall(
       customer_name: context.customerName,
       invoice_number: context.invoiceNumber,
       amount_due: context.amountDue,
+      currency_code: context.currencyCode,
+      currency_symbol: context.currencySymbol,
       due_date: context.dueDate,
       company_name: context.companyName,
       phone_number: cleanedPhone,

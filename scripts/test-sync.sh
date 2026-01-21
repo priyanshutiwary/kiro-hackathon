@@ -142,3 +142,9 @@ test_sync "POST"
 echo ""
 print_info "Test completed!"
 print_info "Check the terminal output above for sync results."
+
+# curl -X POST http://localhost:3000/api/cron/process-reminders \
+#   -H "Authorization: Bearer cron_secret"
+
+# curl -X POST http://localhost:3000/api/cron/sync-invoices \    
+#   -H "Authorization: Bearer cron_scret"

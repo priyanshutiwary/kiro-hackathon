@@ -65,6 +65,7 @@ export async function GET(request: Request) {
           invoiceNumber: invoicesCache.invoiceNumber,
           amountTotal: invoicesCache.amountTotal,
           amountDue: invoicesCache.amountDue,
+          currencyCode: invoicesCache.currencyCode,
           dueDate: invoicesCache.dueDate,
           status: invoicesCache.status,
         },
@@ -96,6 +97,7 @@ export async function GET(request: Request) {
         invoiceNumber: reminder.invoice?.invoiceNumber || "",
         customerName: reminder.customer?.name || "Unknown Customer",
         amountDue: parseFloat(reminder.invoice?.amountDue || "0"),
+        currencyCode: reminder.invoice?.currencyCode || "USD",
         dueDate: reminder.invoice?.dueDate || "",
       },
     }));

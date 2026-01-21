@@ -1,0 +1,1 @@
+ALTER TABLE "invoices_cache" ADD COLUMN "currencyCode" text DEFAULT 'USD' NOT NULL;
