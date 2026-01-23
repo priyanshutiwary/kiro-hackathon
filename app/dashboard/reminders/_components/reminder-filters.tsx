@@ -13,8 +13,10 @@ import { X } from "lucide-react";
 interface ReminderFiltersProps {
   dateRange: { from: Date | null; to: Date | null };
   statusFilter: string;
+  channelFilter: string;
   onDateRangeChange: (from: Date | null, to: Date | null) => void;
   onStatusFilterChange: (status: string) => void;
+  onChannelFilterChange: (channel: string) => void;
 }
 
 import { DashboardTheme } from "@/lib/dashboard-theme";
@@ -24,8 +26,10 @@ import { DashboardTheme } from "@/lib/dashboard-theme";
 export function ReminderFilters({
   dateRange,
   statusFilter,
+  channelFilter,
   onDateRangeChange,
   onStatusFilterChange,
+  onChannelFilterChange,
 }: ReminderFiltersProps) {
   const handleQuickFilter = (days: number) => {
     const to = new Date();
@@ -91,6 +95,17 @@ export function ReminderFilters({
           <SelectItem value="completed">Completed</SelectItem>
           <SelectItem value="skipped">Skipped</SelectItem>
           <SelectItem value="failed">Failed</SelectItem>
+        </SelectContent>
+      </Select>
+
+      <Select value={channelFilter} onValueChange={onChannelFilterChange}>
+        <SelectTrigger className={DashboardTheme.filters.selectTrigger}>
+          <SelectValue placeholder="Channel" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Channels</SelectItem>
+          <SelectItem value="sms">📱 SMS Only</SelectItem>
+          <SelectItem value="voice">📞 Voice Only</SelectItem>
         </SelectContent>
       </Select>
     </div>

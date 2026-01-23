@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 
-import { Clock, Calendar, Phone, AlertCircle } from "lucide-react";
+import { Clock, Calendar, Phone, AlertCircle, MessageSquare, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { DashboardTheme } from "@/lib/dashboard-theme";
@@ -46,6 +46,10 @@ interface ReminderSettings {
   // Voice and Language Settings
   language: string;
   voiceGender: string;
+
+  // Channel settings (SMS/Voice)
+  smartMode: boolean;
+  manualChannel: 'sms' | 'voice';
 
   // Retry settings
   maxRetryAttempts: number;
@@ -439,6 +443,138 @@ export default function ConfigurationPage() {
                         </button>
                       </Badge>
                     ))}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Channel Mode Selection */}
+          <Card className={DashboardTheme.card.base}>
+            <CardHeader className={DashboardTheme.card.header}>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="h-5 w-5" />
+                Reminder Channel
+              </CardTitle>
+              <CardDescription>
+                Choose how reminders are delivered to your customers
+              </CardDescription>
+            </CardHeader>
+            <CardContent className={DashboardTheme.card.content + " space-y-6"}>
+              <div className="space-y-4">
+                <Label className="text-base font-medium">Channel Mode</Label>
+                
+                {/* Smart Mode Option */}
+                <div 
+                  className={`relative flex items-start space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                    reminderSettings?.smartMode 
+                      ? 'border-primary bg-primary/5' 
+                      : 'border-border hover:border-primary/50'
+                  }`}
+                  onClick={() => setReminderSettings(prev => prev ? { ...prev, smartMode: true } : null)}
+                >
+                  <div className="flex items-center h-5">
+                    <input
+                      type="radio"
+                      name="channelMode"
+                      checked={reminderSettings?.smartMode || false}
+                      onChange={() => setReminderSettings(prev => prev ? { ...prev, smartMode: true } : null)}
+                      className="h-4 w-4 text-primary focus:ring-primary cursor-pointer"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <Label className="text-base font-medium cursor-pointer">
+                        Smart Mode
+                      </Label>
+                      <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                        <Sparkles className="h-3 w-3 mr-1" />
+                        Recommended
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Automatically uses SMS for early reminders (30, 15, 7, 5 days before) and voice calls for urgent reminders (3, 1 day before, due date, overdue). Optimizes costs while maintaining effectiveness.
+                    </p>
+                    <div className="mt-2 flex items-center gap-4 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <MessageSquare className="h-3 w-3" />
+                        SMS: Early reminders
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Phone className="h-3 w-3" />
+                        Voice: Urgent reminders
+                      </span>
+                    </div>
+                    <Alert className="mt-3 bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900">
+                      <AlertDescription className="text-xs text-blue-900 dark:text-blue-100">
+                        💰 Save up to 90% on costs with Smart Mode. SMS costs ~$0.01 per message vs voice calls at ~$0.10+ per minute.
+                      </AlertDescription>
+                    </Alert>
+                  </div>
+                </div>
+
+                {/* Manual Mode Option */}
+                <div 
+                  className={`relative flex items-start space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                    !reminderSettings?.smartMode 
+                      ? 'border-primary bg-primary/5' 
+                      : 'border-border hover:border-primary/50'
+                  }`}
+                  onClick={() => setReminderSettings(prev => prev ? { ...prev, smartMode: false } : null)}
+                >
+                  <div className="flex items-center h-5">
+                    <input
+                      type="radio"
+                      name="channelMode"
+                      checked={!reminderSettings?.smartMode}
+                      onChange={() => setReminderSettings(prev => prev ? { ...prev, smartMode: false } : null)}
+                      className="h-4 w-4 text-primary focus:ring-primary cursor-pointer"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <Label className="text-base font-medium cursor-pointer">
+                      Manual Mode
+                    </Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Choose a single channel for all reminders. Use this if you prefer consistent communication method.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Manual Channel Selector - Only shown when Manual Mode is selected */}
+                {!reminderSettings?.smartMode && (
+                  <div className="ml-7 mt-4 space-y-3 pl-4 border-l-2 border-primary/30">
+                    <Label className="text-sm font-medium">Select Channel</Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Button
+                        type="button"
+                        variant={reminderSettings?.manualChannel === 'sms' ? 'default' : 'outline'}
+                        className="justify-start h-auto py-3"
+                        onClick={() => setReminderSettings(prev => prev ? { ...prev, manualChannel: 'sms' } : null)}
+                      >
+                        <div className="flex flex-col items-start gap-1">
+                          <div className="flex items-center gap-2">
+                            <MessageSquare className="h-4 w-4" />
+                            <span className="font-medium">SMS Only</span>
+                          </div>
+                          <span className="text-xs opacity-80">Text messages for all reminders</span>
+                        </div>
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={reminderSettings?.manualChannel === 'voice' ? 'default' : 'outline'}
+                        className="justify-start h-auto py-3"
+                        onClick={() => setReminderSettings(prev => prev ? { ...prev, manualChannel: 'voice' } : null)}
+                      >
+                        <div className="flex flex-col items-start gap-1">
+                          <div className="flex items-center gap-2">
+                            <Phone className="h-4 w-4" />
+                            <span className="font-medium">Voice Only</span>
+                          </div>
+                          <span className="text-xs opacity-80">Phone calls for all reminders</span>
+                        </div>
+                      </Button>
+                    </div>
                   </div>
                 )}
               </div>

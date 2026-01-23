@@ -158,6 +158,7 @@ export async function POST(request: Request) {
  * - 2.4: Handle 'call_failed' → 'failed' transition
  * - 2.5: Handle no_answer → 'pending' for retry
  * - 3.1-3.5: Store call outcome data and update timestamp
+ * - 7.1-7.5: Schedule retry for failed reminders
  */
 async function handleStatusUpdate(
   reminderId: string,
@@ -187,10 +188,12 @@ async function handleStatusUpdate(
       // Requirement 2.3, 2.5: call_completed → 'completed' or 'pending' (if no_answer)
       // Determine final status based on outcome
       let finalStatus = 'completed';
+      let shouldScheduleRetry = false;
       
       // If customer didn't answer, set to pending for retry (Requirement 2.5)
       if (outcome?.customer_response === 'no_answer') {
         finalStatus = 'pending';
+        shouldScheduleRetry = true;
         console.log(`Reminder ${reminderId} marked as 'pending' for retry (no answer)`);
       } else {
         console.log(`Reminder ${reminderId} marked as 'completed'`);
@@ -216,6 +219,12 @@ async function handleStatusUpdate(
         })
         .where(eq(paymentReminders.id, reminderId));
       
+      // Schedule retry if needed (Requirements 7.1-7.5)
+      if (shouldScheduleRetry) {
+        const { scheduleRetry } = await import("@/lib/payment-reminders/call-executor");
+        await scheduleRetry(reminderId);
+      }
+      
       break;
     
     case 'call_failed':
@@ -232,14 +241,19 @@ async function handleStatusUpdate(
       await db
         .update(paymentReminders)
         .set({
-          status: 'failed',
+          status: 'pending', // Set to pending so retry can be scheduled
           callOutcome: failureOutcomeData ? JSON.stringify(failureOutcomeData) : null,
           lastAttemptAt: now,
           updatedAt: now
         })
         .where(eq(paymentReminders.id, reminderId));
       
-      console.log(`Reminder ${reminderId} marked as 'failed'`);
+      console.log(`Reminder ${reminderId} marked as 'pending' for retry after failure`);
+      
+      // Schedule retry for failed call (Requirements 7.1-7.5)
+      const { scheduleRetry } = await import("@/lib/payment-reminders/call-executor");
+      await scheduleRetry(reminderId);
+      
       break;
     
     default:

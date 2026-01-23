@@ -19,6 +19,8 @@ interface Reminder {
   reminderType: string;
   scheduledDate: string;
   status: string;
+  channel: string;
+  externalId: string | null;
   attemptCount: number;
   lastAttemptAt: string | null;
   callOutcome: {
@@ -48,11 +50,12 @@ export default function RemindersPage() {
     to: null,
   });
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [channelFilter, setChannelFilter] = useState<string>("all");
 
   useEffect(() => {
     fetchAllData(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dateRange, statusFilter]);
+  }, [dateRange, statusFilter, channelFilter]);
 
   const fetchAllData = async (shouldLoad = false) => {
     try {
@@ -83,6 +86,9 @@ export default function RemindersPage() {
     if (statusFilter !== "all") {
       params.append("status", statusFilter);
     }
+    if (channelFilter !== "all") {
+      params.append("channel", channelFilter);
+    }
 
     const response = await fetch(`/api/reminders?${params.toString()}`);
 
@@ -107,6 +113,10 @@ export default function RemindersPage() {
 
   const handleStatusFilterChange = (status: string) => {
     setStatusFilter(status);
+  };
+
+  const handleChannelFilterChange = (channel: string) => {
+    setChannelFilter(channel);
   };
 
   if (loading) {
@@ -146,8 +156,10 @@ export default function RemindersPage() {
             <ReminderFilters
               dateRange={dateRange}
               statusFilter={statusFilter}
+              channelFilter={channelFilter}
               onDateRangeChange={handleDateRangeChange}
               onStatusFilterChange={handleStatusFilterChange}
+              onChannelFilterChange={handleChannelFilterChange}
             />
             <Button
               onClick={handleRefresh}
@@ -186,6 +198,7 @@ export default function RemindersPage() {
               <Button variant="outline" onClick={() => {
                 setDateRange({ from: null, to: null });
                 setStatusFilter("all");
+                setChannelFilter("all");
               }}>
                 Clear Filters
               </Button>

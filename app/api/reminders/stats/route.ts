@@ -48,6 +48,29 @@ export async function GET() {
       ? (completedReminders / attemptedReminders) * 100 
       : 0;
 
+    // Get channel-specific statistics
+    const channelStats = await db
+      .select({
+        channel: paymentReminders.channel,
+        status: paymentReminders.status,
+        count: sql<number>`count(*)::int`,
+      })
+      .from(paymentReminders)
+      .where(eq(paymentReminders.userId, userId))
+      .groupBy(paymentReminders.channel, paymentReminders.status);
+
+    // Calculate channel-specific counts
+    const smsCount = channelStats
+      .filter((s) => s.channel === "sms")
+      .reduce((sum, stat) => sum + stat.count, 0);
+    const voiceCount = channelStats
+      .filter((s) => s.channel === "voice")
+      .reduce((sum, stat) => sum + stat.count, 0);
+    const completedSMS = channelStats.find((s) => s.channel === "sms" && s.status === "completed")?.count || 0;
+    const completedVoice = channelStats.find((s) => s.channel === "voice" && s.status === "completed")?.count || 0;
+    const failedSMS = channelStats.find((s) => s.channel === "sms" && s.status === "failed")?.count || 0;
+    const failedVoice = channelStats.find((s) => s.channel === "voice" && s.status === "failed")?.count || 0;
+
     // Get call outcome statistics for completed reminders
     const completedWithOutcomes = await db
       .select({
@@ -132,6 +155,14 @@ export async function GET() {
         queued: queuedReminders,
         inProgress: inProgressReminders,
         successRate: Math.round(successRate * 100) / 100, // Round to 2 decimal places
+      },
+      byChannel: {
+        smsCount,
+        voiceCount,
+        completedSMS,
+        completedVoice,
+        failedSMS,
+        failedVoice,
       },
       customerResponses: responseStats,
       byReminderType: typeStatsFormatted,

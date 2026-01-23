@@ -6,6 +6,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, RefreshCw, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { ReminderStats } from "./reminders/_components/reminder-stats";
+import { ChannelStats } from "./reminders/_components/channel-stats";
 import { ChartAreaInteractive } from "./_components/chart-interactive";
 import { useRouter } from "next/navigation";
 import { DashboardTheme } from "@/lib/dashboard-theme";
@@ -20,6 +21,14 @@ interface ReminderStatsData {
     queued: number;
     inProgress: number;
     successRate: number;
+  };
+  byChannel: {
+    smsCount: number;
+    voiceCount: number;
+    completedSMS: number;
+    completedVoice: number;
+    failedSMS: number;
+    failedVoice: number;
   };
   customerResponses: Record<string, number>;
   byReminderType: Record<string, {
@@ -119,6 +128,9 @@ export default function Dashboard() {
 
         <div className="flex flex-col gap-4 py-4 md:gap-6">
           {stats && <ReminderStats stats={stats} />}
+          {stats && stats.byChannel && (
+            <ChannelStats stats={stats} />
+          )}
           <ChartAreaInteractive />
         </div>
       </div>

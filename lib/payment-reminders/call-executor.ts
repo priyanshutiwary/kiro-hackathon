@@ -4,7 +4,9 @@
  * Handles the execution of payment reminder calls, including pre-call verification,
  * call initiation via LiveKit, outcome tracking, and retry scheduling.
  * 
- * Requirements: 7.1-7.6, 8.1-8.8, 13.1-13.6
+ * Also provides unified reminder execution that routes to SMS or voice based on channel.
+ * 
+ * Requirements: 7.1-7.6, 8.1-8.8, 13.1-13.6, 4.1
  */
 
 import { db } from "@/db/drizzle";
@@ -12,6 +14,101 @@ import { paymentReminders, invoicesCache, customersCache } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { verifyInvoiceStatus, prepareFreshContext } from "./pre-call-verification";
 import { makeCall, CallOutcome } from "./livekit-client";
+import { executeSMSReminder, type SMSExecutionResult } from "./sms-executor";
+import { cancelPendingReminders } from "./anti-spam";
+
+/**
+ * Unified reminder execution result
+ */
+export type ReminderExecutionResult = 
+  | { channel: 'voice'; outcome: CallOutcome }
+  | { channel: 'sms'; result: SMSExecutionResult }
+  | { channel: 'unknown'; error: string };
+
+/**
+ * Execute a reminder based on its channel
+ * 
+ * This function routes reminder execution to the appropriate handler:
+ * - SMS reminders are routed to executeSMSReminder
+ * - Voice reminders are routed to executeVoiceReminder (initiateCall)
+ * - Unknown channels return an error
+ * 
+ * Requirement: 4.1
+ * 
+ * @param reminderId - ID of the reminder to execute
+ * @returns Promise resolving to the execution result
+ * @throws Error if reminder not found or channel is unknown
+ */
+export async function executeReminder(
+  reminderId: string
+): Promise<ReminderExecutionResult> {
+  console.log(`[Unified Executor] Executing reminder ${reminderId}`);
+
+  // Fetch reminder to determine channel
+  const reminders = await db
+    .select()
+    .from(paymentReminders)
+    .where(eq(paymentReminders.id, reminderId))
+    .limit(1);
+
+  if (reminders.length === 0) {
+    console.error(`[Unified Executor] Reminder not found: ${reminderId}`);
+    throw new Error(`Reminder not found: ${reminderId}`);
+  }
+
+  const reminder = reminders[0];
+  const channel = reminder.channel || 'voice'; // Default to voice for backwards compatibility
+
+  console.log(`[Unified Executor] Reminder channel: ${channel} (raw value: ${reminder.channel})`);
+
+  // Route based on channel
+  if (channel === 'sms') {
+    console.log(`[Unified Executor] Routing to SMS executor`);
+    const result = await executeSMSReminder(reminderId);
+    return { channel: 'sms', result };
+  } else if (channel === 'voice') {
+    console.log(`[Unified Executor] Routing to voice executor`);
+    const outcome = await executeVoiceReminder(reminderId);
+    return { channel: 'voice', outcome };
+  } else {
+    // Unknown channel type
+    const error = `Unknown channel type: ${channel}`;
+    console.error(`[Unified Executor] ${error}`);
+    
+    // Mark reminder as failed
+    await db
+      .update(paymentReminders)
+      .set({
+        status: 'failed',
+        skipReason: error,
+        updatedAt: new Date(),
+      })
+      .where(eq(paymentReminders.id, reminderId));
+
+    return { channel: 'unknown', error };
+  }
+}
+
+/**
+ * Execute a voice reminder (wrapper for initiateCall)
+ * 
+ * This function provides a consistent interface for voice reminder execution.
+ * It calls initiateCall and handleCallOutcome to complete the voice call flow.
+ * 
+ * @param reminderId - ID of the reminder to execute
+ * @returns Promise resolving to the call outcome
+ */
+export async function executeVoiceReminder(reminderId: string): Promise<CallOutcome> {
+  console.log(`[Voice Executor] Executing voice reminder ${reminderId}`);
+  
+  // Initiate the call
+  const outcome = await initiateCall(reminderId);
+  
+  // Handle the call outcome
+  await handleCallOutcome(reminderId, outcome);
+  
+  return outcome;
+}
 
 /**
  * Initiates a call for a payment reminder
@@ -241,20 +338,21 @@ export async function handleCallOutcome(
 }
 
 /**
- * Schedules a retry for a failed call attempt
+ * Schedules a retry for a failed reminder attempt (SMS or voice)
  * 
  * This function:
  * 1. Checks if retry attempts remaining
  * 2. Calculates next retry time based on delay hours
  * 3. Updates reminder for retry or marks as failed if max attempts reached
+ * 4. Preserves the original channel (doesn't switch SMS to voice or vice versa)
  * 
- * Requirements: 8.6, 8.7, 8.8, 13.1, 13.2, 13.3, 13.4, 13.5, 13.6
+ * Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 8.6, 8.7, 8.8, 13.1, 13.2, 13.3, 13.4, 13.5, 13.6
  * 
  * @param reminderId - ID of the reminder to retry
  * @returns Promise that resolves when retry is scheduled
  */
 export async function scheduleRetry(reminderId: string): Promise<void> {
-  console.log(`[Call Executor] Scheduling retry for reminder ${reminderId}`);
+  console.log(`[Retry Scheduler] Scheduling retry for reminder ${reminderId}`);
   
   // Fetch reminder
   const reminders = await db
@@ -264,11 +362,14 @@ export async function scheduleRetry(reminderId: string): Promise<void> {
     .limit(1);
 
   if (reminders.length === 0) {
-    console.error(`[Call Executor] Reminder not found: ${reminderId}`);
+    console.error(`[Retry Scheduler] Reminder not found: ${reminderId}`);
     throw new Error(`Reminder not found: ${reminderId}`);
   }
 
   const reminder = reminders[0];
+  const channel = reminder.channel || 'voice';
+
+  console.log(`[Retry Scheduler] Reminder channel: ${channel}, current attempt: ${reminder.attemptCount}`);
 
   // Get user settings to check max retry attempts and delay
   const { reminderSettings } = await import("@/db/schema");
@@ -280,7 +381,7 @@ export async function scheduleRetry(reminderId: string): Promise<void> {
     .limit(1);
 
   if (settings.length === 0) {
-    console.error(`[Call Executor] Settings not found for user: ${reminder.userId}`);
+    console.error(`[Retry Scheduler] Settings not found for user: ${reminder.userId}`);
     throw new Error(`Settings not found for user: ${reminder.userId}`);
   }
 
@@ -288,42 +389,47 @@ export async function scheduleRetry(reminderId: string): Promise<void> {
   const maxRetryAttempts = userSettings.maxRetryAttempts;
   const retryDelayHours = userSettings.retryDelayHours;
 
-  console.log(`[Call Executor] Current attempt: ${reminder.attemptCount}, max attempts: ${maxRetryAttempts}`);
+  console.log(`[Retry Scheduler] Max attempts: ${maxRetryAttempts}, retry delay: ${retryDelayHours} hours`);
 
-  // Check if retry attempts remaining (Requirements 8.7, 13.4)
+  // Check if retry attempts remaining (Requirements 7.3, 8.7, 13.4)
   if (reminder.attemptCount >= maxRetryAttempts) {
-    // Max attempts reached - mark as failed (Requirement 13.4)
-    console.log(`[Call Executor] Max retry attempts reached (${maxRetryAttempts}), marking as failed`);
+    // Max attempts reached - mark as permanently failed (Requirement 7.3)
+    console.log(`[Retry Scheduler] Max retry attempts reached (${maxRetryAttempts}), marking as permanently failed`);
     await db
       .update(paymentReminders)
       .set({
         status: 'failed',
-        skipReason: `Maximum retry attempts (${maxRetryAttempts}) exceeded`,
+        skipReason: `Maximum retry attempts (${maxRetryAttempts}) exceeded for ${channel} channel`,
         updatedAt: new Date(),
       })
       .where(eq(paymentReminders.id, reminderId));
     
-    console.error(`[Call Executor] Reminder ${reminderId} marked as failed after ${maxRetryAttempts} attempts`);
+    console.error(`[Retry Scheduler] Reminder ${reminderId} marked as failed after ${maxRetryAttempts} attempts on ${channel} channel`);
     return;
   }
 
-  // Calculate next retry time (Requirements 8.8, 13.3)
+  // Calculate next retry time (Requirements 7.1, 8.8, 13.3)
+  // Default to 2 hours if retryDelayHours is not set
+  const delayHours = retryDelayHours || 2;
   const now = new Date();
-  const nextRetryTime = new Date(now.getTime() + retryDelayHours * 60 * 60 * 1000);
+  const nextRetryTime = new Date(now.getTime() + delayHours * 60 * 60 * 1000);
 
-  console.log(`[Call Executor] Scheduling retry for ${nextRetryTime.toISOString()} (${retryDelayHours} hours from now)`);
+  console.log(`[Retry Scheduler] Scheduling retry for ${nextRetryTime.toISOString()} (${delayHours} hours from now)`);
+  console.log(`[Retry Scheduler] Channel will remain: ${channel} (Requirement 7.4)`);
 
-  // Update reminder for retry (Requirements 13.2, 13.5, 13.6)
+  // Update reminder for retry (Requirements 7.2, 7.4, 7.5, 13.2, 13.5, 13.6)
+  // Note: We do NOT update the channel field - it stays the same (Requirement 7.4)
   await db
     .update(paymentReminders)
     .set({
       scheduledDate: nextRetryTime,
       status: 'pending',
       updatedAt: new Date(),
+      // channel is NOT updated - preserves original channel (Requirement 7.4)
     })
     .where(eq(paymentReminders.id, reminderId));
   
-  console.log(`[Call Executor] Retry scheduled successfully for reminder ${reminderId}`);
+  console.log(`[Retry Scheduler] Retry scheduled successfully for reminder ${reminderId} on ${channel} channel`);
 }
 
 /**
@@ -366,23 +472,11 @@ async function verifyAndCancelIfPaid(
 
   console.log(`[Call Executor] Verification complete: isPaid=${verification.isPaid}`);
 
-  // If invoice is paid, cancel all pending reminders (Requirement 7.5)
+  // If invoice is paid, cancel all pending reminders (Requirement 7.5, 10.4)
   if (verification.isPaid) {
     console.log(`[Call Executor] Invoice ${invoiceId} is paid, cancelling all pending reminders`);
-    await db
-      .update(paymentReminders)
-      .set({
-        status: 'skipped',
-        skipReason: 'Invoice verified as paid',
-        updatedAt: new Date(),
-      })
-      .where(
-        and(
-          eq(paymentReminders.invoiceId, invoiceId),
-          eq(paymentReminders.status, 'pending')
-        )
-      );
-    console.log(`[Call Executor] All pending reminders cancelled for invoice ${invoiceId}`);
+    const cancelledCount = await cancelPendingReminders(invoiceId);
+    console.log(`[Call Executor] Cancelled ${cancelledCount} pending reminders for invoice ${invoiceId}`);
   }
 }
 

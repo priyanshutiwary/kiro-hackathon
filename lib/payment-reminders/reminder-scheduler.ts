@@ -12,7 +12,8 @@ import { paymentReminders} from "@/db/schema";
 import { eq, and, lte } from "drizzle-orm";
 import { canMakeCallNow } from "./call-window";
 import { getUserSettings} from "./settings-manager";
-import { initiateCall } from "./call-executor";
+import { executeReminder } from "./call-executor";
+import { canSendReminder } from "./anti-spam";
 
 /**
  * Processes due reminders and queues eligible calls
@@ -80,18 +81,36 @@ export async function processReminders(): Promise<void> {
         continue;
       }
       
+      // Check anti-spam protection (Requirements 10.1, 10.2, 10.3, 10.5)
+      const antiSpamCheck = canSendReminder(
+        {
+          attemptCount: reminder.attemptCount,
+          lastAttemptAt: reminder.lastAttemptAt,
+        },
+        settings
+      );
+      
+      if (!antiSpamCheck.canSend) {
+        console.log(`[Reminder Scheduler] Reminder ${reminder.id} blocked by anti-spam: ${antiSpamCheck.reason}`);
+        if (antiSpamCheck.nextAvailableTime) {
+          console.log(`[Reminder Scheduler] Next available time: ${antiSpamCheck.nextAvailableTime}`);
+        }
+        skippedCount++;
+        continue;
+      }
+      
       // Check call window eligibility (Requirement 15.5)
       const callWindowCheck = canMakeCallNow(settings);
       
       if (!callWindowCheck.canCall) {
-        console.log(`[Reminder Scheduler] Reminder ${reminder.id} not eligible for calling: ${callWindowCheck.reason}`);
+        console.log(`[Reminder Scheduler] Reminder ${reminder.id} not eligible: ${callWindowCheck.reason}`);
         console.log(`[Reminder Scheduler] Next available time: ${callWindowCheck.nextAvailableTime}`);
         skippedCount++;
         continue;
       }
       
-      // Queue the call (Requirement 15.5)
-      console.log(`[Reminder Scheduler] Queueing call for reminder ${reminder.id}`);
+      // Queue the reminder for execution (Requirement 15.5)
+      console.log(`[Reminder Scheduler] Queueing reminder ${reminder.id} for execution`);
       await queueCall(reminder.id);
       queuedCount++;
       
@@ -116,23 +135,23 @@ export async function processReminders(): Promise<void> {
 }
 
 /**
- * Queues a call for execution
+ * Queues a reminder for execution (SMS or voice based on channel)
  * 
  * This function:
  * 1. Updates reminder status to 'in_progress'
- * 2. Initiates the call via Call Executor
+ * 2. Executes the reminder via unified executor (routes to SMS or voice)
  * 3. Waits for webhook callback to handle outcome
  * 
- * Requirements: 15.5, 2.1 (webhook flow)
+ * Requirements: 15.5, 2.1 (webhook flow), 4.1 (channel routing)
  * 
  * @param reminderId - ID of the reminder to queue
- * @returns Promise that resolves when call is initiated
+ * @returns Promise that resolves when reminder execution is initiated
  */
 export async function queueCall(reminderId: string): Promise<void> {
-  console.log(`[Reminder Scheduler] Queueing call for reminder ${reminderId}`);
+  console.log(`[Reminder Scheduler] Queueing reminder for execution: ${reminderId}`);
   
   try {
-    // Update status to 'in_progress' before initiating call (Requirement 2.1)
+    // Update status to 'in_progress' before initiating (Requirement 2.1)
     await db
       .update(paymentReminders)
       .set({
@@ -143,22 +162,22 @@ export async function queueCall(reminderId: string): Promise<void> {
     
     console.log(`[Reminder Scheduler] Reminder ${reminderId} status updated to 'in_progress'`);
     
-    // Initiate call via Call Executor (Requirement 15.5)
-    // The Python agent will report the outcome via webhook
-    console.log(`[Reminder Scheduler] Initiating call for reminder ${reminderId}`);
-    await initiateCall(reminderId);
+    // Execute reminder via unified executor (Requirement 4.1)
+    // This will route to SMS or voice based on the channel field
+    console.log(`[Reminder Scheduler] Executing reminder ${reminderId}`);
+    await executeReminder(reminderId);
     
-    console.log(`[Reminder Scheduler] Call initiated for reminder ${reminderId}, waiting for webhook callback`);
+    console.log(`[Reminder Scheduler] Reminder ${reminderId} execution initiated, waiting for outcome`);
     
   } catch (error) {
-    console.error(`[Reminder Scheduler] Error queueing call for reminder ${reminderId}:`, error);
+    console.error(`[Reminder Scheduler] Error executing reminder ${reminderId}:`, error);
     
-    // Update reminder status to 'failed' on error (room creation failure)
+    // Update reminder status to 'failed' on error
     await db
       .update(paymentReminders)
       .set({
         status: 'failed',
-        skipReason: `Error during call execution: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        skipReason: `Error during execution: ${error instanceof Error ? error.message : 'Unknown error'}`,
         updatedAt: new Date(),
       })
       .where(eq(paymentReminders.id, reminderId));

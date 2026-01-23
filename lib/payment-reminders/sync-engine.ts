@@ -14,6 +14,8 @@ import { buildReminderSchedule, ReminderScheduleItem } from "./reminder-schedule
 import { ReminderSettings, getUserSettings } from "./settings-manager";
 import { getMaxReminderDays } from "./reminder-schedule";
 import { syncCustomersForUser} from "./customer-sync-engine";
+import { assignChannel } from "./channel-assignment";
+import { hasDuplicateReminder, hasOppositeChannelOnSameDay, cancelPendingReminders } from "./anti-spam";
 
 /**
  * Process and upsert invoice into cache
@@ -203,21 +205,10 @@ export async function handleInvoiceChanges(
       .limit(1);
     
     if (invoice.length > 0 && invoice[0].status === 'paid') {
-      // Cancel all pending reminders for paid invoice
+      // Cancel all pending reminders for paid invoice (Requirement 4.3, 10.4)
       console.log(`[Sync Engine] Invoice ${invoiceId} marked as paid, cancelling pending reminders`);
-      await db
-        .update(paymentReminders)
-        .set({
-          status: 'skipped',
-          skipReason: 'Invoice marked as paid',
-          updatedAt: new Date(),
-        })
-        .where(
-          and(
-            eq(paymentReminders.invoiceId, invoiceId),
-            eq(paymentReminders.status, 'pending')
-          )
-        );
+      const cancelledCount = await cancelPendingReminders(invoiceId);
+      console.log(`[Sync Engine] Cancelled ${cancelledCount} pending reminders for invoice ${invoiceId}`);
     }
   }
   
@@ -349,20 +340,51 @@ export async function createRemindersForInvoice(
   
   // Insert reminder records (Requirement 6.4, 6.6)
   const now = new Date();
-  const reminderRecords = schedule.map((item: ReminderScheduleItem) => ({
-    id: crypto.randomUUID(),
-    invoiceId,
-    userId,
-    reminderType: item.reminderType,
-    scheduledDate: item.scheduledDate,
-    status: 'pending',
-    attemptCount: 0,
-    lastAttemptAt: null,
-    callOutcome: null,
-    skipReason: null,
-    createdAt: now,
-    updatedAt: now,
-  }));
+  const reminderRecords = [];
+  
+  for (const item of schedule) {
+    // Check for duplicate reminder on same date (Requirement 10.1)
+    const isDuplicate = await hasDuplicateReminder(invoiceId, item.scheduledDate);
+    
+    if (isDuplicate) {
+      console.log(`[Sync Engine] Skipping duplicate reminder for invoice ${invoiceId} on ${item.scheduledDate.toISOString()}`);
+      continue;
+    }
+    
+    // Assign channel based on reminder type and settings (Requirements 2.3, 2.4, 2.5, 3.3, 3.4, 3.5)
+    const channel = assignChannel(item.reminderType, {
+      smartMode: settings.smartMode,
+      manualChannel: settings.manualChannel,
+    });
+    
+    // Check if opposite channel already exists on same day (Requirement 10.1)
+    const hasOpposite = await hasOppositeChannelOnSameDay(
+      invoiceId,
+      item.scheduledDate,
+      channel
+    );
+    
+    if (hasOpposite) {
+      console.log(`[Sync Engine] Skipping ${channel} reminder for invoice ${invoiceId} on ${item.scheduledDate.toISOString()} - opposite channel already exists`);
+      continue;
+    }
+    
+    reminderRecords.push({
+      id: crypto.randomUUID(),
+      invoiceId,
+      userId,
+      reminderType: item.reminderType,
+      scheduledDate: item.scheduledDate,
+      status: 'pending',
+      channel, // Store assigned channel
+      attemptCount: 0,
+      lastAttemptAt: null,
+      callOutcome: null,
+      skipReason: null,
+      createdAt: now,
+      updatedAt: now,
+    });
+  }
   
   // Insert all reminders in a single operation (Requirement 6.6)
   if (reminderRecords.length > 0) {
@@ -733,23 +755,46 @@ export async function syncInvoicesForUser(
             const schedule = buildReminderSchedule(dueDate, settings);
             
             if (schedule.length > 0) {
-              const reminderRecords = schedule.map((item: ReminderScheduleItem) => ({
-                id: crypto.randomUUID(),
-                invoiceId: newInvoiceId,
-                userId,
-                reminderType: item.reminderType,
-                scheduledDate: item.scheduledDate,
-                status: 'pending' as const,
-                attemptCount: 0,
-                lastAttemptAt: null,
-                callOutcome: null,
-                skipReason: null,
-                createdAt: now,
-                updatedAt: now,
-              }));
+              // Track scheduled dates to prevent duplicates within this batch
+              const scheduledDatesInBatch = new Set<string>();
               
-              remindersToInsert.push(...reminderRecords);
-              console.log(`[Sync Engine] Prepared ${reminderRecords.length} reminders for new invoice ${zohoInvoice.invoice_number}`);
+              for (const item of schedule) {
+                const dateKey = item.scheduledDate.toISOString().split('T')[0]; // YYYY-MM-DD
+                
+                // Check if we already have a reminder for this date in the batch
+                if (scheduledDatesInBatch.has(dateKey)) {
+                  console.log(`[Sync Engine] Skipping duplicate reminder in batch for invoice ${zohoInvoice.invoice_number} on ${dateKey}`);
+                  continue;
+                }
+                
+                // Assign channel based on reminder type and settings (Requirements 2.3, 2.4, 2.5, 3.3, 3.4, 3.5)
+                const channel = assignChannel(item.reminderType, {
+                  smartMode: settings.smartMode,
+                  manualChannel: settings.manualChannel,
+                });
+                
+                // Track this date and channel to prevent opposite channel on same day
+                const channelDateKey = `${dateKey}-${channel}`;
+                scheduledDatesInBatch.add(dateKey);
+                
+                remindersToInsert.push({
+                  id: crypto.randomUUID(),
+                  invoiceId: newInvoiceId,
+                  userId,
+                  reminderType: item.reminderType,
+                  scheduledDate: item.scheduledDate,
+                  status: 'pending' as const,
+                  channel, // Store assigned channel
+                  attemptCount: 0,
+                  lastAttemptAt: null,
+                  callOutcome: null,
+                  skipReason: null,
+                  createdAt: now,
+                  updatedAt: now,
+                });
+              }
+              
+              console.log(`[Sync Engine] Prepared ${remindersToInsert.length} reminders for new invoice ${zohoInvoice.invoice_number}`);
             }
             
             // Mark as processed
@@ -814,22 +859,42 @@ export async function syncInvoicesForUser(
                 const schedule = buildReminderSchedule(dueDate, settings);
                 
                 if (schedule.length > 0) {
-                  const reminderRecords = schedule.map((item: ReminderScheduleItem) => ({
-                    id: crypto.randomUUID(),
-                    invoiceId: existingInvoice.id,
-                    userId,
-                    reminderType: item.reminderType,
-                    scheduledDate: item.scheduledDate,
-                    status: 'pending' as const,
-                    attemptCount: 0,
-                    lastAttemptAt: null,
-                    callOutcome: null,
-                    skipReason: null,
-                    createdAt: now,
-                    updatedAt: now,
-                  }));
+                  // Track scheduled dates to prevent duplicates within this batch
+                  const scheduledDatesInBatch = new Set<string>();
                   
-                  remindersToInsert.push(...reminderRecords);
+                  for (const item of schedule) {
+                    const dateKey = item.scheduledDate.toISOString().split('T')[0]; // YYYY-MM-DD
+                    
+                    // Check if we already have a reminder for this date in the batch
+                    if (scheduledDatesInBatch.has(dateKey)) {
+                      console.log(`[Sync Engine] Skipping duplicate reminder in batch for invoice ${zohoInvoice.invoice_number} on ${dateKey}`);
+                      continue;
+                    }
+                    
+                    // Assign channel based on reminder type and settings
+                    const channel = assignChannel(item.reminderType, {
+                      smartMode: settings.smartMode,
+                      manualChannel: settings.manualChannel,
+                    });
+                    
+                    scheduledDatesInBatch.add(dateKey);
+                    
+                    remindersToInsert.push({
+                      id: crypto.randomUUID(),
+                      invoiceId: existingInvoice.id,
+                      userId,
+                      reminderType: item.reminderType,
+                      scheduledDate: item.scheduledDate,
+                      status: 'pending' as const,
+                      channel, // Store assigned channel
+                      attemptCount: 0,
+                      lastAttemptAt: null,
+                      callOutcome: null,
+                      skipReason: null,
+                      createdAt: now,
+                      updatedAt: now,
+                    });
+                  }
                 }
               }
               

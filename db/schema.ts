@@ -151,6 +151,10 @@ export const reminderSettings = pgTable("reminder_settings", {
   language: text("language").notNull().default("en"), // "en", "hi", "hinglish"
   voiceGender: text("voiceGender").notNull().default("female"), // "male", "female"
 
+  // Channel settings for SMS/Voice
+  smartMode: boolean("smartMode").notNull().default(true), // Auto-select channel based on urgency
+  manualChannel: text("manualChannel").default("voice"), // 'sms' or 'voice' when smartMode is false
+
   // Retry settings
   maxRetryAttempts: integer("maxRetryAttempts").notNull().default(3),
   retryDelayHours: integer("retryDelayHours").notNull().default(2),
@@ -239,6 +243,10 @@ export const paymentReminders = pgTable("payment_reminders", {
   scheduledDate: timestamp("scheduledDate").notNull(),
   status: text("status").notNull().default("pending"),
 
+  // Channel and external tracking
+  channel: text("channel").notNull().default("voice"), // 'sms' or 'voice'
+  externalId: text("externalId"), // Twilio message SID or LiveKit call ID
+
   // Attempt tracking
   attemptCount: integer("attemptCount").notNull().default(0),
   lastAttemptAt: timestamp("lastAttemptAt"),
@@ -253,6 +261,7 @@ export const paymentReminders = pgTable("payment_reminders", {
   userScheduledStatusIdx: index("payment_reminders_user_scheduled_status_idx").on(table.userId, table.scheduledDate, table.status),
   invoiceIdIdx: index("payment_reminders_invoice_id_idx").on(table.invoiceId),
   scheduledDateIdx: index("payment_reminders_scheduled_date_idx").on(table.scheduledDate),
+  externalIdIdx: index("payment_reminders_external_id_idx").on(table.externalId),
 }));
 
 // Business profiles

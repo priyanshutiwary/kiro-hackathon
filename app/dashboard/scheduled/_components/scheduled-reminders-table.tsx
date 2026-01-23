@@ -18,7 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal} from "lucide-react";
+import { MoreHorizontal, Phone, MessageSquare } from "lucide-react";
 import { format, isToday, isTomorrow, isThisWeek } from "date-fns";
 
 interface ScheduledReminder {
@@ -27,6 +27,8 @@ interface ScheduledReminder {
   reminderType: string;
   scheduledDate: string;
   status: string;
+  channel: string;
+  externalId: string | null;
   attemptCount: number;
   lastAttemptAt: string | null;
   skipReason: string | null;
@@ -45,6 +47,24 @@ interface ScheduledRemindersTableProps {
 export function ScheduledRemindersTable({ reminders }: ScheduledRemindersTableProps) {
   const [sortBy, setSortBy] = useState<"scheduledDate" | "amountDue" | "customerName">("scheduledDate");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
+  const getChannelBadge = (channel: string) => {
+    if (channel === "sms") {
+      return (
+        <Badge variant="outline" className="gap-1.5 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800">
+          <MessageSquare className="h-3 w-3" />
+          SMS
+        </Badge>
+      );
+    }
+    
+    return (
+      <Badge variant="outline" className="gap-1.5 bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800">
+        <Phone className="h-3 w-3" />
+        Voice
+      </Badge>
+    );
+  };
 
   const formatScheduledDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -155,6 +175,7 @@ export function ScheduledRemindersTable({ reminders }: ScheduledRemindersTablePr
                 Invoice
               </div>
             </TableHead>
+            <TableHead className={DashboardTheme.table.headerCell}>Channel</TableHead>
             <TableHead
               className={`${DashboardTheme.table.headerCell} cursor-pointer hover:bg-muted/50`}
               onClick={() => handleSort("amountDue")}
@@ -187,6 +208,9 @@ export function ScheduledRemindersTable({ reminders }: ScheduledRemindersTablePr
                 <div className={DashboardTheme.table.cellMuted}>
                   Due: {format(new Date(reminder.invoice.dueDate), "MMM d, yyyy")}
                 </div>
+              </TableCell>
+              <TableCell className={DashboardTheme.table.cell}>
+                {getChannelBadge(reminder.channel)}
               </TableCell>
               <TableCell className={DashboardTheme.table.cell}>
                 <div className="font-medium">

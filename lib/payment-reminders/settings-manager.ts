@@ -39,6 +39,10 @@ export interface ReminderSettings {
   language: string;
   voiceGender: string;
   
+  // Channel settings (SMS/Voice)
+  smartMode: boolean;
+  manualChannel: 'sms' | 'voice';
+  
   // Retry settings
   maxRetryAttempts: number;
   retryDelayHours: number;
@@ -78,6 +82,10 @@ export const DEFAULT_REMINDER_SETTINGS: Omit<ReminderSettings, 'userId' | 'organ
   // Voice and Language Settings
   language: 'en',
   voiceGender: 'female',
+  
+  // Channel settings - smart mode enabled by default
+  smartMode: true,
+  manualChannel: 'voice',
   
   // Retry settings
   maxRetryAttempts: 3,
@@ -240,6 +248,15 @@ export function validateVoiceGender(voiceGender: string): boolean {
 }
 
 /**
+ * Validates manual channel setting
+ * Requirements: 1.3, 1.4
+ */
+export function validateManualChannel(manualChannel: string): boolean {
+  const validChannels = ['sms', 'voice'];
+  return validChannels.includes(manualChannel);
+}
+
+/**
  * Validates complete reminder settings
  * Requirements: 1.1-1.13, 2.1-2.8, 11.5, 13.1-13.6
  */
@@ -295,6 +312,11 @@ export function validateSettings(settings: Partial<ReminderSettings>): Validatio
   // Validate voice gender
   if (settings.voiceGender !== undefined && !validateVoiceGender(settings.voiceGender)) {
     errors.push('Invalid voice gender. Must be either male or female.');
+  }
+  
+  // Validate manual channel
+  if (settings.manualChannel !== undefined && !validateManualChannel(settings.manualChannel)) {
+    errors.push('Invalid manual channel. Must be either sms or voice.');
   }
   
   return {
@@ -396,6 +418,8 @@ export async function getUserSettings(userId: string): Promise<ReminderSettings>
     callDaysOfWeek,
     language: dbSettings.language,
     voiceGender: dbSettings.voiceGender,
+    smartMode: dbSettings.smartMode,
+    manualChannel: (dbSettings.manualChannel as 'sms' | 'voice') || 'voice',
     maxRetryAttempts: dbSettings.maxRetryAttempts,
     retryDelayHours: dbSettings.retryDelayHours,
   };
@@ -493,6 +517,12 @@ export async function updateUserSettings(
   }
   if (updates.voiceGender !== undefined) {
     dbData.voiceGender = updates.voiceGender;
+  }
+  if (updates.smartMode !== undefined) {
+    dbData.smartMode = updates.smartMode;
+  }
+  if (updates.manualChannel !== undefined) {
+    dbData.manualChannel = updates.manualChannel;
   }
   
   try {

@@ -17,6 +17,10 @@ An intelligent call agent system that automates payment reminder calls for small
 - Intelligent phone number extraction and validation
 - Scheduled reminder processing with cron jobs
 - Business profile-specific call configurations
+- **Multi-Channel Reminders** - SMS and voice call support
+  - Smart Mode: Automatic channel selection (SMS for early reminders, voice for urgent)
+  - Manual Mode: User-selected channel preference
+  - Cost-effective SMS for non-urgent reminders
 - **Webhook Status Tracking** - Real-time call outcome reporting
 - Automatic retry logic for failed or unanswered calls
 - Timeout monitoring for stuck reminders
@@ -54,6 +58,7 @@ An intelligent call agent system that automates payment reminder calls for small
 - **Framework**: Next.js 15.3.1 with App Router
 - **Language**: TypeScript with strict mode
 - **Voice AI**: LiveKit for real-time voice calls
+- **SMS**: Twilio for SMS reminders
 - **Styling**: Tailwind CSS v4 + shadcn/ui
 - **Database**: Neon PostgreSQL + Drizzle ORM
 - **Authentication**: Better Auth v1.2.8
@@ -128,6 +133,12 @@ LIVEKIT_API_KEY="your-livekit-api-key"
 LIVEKIT_API_SECRET="your-livekit-api-secret"
 LIVEKIT_URL="your-livekit-server-url"
 
+# Twilio SMS Integration
+TWILIO_ACCOUNT_SID="your-twilio-account-sid"
+TWILIO_AUTH_TOKEN="your-twilio-auth-token"
+TWILIO_PHONE_NUMBER="your-twilio-phone-number"
+TWILIO_WEBHOOK_SECRET="your-webhook-secret-for-twilio"
+
 # Zoho CRM/Books Integration
 ZOHO_CLIENT_ID="your-zoho-client-id"
 ZOHO_CLIENT_SECRET="your-zoho-client-secret"
@@ -160,13 +171,29 @@ npx drizzle-kit push
 - Configure OAuth scopes: `ZohoBooks.contacts.READ`, `ZohoBooks.invoices.READ`
 - Set up webhook endpoints for real-time updates
 
-7. **Python Agent Setup**
+7. **Twilio SMS Setup**
+- Create a Twilio account at [twilio.com](https://www.twilio.com)
+- Purchase a phone number with SMS capabilities
+- Get your Account SID and Auth Token from the Twilio Console
+- Configure webhook URL for SMS status callbacks:
+  - **Webhook URL**: `https://your-domain.com/api/webhooks/twilio/status`
+  - **Method**: POST
+  - **Events**: Message Status (delivered, failed, undelivered)
+- Generate a webhook secret for signature validation:
+  ```bash
+  node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+  ```
+- Add the webhook secret to your environment variables as `TWILIO_WEBHOOK_SECRET`
+- In Twilio Console, navigate to: Phone Numbers → Your Number → Messaging Configuration
+- Set "A MESSAGE COMES IN" webhook to your status endpoint
+
+8. **Python Agent Setup**
 - Navigate to the `agent` directory
 - Follow the setup instructions in `agent/README.md`
 - Configure webhook URL and secret to match your backend
 - The agent will report call status updates automatically
 
-8. **Start Development Server**
+9. **Start Development Server**
 ```bash
 npm run dev
 ```
@@ -186,8 +213,14 @@ Open [http://localhost:3000](http://localhost:3000) to access your call agent da
 - **Customer Sync**: Two-way synchronization with CRM data
 - **Phone Extraction**: Intelligent parsing and validation of contact numbers
 - **Business Profiles**: Company-specific call scripts and configurations
+- **Multi-Channel Support**: 
+  - SMS reminders via Twilio for cost-effective early notifications
+  - Voice calls via LiveKit for urgent payment follow-ups
+  - Smart Mode automatically selects optimal channel based on urgency
+  - Manual Mode allows user preference for all reminders
 - **Webhook Status Tracking**: Event-driven architecture for accurate call lifecycle tracking
   - Real-time status updates from Python agent via HMAC-authenticated webhooks
+  - Twilio SMS delivery status tracking with automatic updates
   - Automatic status transitions: pending → in_progress → processing → completed/failed
   - Timeout monitoring detects stuck reminders (10-minute threshold)
   - Retry logic with exponential backoff ensures webhook delivery
@@ -206,6 +239,47 @@ Open [http://localhost:3000](http://localhost:3000) to access your call agent da
 - **Analytics**: Track call success rates and payment collection metrics
 
 ## 🔧 Customization
+
+### Webhook Configuration
+
+#### Twilio SMS Status Webhooks
+The system uses webhooks to track SMS delivery status in real-time:
+
+1. **Endpoint**: `/api/webhooks/twilio/status`
+2. **Authentication**: HMAC signature validation using `TWILIO_WEBHOOK_SECRET`
+3. **Supported Events**:
+   - `delivered` - SMS successfully delivered to recipient
+   - `failed` - SMS delivery failed (invalid number, carrier issues)
+   - `undelivered` - SMS could not be delivered
+   - `sent` - SMS accepted by Twilio (in transit)
+
+4. **Configuration Steps**:
+   - Log in to [Twilio Console](https://console.twilio.com)
+   - Navigate to Phone Numbers → Manage → Active Numbers
+   - Select your SMS-enabled phone number
+   - Under "Messaging Configuration", find "A MESSAGE STATUS CHANGES"
+   - Set webhook URL: `https://your-domain.com/api/webhooks/twilio/status`
+   - Set HTTP Method: `POST`
+   - Save configuration
+
+5. **Security**:
+   - All webhook requests are validated using Twilio's signature
+   - Invalid signatures return 401 Unauthorized
+   - Webhook secret must match `TWILIO_WEBHOOK_SECRET` environment variable
+
+6. **Testing Webhooks**:
+   ```bash
+   # Send a test SMS and monitor webhook delivery
+   curl -X POST https://your-domain.com/api/webhooks/twilio/status \
+     -H "Content-Type: application/x-www-form-urlencoded" \
+     -d "MessageSid=SM123456789" \
+     -d "MessageStatus=delivered"
+   ```
+
+#### LiveKit Call Status Webhooks
+Voice call status updates are handled by the Python agent:
+- Endpoint: `/api/webhooks/call-status`
+- See `agent/README.md` for configuration details
 
 ### Business Configuration
 1. Set up business profile in `/dashboard/business-profile`

@@ -16,7 +16,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Phone, Clock, CheckCircle, XCircle, AlertCircle, Eye } from "lucide-react";
+import { Phone, Clock, CheckCircle, XCircle, AlertCircle, Eye, MessageSquare } from "lucide-react";
 import { format } from "date-fns";
 
 interface Reminder {
@@ -25,6 +25,8 @@ interface Reminder {
   reminderType: string;
   scheduledDate: string;
   status: string;
+  channel: string;
+  externalId: string | null;
   attemptCount: number;
   lastAttemptAt: string | null;
   callOutcome: {
@@ -51,6 +53,24 @@ import { DashboardTheme } from "@/lib/dashboard-theme";
 // ... existing imports
 
 export function RemindersTable({ reminders }: RemindersTableProps) {
+  const getChannelBadge = (channel: string) => {
+    if (channel === "sms") {
+      return (
+        <Badge variant="outline" className="gap-1.5 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800">
+          <MessageSquare className="h-3 w-3" />
+          SMS
+        </Badge>
+      );
+    }
+    
+    return (
+      <Badge variant="outline" className="gap-1.5 bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800">
+        <Phone className="h-3 w-3" />
+        Voice
+      </Badge>
+    );
+  };
+
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { variant: "default" | "destructive" | "outline" | "secondary"; className: string; icon: React.ComponentType<{ className?: string }>; label: string }> = {
       pending: { variant: "secondary", className: DashboardTheme.badge.pending, icon: Clock, label: "Pending" },
@@ -116,6 +136,7 @@ export function RemindersTable({ reminders }: RemindersTableProps) {
             <TableHead className={`pl-6 ${DashboardTheme.table.headerCell}`}>Invoice</TableHead>
             <TableHead className={DashboardTheme.table.headerCell}>Customer</TableHead>
             <TableHead className={DashboardTheme.table.headerCell}>Type</TableHead>
+            <TableHead className={DashboardTheme.table.headerCell}>Channel</TableHead>
             <TableHead className={DashboardTheme.table.headerCell}>Scheduled</TableHead>
             <TableHead className={DashboardTheme.table.headerCell}>Status</TableHead>
             <TableHead className={DashboardTheme.table.headerCell}>Attempts</TableHead>
@@ -135,6 +156,7 @@ export function RemindersTable({ reminders }: RemindersTableProps) {
                   {getReminderTypeLabel(reminder.reminderType)}
                 </span>
               </TableCell>
+              <TableCell>{getChannelBadge(reminder.channel)}</TableCell>
               <TableCell className={DashboardTheme.table.cellMuted}>
                 {format(new Date(reminder.scheduledDate), "MMM dd, yyyy")}
               </TableCell>
@@ -199,10 +221,26 @@ export function RemindersTable({ reminders }: RemindersTableProps) {
                         </div>
                         <div className="space-y-1">
                           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                            Channel
+                          </p>
+                          <div>{getChannelBadge(reminder.channel)}</div>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                             Status
                           </p>
                           <div>{getStatusBadge(reminder.status)}</div>
                         </div>
+                        {reminder.externalId && (
+                          <div className="space-y-1">
+                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                              External ID
+                            </p>
+                            <p className="text-xs font-mono text-muted-foreground truncate">
+                              {reminder.externalId}
+                            </p>
+                          </div>
+                        )}
                       </div>
 
                       {(reminder.skipReason || reminder.callOutcome) && <div className="border-t border-border/50 my-4"></div>}

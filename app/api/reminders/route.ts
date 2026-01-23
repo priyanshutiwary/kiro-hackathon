@@ -28,6 +28,7 @@ export async function GET(request: Request) {
     const startDate = searchParams.get("startDate");
     const endDate = searchParams.get("endDate");
     const status = searchParams.get("status");
+    const channel = searchParams.get("channel");
 
     // Build query conditions
     const conditions = [eq(paymentReminders.userId, userId)];
@@ -45,6 +46,11 @@ export async function GET(request: Request) {
       conditions.push(eq(paymentReminders.status, status));
     }
 
+    // Add channel filter if provided
+    if (channel) {
+      conditions.push(eq(paymentReminders.channel, channel));
+    }
+
     // Fetch reminders with invoice details
     const reminders = await db
       .select({
@@ -52,6 +58,8 @@ export async function GET(request: Request) {
         reminderType: paymentReminders.reminderType,
         scheduledDate: paymentReminders.scheduledDate,
         status: paymentReminders.status,
+        channel: paymentReminders.channel,
+        externalId: paymentReminders.externalId,
         attemptCount: paymentReminders.attemptCount,
         lastAttemptAt: paymentReminders.lastAttemptAt,
         callOutcome: paymentReminders.callOutcome,
@@ -87,6 +95,8 @@ export async function GET(request: Request) {
       reminderType: reminder.reminderType,
       scheduledDate: reminder.scheduledDate,
       status: reminder.status,
+      channel: reminder.channel,
+      externalId: reminder.externalId,
       attemptCount: reminder.attemptCount,
       lastAttemptAt: reminder.lastAttemptAt,
       callOutcome: reminder.callOutcome ? JSON.parse(reminder.callOutcome) : null,

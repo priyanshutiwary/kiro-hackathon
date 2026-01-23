@@ -21,6 +21,8 @@ interface ScheduledReminder {
   reminderType: string;
   scheduledDate: string;
   status: string;
+  channel: string;
+  externalId: string | null;
   attemptCount: number;
   lastAttemptAt: string | null;
   skipReason: string | null;
