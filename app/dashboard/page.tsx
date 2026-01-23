@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, RefreshCw, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import { ReminderStats } from "./reminders/_components/reminder-stats";
-import { ChannelStats } from "./reminders/_components/channel-stats";
+import { DashboardStats } from "./_components/dashboard-stats";
 import { ChartAreaInteractive } from "./_components/chart-interactive";
 import { useRouter } from "next/navigation";
 import { DashboardTheme } from "@/lib/dashboard-theme";
@@ -127,10 +126,7 @@ export default function Dashboard() {
         )}
 
         <div className="flex flex-col gap-4 py-4 md:gap-6">
-          {stats && <ReminderStats stats={stats} />}
-          {stats && stats.byChannel && (
-            <ChannelStats stats={stats} />
-          )}
+          {stats && <DashboardStats stats={stats} />}
           <ChartAreaInteractive />
         </div>
       </div>

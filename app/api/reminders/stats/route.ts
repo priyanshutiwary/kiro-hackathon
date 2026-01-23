@@ -44,8 +44,8 @@ export async function GET() {
 
     // Calculate success rate (completed / (completed + failed))
     const attemptedReminders = completedReminders + failedReminders;
-    const successRate = attemptedReminders > 0 
-      ? (completedReminders / attemptedReminders) * 100 
+    const successRate = attemptedReminders > 0
+      ? (completedReminders / attemptedReminders) * 100
       : 0;
 
     // Get channel-specific statistics
