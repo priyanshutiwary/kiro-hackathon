@@ -47,7 +47,7 @@ This plan implements webhook-based status tracking for payment reminder calls. T
   - **Validates: Requirements 3.5**
 
 - [x] 3. Update call executor to use webhook flow
-  - Modify `queueCall` in `reminder-scheduler.ts` to only set status to 'in_progress'
+  - Modify `queueCall` in `reminder-processor.ts` to only set status to 'in_progress'
   - Remove immediate `handleCallOutcome` call after `initiateCall`
   - Keep error handling for room creation failures
   - _Requirements: 2.1_

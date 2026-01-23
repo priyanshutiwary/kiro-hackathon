@@ -236,7 +236,7 @@ export async function executeSMSReminder(
         .where(eq(paymentReminders.id, reminderId));
 
       // Schedule retry
-      const { scheduleRetry } = await import("./call-executor");
+      const { scheduleRetry } = await import("./reminder-executor");
       await scheduleRetry(reminderId);
 
       return {
@@ -295,7 +295,7 @@ export async function executeSMSReminder(
             .where(eq(paymentReminders.id, reminderId));
 
           // Schedule retry (Requirements 7.1-7.5)
-          const { scheduleRetry } = await import("./call-executor");
+          const { scheduleRetry } = await import("./reminder-executor");
           await scheduleRetry(reminderId);
         } else {
           console.error(`[SMS Executor] SMS sending failed (no retry): ${error}`);
@@ -337,7 +337,7 @@ export async function executeSMSReminder(
           .where(eq(paymentReminders.id, reminderId));
 
         // Schedule retry with exponential backoff
-        const { scheduleRetry } = await import("./call-executor");
+        const { scheduleRetry } = await import("./reminder-executor");
         await scheduleRetry(reminderId);
 
         return {
@@ -361,7 +361,7 @@ export async function executeSMSReminder(
           .where(eq(paymentReminders.id, reminderId));
 
         // Schedule retry
-        const { scheduleRetry } = await import("./call-executor");
+        const { scheduleRetry } = await import("./reminder-executor");
         await scheduleRetry(reminderId);
 
         return {
@@ -401,7 +401,7 @@ export async function executeSMSReminder(
 
     // Schedule retry (Requirements 7.1-7.5)
     try {
-      const { scheduleRetry } = await import("./call-executor");
+      const { scheduleRetry } = await import("./reminder-executor");
       await scheduleRetry(reminderId);
     } catch (retryError) {
       console.error(`[SMS Executor] Failed to schedule retry:`, retryError);

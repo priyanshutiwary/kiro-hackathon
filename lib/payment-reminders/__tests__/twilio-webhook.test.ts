@@ -1,8 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { POST } from '@/app/api/webhooks/twilio/status/route';
 import { db } from '@/db/drizzle';
-import { paymentReminders } from '@/db/schema';
-import { eq } from 'drizzle-orm';
 import crypto from 'crypto';
 
 /**
@@ -140,13 +138,13 @@ describe('Twilio Webhook Endpoint', () => {
             limit: vi.fn().mockResolvedValue([mockReminder]),
           }),
         }),
-      } as any);
+      } as unknown as ReturnType<typeof db.select>);
 
       vi.mocked(db.update).mockReturnValue({
         set: vi.fn().mockReturnValue({
           where: vi.fn().mockResolvedValue(undefined),
         }),
-      } as any);
+      } as unknown as ReturnType<typeof db.update>);
 
       const response = await POST(request);
       const data = await response.json();
@@ -172,13 +170,13 @@ describe('Twilio Webhook Endpoint', () => {
             limit: vi.fn().mockResolvedValue([mockReminder]),
           }),
         }),
-      } as any);
+      } as unknown as ReturnType<typeof db.select>);
 
       vi.mocked(db.update).mockReturnValue({
         set: vi.fn().mockReturnValue({
           where: vi.fn().mockResolvedValue(undefined),
         }),
-      } as any);
+      } as unknown as ReturnType<typeof db.update>);
     });
 
     it('should update status to completed when message is delivered (Requirement 6.2)', async () => {
@@ -350,7 +348,7 @@ describe('Twilio Webhook Endpoint', () => {
             limit: vi.fn().mockResolvedValue([]),
           }),
         }),
-      } as any);
+      } as unknown as ReturnType<typeof db.select>);
 
       const response = await POST(request);
       const data = await response.json();

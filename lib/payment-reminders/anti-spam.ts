@@ -251,7 +251,8 @@ export async function cancelPendingReminders(
   console.log(`[Anti-Spam] Cancelling all pending reminders for invoice ${invoiceId}`);
   
   // Update all pending reminders to skipped status
-  const result = await db
+  // Store result to ensure the promise is awaited and errors are caught
+  const _updateResult = await db
     .update(paymentReminders)
     .set({
       status: 'skipped',

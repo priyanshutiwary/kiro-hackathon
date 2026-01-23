@@ -12,7 +12,7 @@ import { paymentReminders} from "@/db/schema";
 import { eq, and, lte } from "drizzle-orm";
 import { canMakeCallNow } from "./call-window";
 import { getUserSettings} from "./settings-manager";
-import { executeReminder } from "./call-executor";
+import { executeReminder } from "./reminder-executor";
 import { canSendReminder } from "./anti-spam";
 
 /**

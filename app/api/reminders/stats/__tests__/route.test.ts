@@ -22,6 +22,14 @@ import { GET } from '../route';
 import { auth } from '@/lib/auth';
 import { db } from '@/db/drizzle';
 
+// Type definitions for mocked data
+interface _MockQuery {
+  from: ReturnType<typeof vi.fn>;
+  where: ReturnType<typeof vi.fn>;
+  groupBy: ReturnType<typeof vi.fn>;
+  leftJoin: ReturnType<typeof vi.fn>;
+}
+
 describe('GET /api/reminders/stats', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -42,7 +50,7 @@ describe('GET /api/reminders/stats', () => {
     vi.mocked(auth.api.getSession).mockResolvedValue({
       session: { userId: mockUserId },
       user: { id: mockUserId },
-    } as any);
+    } as unknown as Awaited<ReturnType<typeof auth.api.getSession>>);
 
     // Mock overall stats query
     const mockOverallStats = [
@@ -101,7 +109,7 @@ describe('GET /api/reminders/stats', () => {
         mockQuery.groupBy = vi.fn().mockResolvedValue(mockTypeStats);
       }
 
-      return mockQuery as any;
+      return mockQuery as unknown as ReturnType<typeof db.select>;
     });
 
     const response = await GET();
@@ -129,7 +137,7 @@ describe('GET /api/reminders/stats', () => {
     vi.mocked(auth.api.getSession).mockResolvedValue({
       session: { userId: mockUserId },
       user: { id: mockUserId },
-    } as any);
+    } as unknown as Awaited<ReturnType<typeof auth.api.getSession>>);
 
     // Mock empty results
     let queryCount = 0;
@@ -151,7 +159,7 @@ describe('GET /api/reminders/stats', () => {
         mockQuery.groupBy = vi.fn().mockResolvedValue([]);
       }
 
-      return mockQuery as any;
+      return mockQuery as unknown as ReturnType<typeof db.select>;
     });
 
     const response = await GET();
@@ -172,7 +180,7 @@ describe('GET /api/reminders/stats', () => {
     vi.mocked(auth.api.getSession).mockResolvedValue({
       session: { userId: mockUserId },
       user: { id: mockUserId },
-    } as any);
+    } as unknown as Awaited<ReturnType<typeof auth.api.getSession>>);
 
     vi.mocked(db.select).mockImplementation(() => {
       throw new Error('Database connection failed');

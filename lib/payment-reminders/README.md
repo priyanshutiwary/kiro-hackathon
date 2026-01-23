@@ -9,7 +9,7 @@ This directory contains the implementation of the automated payment reminder cal
 - **sync-engine.ts** - Main synchronization engine that orchestrates invoice syncing
 - **settings-manager.ts** - Manages user reminder settings and preferences
 - **zoho-books-client.ts** - Client for interacting with Zoho Books API
-- **reminder-schedule.ts** - Builds reminder schedules based on user settings
+- **reminder-schedule-builder.ts** - Builds reminder schedules based on user settings
 - **invoice-hash.ts** - Handles invoice change detection using hash comparison
 
 ### Cron Jobs

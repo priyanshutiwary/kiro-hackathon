@@ -154,7 +154,7 @@ describe('Integration Tests - Payment Reminder Calls', () => {
     it('should schedule, verify, call, and track outcomes', async () => {
       // Requirements: 7.1-7.6, 8.1-8.8, 15.1-15.7
       
-      const { processReminders } = await import('../reminder-scheduler');
+      const { processReminders } = await import('../reminder-processor');
       const livekitClient = await import('../livekit-client');
       const zohoClient = await import('../zoho-books-client');
       
@@ -271,7 +271,7 @@ describe('Integration Tests - Payment Reminder Calls', () => {
     it('should save settings, adjust sync window, and respect new settings', async () => {
       // Requirements: 1.13, 11.5, 11.6
       
-      const { getMaxReminderDays } = await import('../reminder-schedule');
+      const { getMaxReminderDays } = await import('../reminder-schedule-builder');
       
       // Initial settings with 7-day reminders
       await updateUserSettings(TEST_USER_ID, {

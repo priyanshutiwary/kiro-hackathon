@@ -19,8 +19,9 @@ import crypto from "crypto";
 
 /**
  * Twilio webhook payload structure
+ * Note: Prefixed with underscore as it's currently unused but kept for documentation
  */
-interface TwilioWebhookPayload {
+interface _TwilioWebhookPayload {
   MessageSid: string;
   MessageStatus: string;
   To: string;
@@ -205,7 +206,7 @@ export async function POST(request: Request) {
 
     // Prepare update data
     const now = new Date();
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       status: newStatus,
       lastAttemptAt: now, // Requirement 6.4
       updatedAt: now,

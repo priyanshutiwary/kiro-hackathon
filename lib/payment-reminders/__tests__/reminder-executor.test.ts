@@ -1,7 +1,7 @@
 /**
  * Tests for unified reminder executor
  * 
- * Tests the channel-based routing logic in call-executor.ts
+ * Tests the channel-based routing logic in reminder-executor.ts
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -29,7 +29,7 @@ vi.mock('../livekit-client', () => ({
 }));
 
 // Import after mocks
-const { executeReminder } = await import('../call-executor');
+const { executeReminder } = await import('../reminder-executor');
 const { executeSMSReminder } = await import('../sms-executor');
 
 describe('executeReminder - Channel Routing', () => {
@@ -61,7 +61,7 @@ describe('executeReminder - Channel Routing', () => {
           limit: vi.fn().mockResolvedValue([mockReminder]),
         }),
       }),
-    } as any);
+    } as unknown as ReturnType<typeof db.select>);
 
     // Mock SMS executor
     vi.mocked(executeSMSReminder).mockResolvedValue(mockSMSResult);
@@ -96,7 +96,7 @@ describe('executeReminder - Channel Routing', () => {
           limit: vi.fn().mockResolvedValue([mockReminder]),
         }),
       }),
-    } as any);
+    } as unknown as ReturnType<typeof db.select>);
 
     // Mock database update
     const mockUpdate = vi.fn().mockReturnValue({
@@ -104,7 +104,7 @@ describe('executeReminder - Channel Routing', () => {
         where: vi.fn().mockResolvedValue(undefined),
       }),
     });
-    vi.mocked(db.update).mockReturnValue(mockUpdate() as any);
+    vi.mocked(db.update).mockReturnValue(mockUpdate() as unknown as ReturnType<typeof db.update>);
 
     // Execute
     const result = await executeReminder('reminder-3');
@@ -127,7 +127,7 @@ describe('executeReminder - Channel Routing', () => {
           limit: vi.fn().mockResolvedValue([]),
         }),
       }),
-    } as any);
+    } as unknown as ReturnType<typeof db.select>);
 
     // Execute and expect error
     await expect(executeReminder('non-existent')).rejects.toThrow('Reminder not found: non-existent');

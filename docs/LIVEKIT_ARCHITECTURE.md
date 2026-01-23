@@ -9,7 +9,7 @@ The payment reminder system uses a clean, layered architecture for LiveKit integ
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  Payment Reminder System                                     │
-│  (lib/payment-reminders/call-executor.ts)                   │
+│  (lib/payment-reminders/reminder-executor.ts)               │
 └────────────────────┬────────────────────────────────────────┘
                      │
                      ▼

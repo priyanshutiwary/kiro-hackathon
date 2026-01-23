@@ -20,7 +20,7 @@ vi.mock('@/db/drizzle', () => ({
 }));
 
 // Import after mocks
-const { scheduleRetry } = await import('../call-executor');
+const { scheduleRetry } = await import('../reminder-executor');
 
 describe('Retry Logic', () => {
   beforeEach(() => {
@@ -44,7 +44,7 @@ describe('Retry Logic', () => {
             limit: vi.fn().mockResolvedValue([]),
           }),
         }),
-      } as any);
+      } as unknown as ReturnType<typeof db.select>);
 
       const result = scheduleRetry('test-reminder-id');
       expect(result).toBeInstanceOf(Promise);
@@ -81,7 +81,7 @@ describe('Retry Logic', () => {
             limit: vi.fn().mockResolvedValue([mockReminder]),
           }),
         }),
-      } as any);
+      } as unknown as ReturnType<typeof db.select>);
 
       vi.mocked(db.select).mockReturnValueOnce({
         from: vi.fn().mockReturnValue({
@@ -89,7 +89,7 @@ describe('Retry Logic', () => {
             limit: vi.fn().mockResolvedValue([mockSettings]),
           }),
         }),
-      } as any);
+      } as unknown as ReturnType<typeof db.select>);
 
       // Mock database update
       const mockUpdate = vi.fn().mockReturnValue({
@@ -97,7 +97,7 @@ describe('Retry Logic', () => {
           where: vi.fn().mockResolvedValue(undefined),
         }),
       });
-      vi.mocked(db.update).mockReturnValue(mockUpdate() as any);
+      vi.mocked(db.update).mockReturnValue(mockUpdate() as unknown as ReturnType<typeof db.update>);
 
       // Execute
       await scheduleRetry('reminder-1');
@@ -138,7 +138,7 @@ describe('Retry Logic', () => {
             limit: vi.fn().mockResolvedValue([mockReminder]),
           }),
         }),
-      } as any);
+      } as unknown as ReturnType<typeof db.select>);
 
       vi.mocked(db.select).mockReturnValueOnce({
         from: vi.fn().mockReturnValue({
@@ -146,7 +146,7 @@ describe('Retry Logic', () => {
             limit: vi.fn().mockResolvedValue([mockSettings]),
           }),
         }),
-      } as any);
+      } as unknown as ReturnType<typeof db.select>);
 
       // Mock database update
       const mockUpdate = vi.fn().mockReturnValue({
@@ -154,7 +154,7 @@ describe('Retry Logic', () => {
           where: vi.fn().mockResolvedValue(undefined),
         }),
       });
-      vi.mocked(db.update).mockReturnValue(mockUpdate() as any);
+      vi.mocked(db.update).mockReturnValue(mockUpdate() as unknown as ReturnType<typeof db.update>);
 
       // Execute
       await scheduleRetry('reminder-2');
@@ -189,7 +189,7 @@ describe('Retry Logic', () => {
             limit: vi.fn().mockResolvedValue([mockReminder]),
           }),
         }),
-      } as any);
+      } as unknown as ReturnType<typeof db.select>);
 
       vi.mocked(db.select).mockReturnValueOnce({
         from: vi.fn().mockReturnValue({
@@ -197,10 +197,10 @@ describe('Retry Logic', () => {
             limit: vi.fn().mockResolvedValue([mockSettings]),
           }),
         }),
-      } as any);
+      } as unknown as ReturnType<typeof db.select>);
 
       // Mock database update
-      let updateData: any = null;
+      let updateData: Record<string, unknown> | null = null;
       const mockUpdate = vi.fn().mockReturnValue({
         set: vi.fn().mockImplementation((data) => {
           updateData = data;
@@ -209,14 +209,16 @@ describe('Retry Logic', () => {
           };
         }),
       });
-      vi.mocked(db.update).mockReturnValue(mockUpdate() as any);
+      vi.mocked(db.update).mockReturnValue(mockUpdate() as unknown as ReturnType<typeof db.update>);
 
       // Execute
       await scheduleRetry('reminder-3');
 
       // Verify channel was NOT updated (preserved)
       expect(updateData).toBeDefined();
-      expect(updateData.channel).toBeUndefined(); // Channel should not be in update
+      if (updateData) {
+        expect((updateData as Record<string, unknown>).channel).toBeUndefined(); // Channel should not be in update
+      }
     });
 
     it('should preserve channel on retry - Voice stays Voice (Requirement 7.4)', async () => {
@@ -245,7 +247,7 @@ describe('Retry Logic', () => {
             limit: vi.fn().mockResolvedValue([mockReminder]),
           }),
         }),
-      } as any);
+      } as unknown as ReturnType<typeof db.select>);
 
       vi.mocked(db.select).mockReturnValueOnce({
         from: vi.fn().mockReturnValue({
@@ -253,10 +255,10 @@ describe('Retry Logic', () => {
             limit: vi.fn().mockResolvedValue([mockSettings]),
           }),
         }),
-      } as any);
+      } as unknown as ReturnType<typeof db.select>);
 
       // Mock database update
-      let updateData: any = null;
+      let updateData: Record<string, unknown> | null = null;
       const mockUpdate = vi.fn().mockReturnValue({
         set: vi.fn().mockImplementation((data) => {
           updateData = data;
@@ -265,14 +267,16 @@ describe('Retry Logic', () => {
           };
         }),
       });
-      vi.mocked(db.update).mockReturnValue(mockUpdate() as any);
+      vi.mocked(db.update).mockReturnValue(mockUpdate() as unknown as ReturnType<typeof db.update>);
 
       // Execute
       await scheduleRetry('reminder-4');
 
       // Verify channel was NOT updated (preserved)
       expect(updateData).toBeDefined();
-      expect(updateData.channel).toBeUndefined(); // Channel should not be in update
+      if (updateData) {
+        expect((updateData as Record<string, unknown>).channel).toBeUndefined(); // Channel should not be in update
+      }
     });
 
     it('should respect retry delay from settings (Requirement 7.5)', async () => {
@@ -301,7 +305,7 @@ describe('Retry Logic', () => {
             limit: vi.fn().mockResolvedValue([mockReminder]),
           }),
         }),
-      } as any);
+      } as unknown as ReturnType<typeof db.select>);
 
       vi.mocked(db.select).mockReturnValueOnce({
         from: vi.fn().mockReturnValue({
@@ -309,7 +313,7 @@ describe('Retry Logic', () => {
             limit: vi.fn().mockResolvedValue([mockSettings]),
           }),
         }),
-      } as any);
+      } as unknown as ReturnType<typeof db.select>);
 
       // Mock database update
       const mockUpdate = vi.fn().mockReturnValue({
@@ -317,7 +321,7 @@ describe('Retry Logic', () => {
           where: vi.fn().mockResolvedValue(undefined),
         }),
       });
-      vi.mocked(db.update).mockReturnValue(mockUpdate() as any);
+      vi.mocked(db.update).mockReturnValue(mockUpdate() as unknown as ReturnType<typeof db.update>);
 
       // Execute
       await scheduleRetry('reminder-5');
@@ -352,7 +356,7 @@ describe('Retry Logic', () => {
             limit: vi.fn().mockResolvedValue([mockReminder]),
           }),
         }),
-      } as any);
+      } as unknown as ReturnType<typeof db.select>);
 
       vi.mocked(db.select).mockReturnValueOnce({
         from: vi.fn().mockReturnValue({
@@ -360,7 +364,7 @@ describe('Retry Logic', () => {
             limit: vi.fn().mockResolvedValue([mockSettings]),
           }),
         }),
-      } as any);
+      } as unknown as ReturnType<typeof db.select>);
 
       // Mock database update
       const mockUpdate = vi.fn().mockReturnValue({
@@ -368,7 +372,7 @@ describe('Retry Logic', () => {
           where: vi.fn().mockResolvedValue(undefined),
         }),
       });
-      vi.mocked(db.update).mockReturnValue(mockUpdate() as any);
+      vi.mocked(db.update).mockReturnValue(mockUpdate() as unknown as ReturnType<typeof db.update>);
 
       // Execute
       await scheduleRetry('reminder-6');
@@ -387,7 +391,7 @@ describe('Retry Logic', () => {
             limit: vi.fn().mockResolvedValue([]),
           }),
         }),
-      } as any);
+      } as unknown as ReturnType<typeof db.select>);
 
       // Execute and expect error
       await expect(scheduleRetry('non-existent')).rejects.toThrow('Reminder not found: non-existent');
@@ -413,7 +417,7 @@ describe('Retry Logic', () => {
             limit: vi.fn().mockResolvedValue([mockReminder]),
           }),
         }),
-      } as any);
+      } as unknown as ReturnType<typeof db.select>);
 
       // Mock empty settings
       vi.mocked(db.select).mockReturnValueOnce({
@@ -422,7 +426,7 @@ describe('Retry Logic', () => {
             limit: vi.fn().mockResolvedValue([]),
           }),
         }),
-      } as any);
+      } as unknown as ReturnType<typeof db.select>);
 
       // Execute and expect error
       await expect(scheduleRetry('reminder-7')).rejects.toThrow('Settings not found for user: user-1');

@@ -10,9 +10,9 @@ import { invoicesCache, paymentReminders, syncMetadata, customersCache } from "@
 import { eq, and } from "drizzle-orm";
 import { ZohoInvoice, ZohoBooksClient, createZohoBooksClient } from "./zoho-books-client";
 import { calculateInvoiceHash, detectChanges, InvoiceChanges } from "./invoice-hash";
-import { buildReminderSchedule, ReminderScheduleItem } from "./reminder-schedule";
+import { buildReminderSchedule} from "./reminder-schedule-builder";
 import { ReminderSettings, getUserSettings } from "./settings-manager";
-import { getMaxReminderDays } from "./reminder-schedule";
+import { getMaxReminderDays } from "./reminder-schedule-builder";
 import { syncCustomersForUser} from "./customer-sync-engine";
 import { assignChannel } from "./channel-assignment";
 import { hasDuplicateReminder, hasOppositeChannelOnSameDay, cancelPendingReminders } from "./anti-spam";
@@ -773,8 +773,7 @@ export async function syncInvoicesForUser(
                   manualChannel: settings.manualChannel,
                 });
                 
-                // Track this date and channel to prevent opposite channel on same day
-                const channelDateKey = `${dateKey}-${channel}`;
+                // Track this date to prevent duplicates
                 scheduledDatesInBatch.add(dateKey);
                 
                 remindersToInsert.push({

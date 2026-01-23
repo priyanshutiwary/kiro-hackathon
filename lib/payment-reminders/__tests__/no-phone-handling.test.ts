@@ -6,7 +6,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { db } from '@/db/drizzle';
 import { invoicesCache, paymentReminders } from '@/db/schema';
 import { createRemindersForInvoice } from '../sync-engine';
-import { initiateCall } from '../call-executor';
+import { initiateCall } from '../reminder-executor';
 import { ReminderSettings } from '../settings-manager';
 
 // Mock the database

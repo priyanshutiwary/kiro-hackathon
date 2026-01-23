@@ -221,7 +221,7 @@ async function handleStatusUpdate(
       
       // Schedule retry if needed (Requirements 7.1-7.5)
       if (shouldScheduleRetry) {
-        const { scheduleRetry } = await import("@/lib/payment-reminders/call-executor");
+        const { scheduleRetry } = await import("@/lib/payment-reminders/reminder-executor");
         await scheduleRetry(reminderId);
       }
       
@@ -251,7 +251,7 @@ async function handleStatusUpdate(
       console.log(`Reminder ${reminderId} marked as 'pending' for retry after failure`);
       
       // Schedule retry for failed call (Requirements 7.1-7.5)
-      const { scheduleRetry } = await import("@/lib/payment-reminders/call-executor");
+      const { scheduleRetry } = await import("@/lib/payment-reminders/reminder-executor");
       await scheduleRetry(reminderId);
       
       break;

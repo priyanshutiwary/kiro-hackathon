@@ -39,7 +39,7 @@ This plan implements SMS reminder capability using Twilio, providing a cost-effe
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 3.1, 3.2, 3.3, 3.4, 3.5_
 
 - [x] 5. Update reminder scheduler with channel assignment
-  - Modify `reminder-scheduler.ts` to call assignChannel during reminder creation
+  - Modify `reminder-processor.ts` to call assignChannel during reminder creation
   - Store assigned channel in payment_reminders table
   - Ensure channel is set before reminder is saved
   - Apply settings changes to future reminders only (don't modify existing)
@@ -57,7 +57,7 @@ This plan implements SMS reminder capability using Twilio, providing a cost-effe
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
 - [x] 7. Update unified reminder executor
-  - Modify `call-executor.ts` to route based on channel field
+  - Modify `reminder-executor.ts` to route based on channel field
   - Add SMS channel routing to executeSMSReminder
   - Keep existing voice channel routing to executeVoiceReminder
   - Handle unknown channel types with error

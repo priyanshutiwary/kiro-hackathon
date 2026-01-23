@@ -10,7 +10,7 @@
  * - Cancelling pending reminders
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   hasDuplicateReminder,
   hasOppositeChannelOnSameDay,
@@ -44,7 +44,7 @@ describe('Anti-Spam Protection', () => {
         }),
       });
       
-      (db.select as any) = mockSelect;
+      (db.select as unknown as ReturnType<typeof vi.fn>) = mockSelect;
       
       const result = await hasDuplicateReminder(
         'invoice-1',
@@ -66,7 +66,7 @@ describe('Anti-Spam Protection', () => {
         }),
       });
       
-      (db.select as any) = mockSelect;
+      (db.select as unknown as ReturnType<typeof vi.fn>) = mockSelect;
       
       const result = await hasDuplicateReminder(
         'invoice-1',
@@ -90,7 +90,7 @@ describe('Anti-Spam Protection', () => {
         }),
       });
       
-      (db.select as any) = mockSelect;
+      (db.select as unknown as ReturnType<typeof vi.fn>) = mockSelect;
       
       const result = await hasOppositeChannelOnSameDay(
         'invoice-1',
@@ -113,7 +113,7 @@ describe('Anti-Spam Protection', () => {
         }),
       });
       
-      (db.select as any) = mockSelect;
+      (db.select as unknown as ReturnType<typeof vi.fn>) = mockSelect;
       
       const result = await hasOppositeChannelOnSameDay(
         'invoice-1',
@@ -319,8 +319,8 @@ describe('Anti-Spam Protection', () => {
         }),
       });
       
-      (db.update as any) = mockUpdate;
-      (db.select as any) = mockSelect;
+      (db.update as unknown as ReturnType<typeof vi.fn>) = mockUpdate;
+      (db.select as unknown as ReturnType<typeof vi.fn>) = mockSelect;
       
       const count = await cancelPendingReminders('invoice-1');
       

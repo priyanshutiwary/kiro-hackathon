@@ -12,7 +12,6 @@ import {
   TwilioConfigError,
   TwilioAPIError,
   TwilioRateLimitError,
-  type SMSResult,
   type MessageStatus,
 } from '../twilio-client';
 

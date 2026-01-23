@@ -11,7 +11,7 @@
 
 import { db } from "@/db/drizzle";
 import { paymentReminders, invoicesCache, customersCache } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq} from "drizzle-orm";
 import { verifyInvoiceStatus, prepareFreshContext } from "./pre-call-verification";
 import { makeCall, CallOutcome } from "./livekit-client";
 import { executeSMSReminder, type SMSExecutionResult } from "./sms-executor";

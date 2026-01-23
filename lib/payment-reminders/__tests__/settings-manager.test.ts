@@ -3,7 +3,7 @@
  * Requirements: 1.1, 1.2, 1.3, 1.4, 1.5
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
 // Mock the database before importing settings-manager
 vi.mock('@/db/drizzle', () => ({
@@ -74,7 +74,7 @@ describe('validateSettings - manualChannel validation', () => {
   });
 
   it('should reject invalid manualChannel values', () => {
-    const result = validateSettings({ manualChannel: 'email' as any });
+    const result = validateSettings({ manualChannel: 'email' as unknown as 'sms' | 'voice' });
     expect(result.valid).toBe(false);
     expect(result.errors).toContain('Invalid manual channel. Must be either sms or voice.');
   });

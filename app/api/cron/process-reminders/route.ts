@@ -8,7 +8,7 @@
  */
 
 import { NextResponse } from "next/server";
-import { processReminders } from "@/lib/payment-reminders/reminder-scheduler";
+import { processReminders } from "@/lib/payment-reminders/reminder-processor";
 import { checkTimeouts } from "@/lib/payment-reminders/timeout-monitor";
 
 /**

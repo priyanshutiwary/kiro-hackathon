@@ -22,6 +22,19 @@ import { GET } from '../route';
 import { auth } from '@/lib/auth';
 import { db } from '@/db/drizzle';
 
+// Type definitions for mocked data
+interface _MockSession {
+  session: { userId: string };
+  user: { id: string };
+}
+
+interface MockQuery {
+  from: ReturnType<typeof vi.fn>;
+  leftJoin: ReturnType<typeof vi.fn>;
+  where: ReturnType<typeof vi.fn>;
+  orderBy: ReturnType<typeof vi.fn>;
+}
+
 describe('GET /api/reminders', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -43,7 +56,7 @@ describe('GET /api/reminders', () => {
     vi.mocked(auth.api.getSession).mockResolvedValue({
       session: { userId: mockUserId },
       user: { id: mockUserId },
-    } as any);
+    } as unknown as Awaited<ReturnType<typeof auth.api.getSession>>);
 
     const mockReminders = [
       {
@@ -105,13 +118,13 @@ describe('GET /api/reminders', () => {
     ];
 
     vi.mocked(db.select).mockImplementation(() => {
-      const mockQuery = {
+      const mockQuery: MockQuery = {
         from: vi.fn().mockReturnThis(),
         leftJoin: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
         orderBy: vi.fn().mockResolvedValue(mockReminders),
       };
-      return mockQuery as any;
+      return mockQuery as unknown as ReturnType<typeof db.select>;
     });
 
     const request = new Request('http://localhost/api/reminders');
@@ -138,7 +151,7 @@ describe('GET /api/reminders', () => {
     vi.mocked(auth.api.getSession).mockResolvedValue({
       session: { userId: mockUserId },
       user: { id: mockUserId },
-    } as any);
+    } as unknown as Awaited<ReturnType<typeof auth.api.getSession>>);
 
     const mockReminders = [
       {
@@ -172,13 +185,13 @@ describe('GET /api/reminders', () => {
     ];
 
     vi.mocked(db.select).mockImplementation(() => {
-      const mockQuery = {
+      const mockQuery: MockQuery = {
         from: vi.fn().mockReturnThis(),
         leftJoin: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
         orderBy: vi.fn().mockResolvedValue(mockReminders),
       };
-      return mockQuery as any;
+      return mockQuery as unknown as ReturnType<typeof db.select>;
     });
 
     const request = new Request('http://localhost/api/reminders?status=completed');
@@ -195,7 +208,7 @@ describe('GET /api/reminders', () => {
     vi.mocked(auth.api.getSession).mockResolvedValue({
       session: { userId: mockUserId },
       user: { id: mockUserId },
-    } as any);
+    } as unknown as Awaited<ReturnType<typeof auth.api.getSession>>);
 
     vi.mocked(db.select).mockImplementation(() => {
       throw new Error('Database connection failed');

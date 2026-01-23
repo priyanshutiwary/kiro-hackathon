@@ -49,13 +49,13 @@ call_agent_smes/
 │   ├── payment-reminders/ # Payment reminder system
 │   │   ├── sync-engine.ts # Main payment sync automation
 │   │   ├── customer-sync-engine.ts # Customer data sync
-│   │   ├── call-executor.ts # Call execution logic
+│   │   ├── reminder-executor.ts # Unified reminder execution (SMS & voice)
 │   │   ├── livekit-client.ts # Voice call integration
 │   │   ├── call-window.ts # Call timing management
 │   │   ├── phone-extractor.ts # Phone number validation
 │   │   ├── pre-call-verification.ts # Call validation logic
-│   │   ├── reminder-scheduler.ts # Reminder scheduling
-│   │   ├── reminder-schedule.ts # Schedule management
+│   │   ├── reminder-processor.ts # Processes due reminders (cron job)
+│   │   ├── reminder-schedule-builder.ts # Builds reminder schedules
 │   │   ├── settings-manager.ts # Settings management
 │   │   ├── customer-hash.ts # Customer data hashing
 │   │   ├── invoice-hash.ts # Invoice data hashing
