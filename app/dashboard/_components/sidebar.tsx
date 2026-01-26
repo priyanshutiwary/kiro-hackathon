@@ -38,11 +38,7 @@ const navItems: NavItem[] = [
     href: "/dashboard",
     icon: HomeIcon,
   },
-  {
-    label: "Business Profile",
-    href: "/dashboard/business-profile",
-    icon: Building2,
-  },
+
   {
     label: "Reminders",
     href: "/dashboard/reminders",
