@@ -12,6 +12,7 @@ const getPageTitle = (pathname: string) => {
     if (pathname.includes("/dashboard/business-profile")) return "Business Profile";
     if (pathname.includes("/dashboard/reminders")) return "Reminders";
     if (pathname.includes("/dashboard/scheduled")) return "Scheduled";
+    if (pathname.includes("/dashboard/test-call")) return "Test Call";
     if (pathname.includes("/dashboard/customers")) return "Customers";
     if (pathname.includes("/dashboard/invoices")) return "Invoices";
     if (pathname.includes("/dashboard/configuration")) return "Configuration";

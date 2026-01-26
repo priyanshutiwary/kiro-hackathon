@@ -262,7 +262,14 @@ export async function dispatchPaymentCall(
     }
 
     // Step 3: Dispatch SIP call
+    // NOTE: The Python agent handles SIP call creation internally via CallService.setup_outbound_call()
+    // So we don't need to create a SIP participant here. The agent will handle it when it starts.
+    console.log(`[LiveKit Dispatcher] ✓ SIP call will be handled by Python agent`);
+    
+    /* COMMENTED OUT - Python agent handles SIP call creation
     console.log(`[LiveKit Dispatcher] Dispatching SIP call to ${cleanedPhone}...`);
+    console.log(`[LiveKit Dispatcher] Using SIP Trunk ID: ${config.sipTrunkId}`);
+    
     const sipDispatchResponse = await fetch(`${config.apiUrl}/twirp/livekit.SIP/CreateSIPParticipant`, {
       method: 'POST',
       headers: {
@@ -280,16 +287,29 @@ export async function dispatchPaymentCall(
 
     if (!sipDispatchResponse.ok) {
       const errorText = await sipDispatchResponse.text();
+      
+      // Provide helpful error message for 404 (SIP trunk not found)
+      if (sipDispatchResponse.status === 404) {
+        throw new Error(
+          `SIP Trunk not found. Please verify:\n` +
+          `1. LIVEKIT_SIP_TRUNK_ID is set correctly in your .env.local file\n` +
+          `2. The SIP trunk exists in your LiveKit dashboard\n` +
+          `3. Current SIP Trunk ID: ${config.sipTrunkId}\n` +
+          `Error details: ${errorText}`
+        );
+      }
+      
       throw new Error(`Failed to dispatch SIP call: ${sipDispatchResponse.status} - ${errorText}`);
     }
 
     const sipParticipant = await sipDispatchResponse.json();
     console.log(`[LiveKit Dispatcher] ✓ SIP call dispatched. Participant ID: ${sipParticipant.participant_id}`);
+    */
 
     return {
       success: true,
       roomName,
-      sipParticipantId: sipParticipant.participant_id,
+      sipParticipantId: undefined, // Will be created by Python agent
     };
 
   } catch (error) {

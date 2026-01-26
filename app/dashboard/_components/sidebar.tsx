@@ -19,7 +19,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Moon,
-  Sun
+  Sun,
+  PhoneCall
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -51,6 +52,11 @@ const navItems: NavItem[] = [
     label: "Scheduled",
     href: "/dashboard/scheduled",
     icon: Calendar,
+  },
+  {
+    label: "Test Call",
+    href: "/dashboard/test-call",
+    icon: PhoneCall,
   },
   {
     label: "Customers",

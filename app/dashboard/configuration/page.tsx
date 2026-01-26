@@ -505,11 +505,6 @@ export default function ConfigurationPage() {
                         Voice: Urgent reminders
                       </span>
                     </div>
-                    <Alert className="mt-3 bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900">
-                      <AlertDescription className="text-xs text-blue-900 dark:text-blue-100">
-                        💰 Save up to 90% on costs with Smart Mode. SMS costs ~$0.01 per message vs voice calls at ~$0.10+ per minute.
-                      </AlertDescription>
-                    </Alert>
                   </div>
                 </div>
 
