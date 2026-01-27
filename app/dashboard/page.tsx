@@ -6,9 +6,11 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, RefreshCw, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { DashboardStats } from "./_components/dashboard-stats";
-import { ChartAreaInteractive } from "./_components/chart-interactive";
+
 import { useRouter } from "next/navigation";
 import { DashboardTheme } from "@/lib/dashboard-theme";
+import { RecentActivity } from "./_components/recent-activity";
+
 
 interface ReminderStatsData {
   overall: {
@@ -100,10 +102,10 @@ export default function Dashboard() {
       <div className={DashboardTheme.layout.sectionAnimateInDelayed}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2 mb-2">
           <div>
-            <h2 className={DashboardTheme.typography.sectionTitle}>Dashboard Overview</h2>
+            {/* <h2 className={DashboardTheme.typography.sectionTitle}>Dashboard Overview</h2>
             <p className={DashboardTheme.typography.subtext}>
               Monitor your automated payment reminder performance and analytics.
-            </p>
+            </p> */}
           </div>
           <Button
             onClick={handleRefresh}
@@ -127,7 +129,8 @@ export default function Dashboard() {
 
         <div className="flex flex-col gap-4 py-4 md:gap-6">
           {stats && <DashboardStats stats={stats} />}
-          <ChartAreaInteractive />
+
+          <RecentActivity />
         </div>
       </div>
     </div>

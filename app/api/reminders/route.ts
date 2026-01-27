@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/db/drizzle";
 import { paymentReminders, invoicesCache, customersCache } from "@/db/schema";
-import { eq, and, gte, lte, desc } from "drizzle-orm";
+import { eq, and, gte, lte, desc, sql } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -28,7 +28,9 @@ export async function GET(request: Request) {
     const startDate = searchParams.get("startDate");
     const endDate = searchParams.get("endDate");
     const status = searchParams.get("status");
+    const statuses = searchParams.get("statuses")?.split(",");
     const channel = searchParams.get("channel");
+    const limit = searchParams.get("limit") ? parseInt(searchParams.get("limit")!) : undefined;
 
     // Build query conditions
     const conditions = [eq(paymentReminders.userId, userId)];
@@ -44,6 +46,11 @@ export async function GET(request: Request) {
     // Add status filter if provided
     if (status) {
       conditions.push(eq(paymentReminders.status, status));
+    }
+
+    // Add multiple statuses filter if provided
+    if (statuses && statuses.length > 0) {
+      conditions.push(sql`${paymentReminders.status} IN ${statuses}`);
     }
 
     // Add channel filter if provided
@@ -87,7 +94,8 @@ export async function GET(request: Request) {
       .leftJoin(invoicesCache, eq(paymentReminders.invoiceId, invoicesCache.id))
       .leftJoin(customersCache, eq(invoicesCache.customerId, customersCache.id))
       .where(and(...conditions))
-      .orderBy(desc(paymentReminders.scheduledDate));
+      .orderBy(desc(paymentReminders.scheduledDate))
+      .limit(limit || 50); // Default to 50 if no limit provided to prevent overfetching
 
     // Parse JSON fields and format response
     const formattedReminders = reminders.map((reminder) => ({
