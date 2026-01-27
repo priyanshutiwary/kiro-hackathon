@@ -44,11 +44,7 @@ const navItems: NavItem[] = [
     href: "/dashboard/reminders",
     icon: Phone,
   },
-  {
-    label: "Scheduled",
-    href: "/dashboard/scheduled",
-    icon: Calendar,
-  },
+
   {
     label: "Test Call",
     href: "/dashboard/test-call",

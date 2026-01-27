@@ -13,6 +13,9 @@ import { RemindersTable } from "./_components/reminders-table";
 import { ReminderFilters } from "./_components/reminder-filters";
 import { DashboardTheme } from "@/lib/dashboard-theme";
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScheduledRemindersView } from "./_components/scheduled-view";
+
 interface Reminder {
   id: number;
   invoiceId: number;
@@ -85,6 +88,10 @@ export default function RemindersPage() {
     }
     if (statusFilter !== "all") {
       params.append("status", statusFilter);
+    } else {
+      // If "all" is selected in History tab, we still want to filter OUT pending/queued
+      // So we explicitly ask for the "history" statuses
+      params.append("statuses", "completed,failed,skipped,cancelled,in_progress");
     }
     if (channelFilter !== "all") {
       params.append("channel", channelFilter);
@@ -119,93 +126,97 @@ export default function RemindersPage() {
     setChannelFilter(channel);
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading reminders...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className={DashboardTheme.layout.container}>
-      {error && (
-        <Alert variant="destructive" className="animate-in fade-in slide-in-from-top-2">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error Loading Data</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
-      {/* Main Content Section */}
-      <section className={`${DashboardTheme.layout.sectionAnimateInDelayed} space-y-4`}>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
-          <div>
-            <h2 className={DashboardTheme.typography.sectionTitle}>Scheduled Calls</h2>
-            <p className={DashboardTheme.typography.subtext}>
-              {reminders.length > 0
-                ? `${reminders.length} ${reminders.length === 1 ? "call" : "calls"} found matching your criteria`
-                : "No reminders scheduled"}
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <ReminderFilters
-              dateRange={dateRange}
-              statusFilter={statusFilter}
-              channelFilter={channelFilter}
-              onDateRangeChange={handleDateRangeChange}
-              onStatusFilterChange={handleStatusFilterChange}
-              onChannelFilterChange={handleChannelFilterChange}
-            />
-            <Button
-              onClick={handleRefresh}
-              disabled={refreshing}
-              variant="outline"
-              size="icon"
-              className="h-9 w-9"
-            >
-              <RefreshCw
-                className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
-              />
-              <span className="sr-only">Refresh Data</span>
-            </Button>
-          </div>
+      <Tabs defaultValue="history" className="w-full">
+        <div className="flex items-center justify-between mb-6">
+          <TabsList>
+            <TabsTrigger value="history">History</TabsTrigger>
+            <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
+          </TabsList>
         </div>
 
-        {reminders.length > 0 ? (
-          <RemindersTable reminders={reminders} />
-        ) : !error ? (
-          <Card className={DashboardTheme.card.dashed}>
-            <CardContent className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="bg-muted p-4 rounded-full mb-4">
-                <Calendar className="h-8 w-8 text-muted-foreground" />
+        <TabsContent value="history" className="space-y-4">
+          {error && (
+            <Alert variant="destructive" className="animate-in fade-in slide-in-from-top-2">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Error Loading Data</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {/* Main Content Section */}
+          <section className={`${DashboardTheme.layout.sectionAnimateInDelayed} space-y-4`}>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
+              <div>
+                <h2 className={DashboardTheme.typography.sectionTitle}>Reminder History</h2>
+                <p className={DashboardTheme.typography.subtext}>
+                  {reminders.length > 0
+                    ? `${reminders.length} ${reminders.length === 1 ? "record" : "records"} found`
+                    : "No reminder history"}
+                </p>
               </div>
-              <h3 className="text-lg font-semibold mb-1">No reminders found</h3>
-              <p className="text-muted-foreground max-w-sm mb-4">
-                There are no reminders matching your current filters. Try adjusting dates or status.
-              </p>
-              <p className="text-sm text-muted-foreground max-w-sm mb-6">
-                If you haven&apos;t set up any integrations yet, check your{" "}
-                <a href="/dashboard/settings?tab=integrations" className="text-primary underline hover:no-underline">
-                  integration settings
-                </a>{" "}
-                to connect your accounting software.
-              </p>
-              <Button variant="outline" onClick={() => {
-                setDateRange({ from: null, to: null });
-                setStatusFilter("all");
-                setChannelFilter("all");
-              }}>
-                Clear Filters
-              </Button>
-            </CardContent>
-          </Card>
-        ) : null}
-      </section>
+
+              <div className="flex items-center gap-2">
+                <ReminderFilters
+                  dateRange={dateRange}
+                  statusFilter={statusFilter}
+                  channelFilter={channelFilter}
+                  onDateRangeChange={handleDateRangeChange}
+                  onStatusFilterChange={handleStatusFilterChange}
+                  onChannelFilterChange={handleChannelFilterChange}
+                />
+                <Button
+                  onClick={handleRefresh}
+                  disabled={refreshing}
+                  variant="outline"
+                  size="icon"
+                  className="h-9 w-9"
+                >
+                  <RefreshCw
+                    className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+                  />
+                  <span className="sr-only">Refresh Data</span>
+                </Button>
+              </div>
+            </div>
+
+            {loading ? (
+              <div className="flex items-center justify-center min-h-[400px]">
+                <div className="text-center">
+                  <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+                  <p className="text-muted-foreground">Loading history...</p>
+                </div>
+              </div>
+            ) : reminders.length > 0 ? (
+              <RemindersTable reminders={reminders} />
+            ) : !error ? (
+              <Card className={DashboardTheme.card.dashed}>
+                <CardContent className="flex flex-col items-center justify-center py-24 text-center">
+                  <div className="bg-muted p-4 rounded-full mb-4">
+                    <Calendar className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-1">No reminder history</h3>
+                  <p className="text-muted-foreground max-w-sm mb-4">
+                    There are no past reminders matching your current filters.
+                  </p>
+                  <Button variant="outline" onClick={() => {
+                    setDateRange({ from: null, to: null });
+                    setStatusFilter("all");
+                    setChannelFilter("all");
+                  }}>
+                    Clear Filters
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : null}
+          </section>
+        </TabsContent>
+
+        <TabsContent value="scheduled">
+          <ScheduledRemindersView />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
