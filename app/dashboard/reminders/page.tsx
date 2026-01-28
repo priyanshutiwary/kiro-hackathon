@@ -14,7 +14,8 @@ import { ReminderFilters } from "./_components/reminder-filters";
 import { DashboardTheme } from "@/lib/dashboard-theme";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScheduledRemindersView } from "./_components/scheduled-view";
+import { ScheduledRemindersView, ScheduledReminder } from "./_components/scheduled-view";
+
 
 interface Reminder {
   id: number;
@@ -47,6 +48,13 @@ export default function RemindersPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Scheduled Reminders State
+  const [scheduledReminders, setScheduledReminders] = useState<ScheduledReminder[]>([]);
+  const [scheduledLoading, setScheduledLoading] = useState(true);
+  const [scheduledError, setScheduledError] = useState<string | null>(null);
+  const [scheduledRefreshing, setScheduledRefreshing] = useState(false);
+
+
   // Filter states
   const [dateRange, setDateRange] = useState<{ from: Date | null; to: Date | null }>({
     from: null,
@@ -65,7 +73,11 @@ export default function RemindersPage() {
       if (shouldLoad) setLoading(true);
       setError(null);
 
-      await fetchReminders();
+      await Promise.all([
+        fetchReminders(),
+        fetchScheduledReminders(true)
+      ]);
+
     } catch (error) {
       console.error("Error fetching data:", error);
       const errorMessage =
@@ -105,7 +117,39 @@ export default function RemindersPage() {
 
     const data = await response.json();
     setReminders(data.reminders || []);
+    setReminders(data.reminders || []);
   };
+
+  const fetchScheduledReminders = async (isInitial = false) => {
+    try {
+      if (isInitial) setScheduledLoading(true);
+      setScheduledError(null);
+      const response = await fetch("/api/reminders/scheduled");
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch scheduled reminders");
+      }
+
+      const data = await response.json();
+      setScheduledReminders(data.reminders || []);
+    } catch (error) {
+      console.error("Error fetching scheduled reminders:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to fetch scheduled reminders";
+      setScheduledError(errorMessage);
+      if (!isInitial) toast.error(errorMessage);
+    } finally {
+      if (isInitial) setScheduledLoading(false);
+    }
+  };
+
+  const handleScheduledRefresh = async () => {
+    setScheduledRefreshing(true);
+    await fetchScheduledReminders(false);
+    setScheduledRefreshing(false);
+    toast.success("Scheduled reminders refreshed");
+  };
+
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -214,7 +258,13 @@ export default function RemindersPage() {
         </TabsContent>
 
         <TabsContent value="scheduled">
-          <ScheduledRemindersView />
+          <ScheduledRemindersView
+            reminders={scheduledReminders}
+            loading={scheduledLoading}
+            error={scheduledError}
+            refreshing={scheduledRefreshing}
+            onRefresh={handleScheduledRefresh}
+          />
         </TabsContent>
       </Tabs>
     </div>

@@ -90,21 +90,7 @@ export default function CustomersPage() {
 
   return (
     <div className={DashboardTheme.layout.container}>
-      <div className="flex items-center justify-between mb-0">
-        <div className="flex-1">
-          {/* Header removed */}
-        </div>
-        <Button
-          onClick={handleRefresh}
-          disabled={loading || refreshing}
-          variant="outline"
-          size="icon"
-          className="h-9 w-9"
-        >
-          <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
-          <span className="sr-only">Refresh</span>
-        </Button>
-      </div>
+
 
       {error && (
         <Card className="border-destructive">
@@ -122,9 +108,23 @@ export default function CustomersPage() {
               {contacts.length} customers loaded {hasMore && " (more available)"}
             </p>
           </div>
+          <Button
+            onClick={handleRefresh}
+            disabled={loading || refreshing}
+            variant="outline"
+            size="icon"
+            className="h-9 w-9"
+          >
+            <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+            <span className="sr-only">Refresh</span>
+          </Button>
         </div>
 
-        {contacts.length > 0 ? (
+        {loading && contacts.length === 0 ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : contacts.length > 0 ? (
           <CustomersTable
             contacts={contacts}
             onContactClick={handleContactClick}
@@ -163,14 +163,6 @@ export default function CustomersPage() {
               ) : null}
               Load More
             </Button>
-          </div>
-        )
-      }
-
-      {
-        loading && contacts.length === 0 && (
-          <div className="flex justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
         )
       }

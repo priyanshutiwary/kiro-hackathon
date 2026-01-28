@@ -126,23 +126,7 @@ export default function InvoicesPage() {
 
   return (
     <div className={DashboardTheme.layout.container}>
-      <div className="flex justify-between items-center mb-0">
-        <div className="flex-1">
-          {/* Header removed */}
-        </div>
-        <Button
-          onClick={handleRefresh}
-          disabled={refreshing}
-          variant="outline"
-          size="icon"
-          className="h-9 w-9"
-        >
-          <RefreshCw
-            className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
-          />
-          <span className="sr-only">Refresh</span>
-        </Button>
-      </div>
+
 
       {error && (
         <Alert variant="destructive">
@@ -162,6 +146,18 @@ export default function InvoicesPage() {
                 : "No invoices found in database"}
             </p>
           </div>
+          <Button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            variant="outline"
+            size="icon"
+            className="h-9 w-9"
+          >
+            <RefreshCw
+              className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+            />
+            <span className="sr-only">Refresh</span>
+          </Button>
         </div>
         {invoices.length > 0 ? (
           <>

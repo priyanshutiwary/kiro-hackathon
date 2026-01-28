@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -12,10 +12,11 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { DashboardTheme } from "@/lib/dashboard-theme";
 import { Loader2, RefreshCw, AlertCircle, Calendar } from "lucide-react";
-import { toast } from "sonner";
+
 import { ScheduledRemindersTable } from "@/app/dashboard/scheduled/_components/scheduled-reminders-table";
 
-interface ScheduledReminder {
+export interface ScheduledReminder {
+
     id: number;
     invoiceId: number;
     reminderType: string;
@@ -34,46 +35,21 @@ interface ScheduledReminder {
     };
 }
 
-export function ScheduledRemindersView() {
-    const [reminders, setReminders] = useState<ScheduledReminder[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+interface ScheduledRemindersViewProps {
+    reminders: ScheduledReminder[];
+    loading: boolean;
+    error: string | null;
+    refreshing: boolean;
+    onRefresh: () => void;
+}
 
-    useEffect(() => {
-        fetchScheduledReminders(true);
-    }, []);
-
-    const fetchScheduledReminders = async (shouldLoad = false) => {
-        try {
-            if (shouldLoad) setLoading(true);
-            setError(null);
-            const response = await fetch("/api/reminders/scheduled");
-
-            if (!response.ok) {
-                throw new Error("Failed to fetch scheduled reminders");
-            }
-
-            const data = await response.json();
-            setReminders(data.reminders || []);
-        } catch (error) {
-            console.error("Error fetching scheduled reminders:", error);
-            const errorMessage =
-                error instanceof Error ? error.message : "Failed to fetch scheduled reminders";
-            setError(errorMessage);
-            toast.error(errorMessage);
-        } finally {
-            if (shouldLoad) setLoading(false);
-        }
-    };
-
-    const handleRefresh = async () => {
-        setRefreshing(true);
-        await fetchScheduledReminders(false);
-        setRefreshing(false);
-        toast.success("Scheduled reminders refreshed");
-    };
-
+export function ScheduledRemindersView({
+    reminders,
+    loading,
+    error,
+    refreshing,
+    onRefresh,
+}: ScheduledRemindersViewProps) {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
@@ -85,25 +61,10 @@ export function ScheduledRemindersView() {
         );
     }
 
+
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <div className="flex-1">
-                    {/* Header content if needed */}
-                </div>
-                <Button
-                    onClick={handleRefresh}
-                    disabled={refreshing}
-                    variant="outline"
-                    size="icon"
-                    className="h-9 w-9"
-                >
-                    <RefreshCw
-                        className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
-                    />
-                    <span className="sr-only">Refresh</span>
-                </Button>
-            </div>
+
 
             {error && (
                 <Alert variant="destructive" className="mb-6">
@@ -124,6 +85,19 @@ export function ScheduledRemindersView() {
                                 : "No scheduled reminders found"}
                         </p>
                     </div>
+                    <Button
+                        onClick={onRefresh}
+                        disabled={refreshing}
+                        variant="outline"
+                        size="icon"
+                        className="h-9 w-9"
+                    >
+
+                        <RefreshCw
+                            className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+                        />
+                        <span className="sr-only">Refresh</span>
+                    </Button>
                 </div>
 
                 {reminders.length > 0 ? (

@@ -62,7 +62,7 @@ export function RemindersTable({ reminders }: RemindersTableProps) {
         </Badge>
       );
     }
-    
+
     return (
       <Badge variant="outline" className="gap-1.5 bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800">
         <Phone className="h-3 w-3" />
