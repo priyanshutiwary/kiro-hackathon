@@ -5,7 +5,44 @@
  * data fetching, message formatting, sending, and status tracking.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+
+// Mock the database to prevent connection issues
+vi.mock('@/db/drizzle', () => ({
+  db: {
+    select: vi.fn(() => ({
+      from: vi.fn(() => ({
+        leftJoin: vi.fn(() => ({
+          where: vi.fn(() => ({
+            limit: vi.fn(() => Promise.resolve([])),
+          })),
+        })),
+        where: vi.fn(() => ({
+          limit: vi.fn(() => Promise.resolve([])),
+        })),
+      })),
+    })),
+    update: vi.fn(() => ({
+      set: vi.fn(() => ({
+        where: vi.fn(() => Promise.resolve(undefined)),
+      })),
+    })),
+  },
+}));
+
+// Mock the schema
+vi.mock('@/db/schema', () => ({
+  paymentReminders: {},
+  invoicesCache: {},
+  customersCache: {},
+  eq: vi.fn(),
+}));
+
+// Mock Twilio client
+vi.mock('../twilio-client', () => ({
+  sendSMS: vi.fn(),
+}));
+
 import { executeSMSReminder, type SMSExecutionResult } from '../sms-executor';
 
 describe('SMS Executor', () => {

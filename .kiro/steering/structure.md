@@ -117,8 +117,18 @@ import { db } from "@/db/drizzle"
 
 ## Configuration Files
 
-**Root**: `.env` (not committed) • `.env.example` • `package.json` • `tsconfig.json` • `next.config.ts` • `tailwind.config.ts`
+**Root**: `.env` (not committed) • `.env.example` • `package.json` • `tsconfig.json` • `next.config.ts` • `tailwind.config.ts` • `open-next.config.ts` • `wrangler.toml`
 
 **Database**: `drizzle.config.ts` • `db/schema.ts` • `auth-schema.ts`
 
 **Kiro**: `.kiro/steering/*.md` • `.kiro/prompts/*.md` • `.kiroignore`
+
+## Development Scripts
+
+**Core**: `npm run dev` (with Turbopack) • `npm run build` • `npm start` • `npm run lint`
+
+**Testing**: `npm run test` • `npm run test:watch` • `npm run test:ui` (Vitest UI)
+
+**Database**: `npm run db:generate` • `npm run db:migrate` • `npm run db:push` • `npm run db:studio`
+
+**Deployment**: `npm run preview` • `npm run deploy` (OpenNext Cloudflare) • `npm run cf-typegen`

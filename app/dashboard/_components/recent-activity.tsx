@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Phone, MessageSquare, CheckCircle, XCircle, Clock, AlertCircle } from "lucide-react";
-import { DashboardTheme } from "@/lib/dashboard-theme";
+// import { DashboardTheme } from "@/lib/dashboard-theme";
 
 interface Reminder {
     id: string;

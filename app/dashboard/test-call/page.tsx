@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+// import { Badge } from "@/components/ui/badge";
+// import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Phone, Loader2, CheckCircle2, XCircle, AlertCircle, Wand2, ArrowRight } from "lucide-react";
+import { Phone, Loader2, CheckCircle2, XCircle, AlertCircle, Wand2} from "lucide-react";
 import { toast } from "sonner";
 import { DashboardTheme } from "@/lib/dashboard-theme";
 import { cn } from "@/lib/utils";
@@ -106,7 +106,7 @@ export default function TestCallPage() {
             <div className={DashboardTheme.layout.headerFlex}>
                 <div className="space-y-1">
                     <p className={DashboardTheme.typography.subtext}>
-                        Simulate a call to verify the AI agent's behavior and voice settings.
+                        Simulate a call to verify the AI agent&apos;s behavior and voice settings.
                     </p>
                 </div>
                 <Button variant="outline" onClick={fillDummyData} className="gap-2">
@@ -305,7 +305,7 @@ export default function TestCallPage() {
                     <Alert className="bg-muted/50 border-0">
                         <AlertCircle className="h-4 w-4 text-muted-foreground" />
                         <AlertDescription className="text-muted-foreground text-xs">
-                            Calls are recorded for quality assurance. Check the "Call History" tab for logs.
+                            Calls are recorded for quality assurance. Check the &quot;Call History&quot; tab for logs.
                         </AlertDescription>
                     </Alert>
                 </div>

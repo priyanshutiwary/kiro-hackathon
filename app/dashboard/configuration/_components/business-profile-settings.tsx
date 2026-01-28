@@ -11,8 +11,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Loader2, Save, Sparkles } from "lucide-react";
+// import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import SettingsRow from "./settings-row";
 
@@ -103,7 +103,7 @@ export default function BusinessProfileSettings() {
                     <div>
                         <h4 className="text-sm font-medium mb-1">Agent Introduction Preview</h4>
                         <p className="text-sm text-muted-foreground italic">
-                            "Hello, this is [Agent Name] calling from <span className="text-foreground font-medium not-italic">{formData.companyName || "Your Company"}</span>. I'm calling regarding an invoice..."
+                            &quot;Hello, this is [Agent Name] calling from <span className="text-foreground font-medium not-italic">{formData.companyName || "Your Company"}</span>. I&apos;m calling regarding an invoice...&quot;
                         </p>
                     </div>
                 </div>

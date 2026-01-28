@@ -3,11 +3,11 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+// import { Alert, AlertDescription } from "@/components/ui/alert";
+// import { Badge } from "@/components/ui/badge";
+// import { Separator } from "@/components/ui/separator";
 
-import { AlertCircle, Clock, Moon, Sun } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import SettingsRow from "./settings-row";

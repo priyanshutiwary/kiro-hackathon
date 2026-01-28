@@ -17,6 +17,16 @@ vi.mock('next/headers', () => ({
   headers: vi.fn(() => Promise.resolve(new Headers())),
 }));
 
+// Mock DodoPayments to prevent API key issues
+vi.mock('dodopayments', () => ({
+  DodoPayments: vi.fn().mockImplementation(function() {
+    return {};
+  }),
+  default: vi.fn().mockImplementation(function() {
+    return {};
+  }),
+}));
+
 // Import after mocks are set up
 import { GET } from '../route';
 import { auth } from '@/lib/auth';

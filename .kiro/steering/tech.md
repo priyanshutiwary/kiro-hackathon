@@ -4,19 +4,21 @@
 
 ## Technology Stack
 
-**Frontend**: Next.js 15.3.1 (App Router) • React 19 • TypeScript 5 • Tailwind CSS v4 • shadcn/ui • next-themes
+**Frontend**: Next.js 15.4.10 (App Router) • React 19 • TypeScript 5 • Tailwind CSS v4 • shadcn/ui • next-themes
 
-**Backend**: Next.js API Routes • Better Auth v1.2.8 • Drizzle ORM • Neon PostgreSQL • TanStack Query
+**Backend**: Next.js API Routes • Better Auth v1.4.15 • Drizzle ORM • Neon PostgreSQL • AI SDK v4.3.16
 
 **Voice AI**: LiveKit • Real-time voice calls • AI conversation flows • Call analytics • SIP integration
 
-**Payments**: Dodo Payments • Subscription management • Webhook processing
+**AI Integration**: OpenAI GPT-4o • AI SDK React • Streaming responses • Web search tools
 
-**Services**: Zoho Books/CRM API • AES-256-GCM encryption • Vercel deployment • PostHog analytics
+**Payments**: Dodo Payments v2.2.1 • Subscription management • Webhook processing • Static checkout URLs
 
-**UI/UX**: Radix UI components • Framer Motion • Recharts • React Hook Form • Lucide icons
+**Services**: Zoho Books/CRM API • AES-256-GCM encryption • Cloudflare deployment • Resend email
 
-**Tools**: TypeScript (strict) • ESLint • Drizzle Kit • Vitest • Kiro CLI
+**UI/UX**: Radix UI components • Framer Motion • Recharts • React Hook Form • Lucide icons • Tabler icons
+
+**Tools**: TypeScript (strict) • ESLint • Drizzle Kit • Vitest • Kiro CLI • OpenNext Cloudflare
 
 ## Architecture Overview
 
@@ -29,8 +31,9 @@
 - Database: Local caching with real-time sync capabilities
 - Integrations: Zoho Books/CRM OAuth with encrypted token storage
 - Payment Processing: Dodo Payments for subscription management
-- AI Chat: OpenAI integration for customer support
-- Analytics: PostHog integration for user behavior tracking
+- AI Chat: OpenAI GPT-4o integration with streaming responses and web search
+- Analytics: Real-time call analytics and performance tracking
+- Email Service: Resend integration for transactional emails
 
 ## Development Environment
 
@@ -44,7 +47,7 @@ npx drizzle-kit generate && npx drizzle-kit push
 npm run dev
 ```
 
-**Key Environment Variables**: `DATABASE_URL` • `BETTER_AUTH_SECRET` • `LIVEKIT_API_KEY/SECRET` • `LIVEKIT_URL` • `LIVEKIT_SIP_TRUNK_ID` • `ZOHO_CLIENT_ID/SECRET` • `ENCRYPTION_KEY` • `NEXT_PUBLIC_APP_URL` • `DODO_PAYMENTS_API_KEY` • `POSTHOG_KEY`
+**Key Environment Variables**: `DATABASE_URL` • `BETTER_AUTH_SECRET` • `LIVEKIT_API_KEY/SECRET` • `LIVEKIT_URL` • `LIVEKIT_SIP_TRUNK_ID` • `ZOHO_CLIENT_ID/SECRET` • `ENCRYPTION_KEY` • `NEXT_PUBLIC_APP_URL` • `DODO_PAYMENTS_API_KEY` • `OPENAI_API_KEY` • `RESEND_API_KEY`
 
 ## Code Standards
 
@@ -64,8 +67,10 @@ npm run dev
 
 **Voice Security**: LiveKit secure connections • Call recording compliance • Customer data privacy • PCI DSS considerations for payment data
 
-**API Security**: Webhook signature verification • CORS configuration • Auth middleware for protected routes • Input sanitization • Rate limiting for voice calls
+**API Security**: Webhook signature verification • CORS configuration • Auth middleware for protected routes • Input sanitization • Rate limiting for voice calls • AI SDK secure streaming
 
 **Integration Security**: Encrypted token storage • Automatic token refresh • Secure API communication • Multi-DC OAuth support
 
-**Best Practices**: Never commit secrets • Use environment variables • Validate all inputs • Keep dependencies updated • HTTPS in production • Secure voice call handling
+**Payment Security**: Dodo Payments secure checkout • Webhook signature validation • PCI compliance • Secure payment links
+
+**Best Practices**: Never commit secrets • Use environment variables • Validate all inputs • Keep dependencies updated • HTTPS in production • Secure voice call handling • AI response filtering

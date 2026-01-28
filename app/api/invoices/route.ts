@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/db/drizzle";
-import { invoicesCache, paymentReminders } from "@/db/schema";
+import { invoicesCache, paymentReminders, customersCache } from "@/db/schema";
 import { eq, and, or, inArray, sql, desc } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
@@ -29,8 +29,8 @@ export async function GET() {
         id: invoicesCache.id,
         zohoInvoiceId: invoicesCache.zohoInvoiceId,
         customerId: invoicesCache.customerId,
-        customerName: invoicesCache.customerName,
-        customerPhone: invoicesCache.customerPhone,
+        customerName: customersCache.customerName,
+        customerPhone: customersCache.primaryPhone,
         invoiceNumber: invoicesCache.invoiceNumber,
         amountTotal: invoicesCache.amountTotal,
         amountDue: invoicesCache.amountDue,
@@ -41,6 +41,7 @@ export async function GET() {
         updatedAt: invoicesCache.updatedAt,
       })
       .from(invoicesCache)
+      .leftJoin(customersCache, eq(invoicesCache.customerId, customersCache.id))
       .where(
         and(
           eq(invoicesCache.userId, userId),

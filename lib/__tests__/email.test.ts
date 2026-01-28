@@ -84,7 +84,7 @@ describe('Email Service', () => {
             appName: 'InvoCall Test',
           },
         })
-      ).rejects.toThrow('RESEND_API_KEY environment variable is not set');
+      ).rejects.toThrow('Email service is not configured. Please contact support.');
     });
   });
 });

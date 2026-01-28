@@ -1,11 +1,30 @@
-# Development Log - InvoCall
+# Development Log - SME Call Agent System
 
-**Project**: InvoCall - Production-Ready SaaS Template  
-**Duration**: January 2-7, 2026  
-**Total Time**: ~38 hours  
+**Project**: AI-Powered Call Agent for SME Payment Reminders  
+**Duration**: January 2-28, 2026  
+**Total Time**: ~50+ hours  
 
 ## Overview
-Building InvoCall with authentication, subscriptions, AI integration, and modern UI. Heavy use of Kiro CLI for rapid development and maintaining code quality.
+Building an AI-powered call agent system that automates payment reminder calls for small and medium enterprises. The system integrates with Zoho CRM/Books, uses LiveKit for voice calls, and provides intelligent customer outreach automation. Heavy use of Kiro CLI for rapid development and maintaining code quality.
+
+## Recent Updates (January 28, 2026)
+
+**Documentation Maintenance**: Updated all steering documents to reflect current state
+- Updated tech stack versions (Next.js 15.4.10, React 19, Better Auth v1.4.15, AI SDK v4.3.16)
+- Added AI SDK integration with OpenAI GPT-4o and streaming responses
+- Updated Dodo Payments integration to v2.2.1 with static checkout URLs
+- Added Resend email service integration
+- Updated deployment target from Vercel to Cloudflare with OpenNext
+- Added comprehensive development scripts documentation
+- Removed PostHog analytics (replaced with call analytics)
+- Enhanced security documentation with AI response filtering
+
+**Key Technology Updates**:
+- AI Chat: Now powered by OpenAI GPT-4o with streaming responses and web search tools
+- Payments: Enhanced Dodo Payments integration with better error handling
+- Deployment: Migrated to Cloudflare Pages with OpenNext for better performance
+- Email: Integrated Resend for transactional emails
+- Icons: Added Tabler icons alongside Lucide for better UI variety
 
 ---
 
@@ -13,7 +32,7 @@ Building InvoCall with authentication, subscriptions, AI integration, and modern
 
 **Morning (3h)**: Initial setup and architecture planning
 - Used `@quickstart` to configure Kiro environment
-- Set up InvoCall with App Router and TypeScript
+- Set up Next.js 15 with App Router and TypeScript
 - Configured Tailwind CSS v4 and shadcn/ui
 - **Kiro Usage**: `@prime` to understand Next.js 15 best practices
 
@@ -234,39 +253,76 @@ Building InvoCall with authentication, subscriptions, AI integration, and modern
 
 ---
 
-## Day 8 (Jan 16) - Payment Reminder Calls & LiveKit Integration [4h]
+## Day 8 (Jan 11) - Call Agent & Payment Reminders [In Progress]
 
-**Morning (2h)**: LiveKit call system architecture
-- Reviewed and refined LiveKit architecture documentation
-- Worked on call dispatcher and routing logic
-- Enhanced payment reminder call workflow
-- **Technical Focus**: Call window management and timezone handling
-- **Kiro Usage**: Used documentation workflow to maintain architecture docs
+**Morning**: Voice agent integration and payment reminder system
+- Built comprehensive call agent system for automated SME payment reminders
+- Integrated LiveKit for outbound voice calls with AI agents
+- Created payment reminder sync engines for automated customer outreach
+- Developed customer sync engine for seamless Zoho CRM integration
+- **Current Focus**: Pre-call verification and intelligent phone number extraction
+- **Architecture**: Specialized AI call agent platform for business payment collection
 
-**Afternoon (2h)**: Agent integration and configuration
-- Refined Python agent configuration and settings
-- Enhanced context parsing for payment reminders
-- Worked on payment assistant agent logic
-- **Challenge**: Coordinating between Next.js frontend and Python agent
-- **Solution**: Improved API routing and call dispatch mechanisms
-- **Kiro Usage**: Used steering documents to maintain consistent patterns
+**Technical Components in Development**:
+- **Payment Reminder Sync Engine**: Automated processing of overdue invoices
+- **Customer Sync Engine**: Two-way sync between local DB and Zoho CRM
+- **LiveKit Client**: Voice agent integration for automated calls
+- **Pre-call Verification**: Validation system before initiating calls
+- **Phone Extractor**: Smart phone number parsing and validation
+- **Business Profile Management**: Company-specific call configurations
 
-**Key Implementation Areas**:
-- **Call Window Logic**: Enhanced timezone-aware call scheduling
-- **LiveKit Client**: Improved connection handling and error recovery
-- **Agent Configuration**: Streamlined settings and environment management
-- **Payment Context**: Better parsing of invoice and customer data
+**Architecture Evolution**:
+- Built specialized SME payment collection tool with AI voice capabilities
+- Added intelligent voice AI for natural conversation flows during reminder calls
+- Enhanced Zoho integration for comprehensive business data synchronization
+- Created robust cron job system for scheduled reminder processing
+- Developed modular sync engines for scalable customer management
+
+---
+
+## Day 9 (Jan 19) - Webhook Status Tracking & Call Lifecycle [8h]
+
+**Morning (4h)**: Webhook infrastructure and status tracking
+- Created comprehensive spec for reminder status webhook using Kiro's spec workflow
+- Implemented webhook endpoint (`/api/webhooks/call-status`) with HMAC authentication
+- Built status update handler with proper state transitions (in_progress → processing → completed)
+- Added call outcome recording with customer response types and duration tracking
+- **Kiro Usage**: Used `@spec` workflow to create requirements, design, and tasks documents
+
+**Afternoon (4h)**: Timeout monitoring and agent integration
+- Implemented timeout monitor to detect stuck reminders (10-minute threshold)
+- Integrated timeout checking into cron job for automatic cleanup
+- Updated call executor to use webhook-based flow instead of immediate completion
+- Built Python agent webhook client with retry logic and exponential backoff
+- Added webhook authentication and event reporting (call_answered, call_completed, call_failed)
+- **Challenge**: Ensuring reminders don't get stuck in 'in_progress' state forever
+- **Solution**: Created timeout monitor that runs on each cron execution to mark stale reminders as failed
 
 **Technical Decisions**:
-- **Timezone Handling**: Implemented robust timezone conversion for call windows
-- **Error Recovery**: Added retry logic for failed call attempts
-- **Agent State Management**: Improved context persistence across call sessions
-- **API Security**: Enhanced authentication for call dispatch endpoints
+- **Event-Driven Architecture**: Python agent reports call events via webhooks for accurate lifecycle tracking
+- **HMAC Authentication**: Used shared secret for secure webhook communication between agent and backend
+- **Timeout Handling**: 10-minute threshold with automatic failure marking and retry capability
+- **Status Progression**: Clear state machine (pending → in_progress → processing → completed/failed)
+- **Retry Logic**: Exponential backoff (immediate, 2s, 4s) for webhook delivery failures
 
-**Documentation Updates**:
-- Updated LIVEKIT_ARCHITECTURE.md with latest patterns
-- Maintained documentation workflow for consistency
-- Enhanced configuration documentation for deployment
+**Key Implementation Details**:
+- Webhook endpoint validates authentication, reminder existence, and event types
+- Status handler manages transitions based on call outcomes (answered, completed, failed, no_answer)
+- Timeout monitor queries for stale reminders and marks them as failed with descriptive skip_reason
+- Python agent extracts reminder_id from room metadata and reports events at key lifecycle points
+- Call outcome data includes connection status, duration, customer response, and optional notes
+
+**Kiro Spec Workflow Benefits**:
+- Requirements document with EARS patterns defined 6 clear user stories with acceptance criteria
+- Design document with 14 correctness properties for property-based testing approach
+- Tasks document broke down implementation into 9 sequential tasks with requirement traceability
+- Architecture diagram clarified event flow between cron scheduler, call executor, agent, and webhook handler
+
+**Current Status**:
+- Core webhook infrastructure complete and tested
+- Timeout monitoring integrated with cron job
+- Python agent webhook client implemented with retry logic
+- Ready for end-to-end testing and property-based test implementation
 
 ### Future Enhancements
 - Add more OAuth providers (GitHub, Microsoft)
@@ -277,5 +333,8 @@ Building InvoCall with authentication, subscriptions, AI integration, and modern
 - Complete Zoho Bills integration with property-based tests
 - Add bill payment tracking and reminders
 - Implement multi-currency support for international bills
-- Enhance call quality monitoring and analytics
-- Add voice customization options for payment reminders
+- Complete voice agent testing and deployment
+- Add call analytics and success rate tracking
+- Implement smart scheduling based on customer preferences
+- Implement property-based tests for webhook status tracking (14 properties defined)
+- Add integration tests for complete reminder lifecycle with webhooks

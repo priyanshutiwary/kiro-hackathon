@@ -17,6 +17,16 @@ vi.mock('next/headers', () => ({
   headers: vi.fn(() => Promise.resolve(new Headers())),
 }));
 
+// Mock DodoPayments to prevent API key issues
+vi.mock('dodopayments', () => ({
+  DodoPayments: vi.fn().mockImplementation(function() {
+    return {};
+  }),
+  default: vi.fn().mockImplementation(function() {
+    return {};
+  }),
+}));
+
 // Import after mocks are set up
 import { GET } from '../route';
 import { auth } from '@/lib/auth';
@@ -33,6 +43,7 @@ interface MockQuery {
   leftJoin: ReturnType<typeof vi.fn>;
   where: ReturnType<typeof vi.fn>;
   orderBy: ReturnType<typeof vi.fn>;
+  limit?: ReturnType<typeof vi.fn>;
 }
 
 describe('GET /api/reminders', () => {
@@ -122,8 +133,16 @@ describe('GET /api/reminders', () => {
         from: vi.fn().mockReturnThis(),
         leftJoin: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
-        orderBy: vi.fn().mockResolvedValue(mockReminders),
+        orderBy: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockResolvedValue(mockReminders),
       };
+      
+      // Chain the methods properly
+      mockQuery.from.mockReturnValue(mockQuery);
+      mockQuery.leftJoin.mockReturnValue(mockQuery);
+      mockQuery.where.mockReturnValue(mockQuery);
+      mockQuery.orderBy.mockReturnValue({ limit: mockQuery.limit });
+      
       return mockQuery as unknown as ReturnType<typeof db.select>;
     });
 
@@ -189,8 +208,16 @@ describe('GET /api/reminders', () => {
         from: vi.fn().mockReturnThis(),
         leftJoin: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
-        orderBy: vi.fn().mockResolvedValue(mockReminders),
+        orderBy: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockResolvedValue(mockReminders),
       };
+      
+      // Chain the methods properly
+      mockQuery.from.mockReturnValue(mockQuery);
+      mockQuery.leftJoin.mockReturnValue(mockQuery);
+      mockQuery.where.mockReturnValue(mockQuery);
+      mockQuery.orderBy.mockReturnValue({ limit: mockQuery.limit });
+      
       return mockQuery as unknown as ReturnType<typeof db.select>;
     });
 

@@ -3,18 +3,18 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { useChat } from "@ai-sdk/react";
+import { useChat } from "ai/react";
 import Markdown from "react-markdown";
 
 export default function Chat() {
   const { messages, input, handleInputChange, handleSubmit } = useChat({
-    maxSteps: 10,
+    api: '/api/chat',
   });
 
   return (
     <div className="flex flex-col w-full py-24 justify-center items-center">
       <div className="w-full max-w-xl space-y-4 mb-20">
-        {messages.map((message, i) => (
+        {messages.map((message) => (
           <div
             key={message.id}
             className={cn(
@@ -30,21 +30,9 @@ export default function Chat() {
                   : "bg-[#E9E9EB] text-black rounded-2xl rounded-bl-sm",
               )}
             >
-              {message.parts.map((part) => {
-                switch (part.type) {
-                  case "text":
-                    return (
-                      <div
-                        key={`${message.id}-${i}`}
-                        className="prose-sm prose-p:my-0.5 prose-li:my-0.5 prose-ul:my-1 prose-ol:my-1"
-                      >
-                        <Markdown>{part.text}</Markdown>
-                      </div>
-                    );
-                  default:
-                    return null;
-                }
-              })}
+              <div className="prose-sm prose-p:my-0.5 prose-li:my-0.5 prose-ul:my-1 prose-ol:my-1">
+                <Markdown>{message.content}</Markdown>
+              </div>
             </div>
           </div>
         ))}

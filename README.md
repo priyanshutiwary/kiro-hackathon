@@ -1,6 +1,6 @@
 # AI-Powered Call Agent for SME Payment Reminders
 
-An intelligent call agent system that automates payment reminder calls for small and medium enterprises. Built with Next.js 15, LiveKit voice AI, and Zoho CRM integration for seamless customer outreach and payment collection.
+An intelligent call agent system that automates payment reminder calls for small and medium enterprises. Built with Next.js 15, LiveKit voice AI, OpenAI GPT-4o, and Zoho CRM integration for seamless customer outreach and payment collection.
 
 ## ✨ Features
 
@@ -55,16 +55,19 @@ An intelligent call agent system that automates payment reminder calls for small
 
 ## 🚀 Tech Stack
 
-- **Framework**: Next.js 15.3.1 with App Router
+- **Framework**: Next.js 15.4.10 with App Router
 - **Language**: TypeScript with strict mode
 - **Voice AI**: LiveKit for real-time voice calls
+- **AI Integration**: OpenAI GPT-4o with AI SDK v4.3.16
 - **SMS**: Twilio for SMS reminders
 - **Styling**: Tailwind CSS v4 + shadcn/ui
 - **Database**: Neon PostgreSQL + Drizzle ORM
-- **Authentication**: Better Auth v1.2.8
+- **Authentication**: Better Auth v1.4.15
+- **Payments**: Dodo Payments v2.2.1
 - **CRM Integration**: Zoho Books/CRM OAuth 2.0
+- **Email**: Resend for transactional emails
 - **Encryption**: AES-256-GCM for secure token storage
-- **Deployment**: Vercel (recommended)
+- **Deployment**: Cloudflare Pages with OpenNext
 
 ## 📁 Project Structure
 
@@ -132,6 +135,15 @@ BETTER_AUTH_SECRET="your-secret-key"
 LIVEKIT_API_KEY="your-livekit-api-key"
 LIVEKIT_API_SECRET="your-livekit-api-secret"
 LIVEKIT_URL="your-livekit-server-url"
+
+# OpenAI Integration
+OPENAI_API_KEY="your-openai-api-key"
+
+# Dodo Payments
+DODO_PAYMENTS_API_KEY="your-dodo-payments-api-key"
+
+# Resend Email Service
+RESEND_API_KEY="your-resend-api-key"
 
 # Twilio SMS Integration
 TWILIO_ACCOUNT_SID="your-twilio-account-sid"

@@ -14,8 +14,6 @@ import {
   Sliders,
   Users,
   FileText,
-  Calendar,
-  Building2,
   ChevronLeft,
   ChevronRight,
   Moon,

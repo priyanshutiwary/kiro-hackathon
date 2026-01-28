@@ -9,7 +9,7 @@ import {
     CardTitle,
     CardAction,
 } from "@/components/ui/card";
-import { Phone, CheckCircle, XCircle, Mic, MessageSquare } from "lucide-react";
+import { CheckCircle, XCircle, Mic, MessageSquare } from "lucide-react";
 
 interface DashboardStatsProps {
     stats: {

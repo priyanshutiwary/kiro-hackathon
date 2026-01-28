@@ -52,7 +52,7 @@ An AI-powered call agent system that automates payment reminder calls for small 
 - Reminder scheduling and campaign management
 - Integration management and status tracking
 - Call analytics and performance metrics
-- AI chat interface for customer support
+- AI chat interface powered by OpenAI GPT-4o with streaming responses and web search
 - File upload and document management
 - System configuration and settings management
 
@@ -87,7 +87,7 @@ An AI-powered call agent system that automates payment reminder calls for small 
 1. Review dashboard for overdue invoices and bills
 2. Check scheduled reminder calls for the day
 3. Monitor call success rates and customer responses
-4. Use AI chat for quick customer inquiries
+4. Use AI chat with GPT-4o for intelligent customer inquiries and web search
 5. Review integration status and data sync health
 6. Upload and manage relevant documents
 7. Adjust call schedules based on customer feedback

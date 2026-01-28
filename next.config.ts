@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: false,
   typescript: {
+    // Skip type checking during builds
     ignoreBuildErrors: true,
   },
   images: {

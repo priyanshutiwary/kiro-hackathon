@@ -4,7 +4,7 @@ import { useState } from "react";
 import NavTabs from "./_components/nav-tabs";
 import ReminderSettings from "./_components/reminder-settings";
 import BusinessProfileSettings from "./_components/business-profile-settings";
-import { DashboardTheme } from "@/lib/dashboard-theme";
+// import { DashboardTheme } from "@/lib/dashboard-theme";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function ConfigurationPage() {

@@ -1,6 +1,28 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { validateAuthConfiguration } from '../auth';
 import { validateEmailConfiguration } from '../email';
+
+// Mock the database to prevent connection issues
+vi.mock('@/db/drizzle', () => ({
+  db: {
+    select: vi.fn(),
+    insert: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+  },
+}));
+
+// Mock DodoPayments to prevent API key issues
+vi.mock('dodopayments', () => ({
+  DodoPayments: vi.fn().mockImplementation(function() {
+    return {};
+  }),
+  default: vi.fn().mockImplementation(function() {
+    return {};
+  }),
+}));
+
+// Import after mocking
+import { validateAuthConfiguration } from '../auth';
 
 describe('Authentication Configuration', () => {
   const originalEnv = process.env;
@@ -8,6 +30,9 @@ describe('Authentication Configuration', () => {
   beforeEach(() => {
     // Reset environment variables
     process.env = { ...originalEnv };
+    // Set required env vars to prevent import errors
+    process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test';
+    process.env.DODO_PAYMENTS_API_KEY = 'test-key';
   });
 
   afterEach(() => {
