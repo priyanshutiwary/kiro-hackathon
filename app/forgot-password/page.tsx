@@ -172,7 +172,10 @@ export default function ForgotPassword() {
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
-                      if (errors.email) validateEmail(e.target.value);
+                      // Clear error when user starts typing
+                      if (errors.email) {
+                        setErrors(prev => ({ ...prev, email: undefined }));
+                      }
                     }}
                     onBlur={() => validateEmail(email)}
                     disabled={loading}
