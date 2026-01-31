@@ -1,7 +1,6 @@
 import { ReactNode } from "react";
 import DashboardHeader from "./_components/dashboard-header";
 import DashboardSideBar from "./_components/sidebar";
-import Chatbot from "./_components/chatbot";
 import EmailVerificationBanner from "./_components/email-verification-banner";
 
 // All dashboard pages require authentication and should be dynamic
@@ -24,7 +23,6 @@ export default async function DashboardLayout({
           {children}
         </div>
       </main>
-      <Chatbot />
     </div>
   );
 }

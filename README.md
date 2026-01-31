@@ -1,6 +1,52 @@
 # AI-Powered Call Agent for SME Payment Reminders
+*Kiro Hackathon Submission*
 
-An intelligent call agent system that automates payment reminder calls for small and medium enterprises. Built with Next.js 15, LiveKit voice AI, OpenAI GPT-4o, and Zoho CRM integration for seamless customer outreach and payment collection.
+## 🎯 Project Overview
+
+**The Problem**: Small and medium enterprises (SMEs) struggle with unpaid invoices. Manual payment follow-ups are time-consuming, inconsistent, and often ineffective.
+
+**Our Solution**: An intelligent AI voice agent that automatically calls customers about overdue payments, speaks naturally like a human representative, and integrates seamlessly with existing business systems.
+
+**Built for Kiro**: This project showcases advanced AI agent capabilities, real-time voice processing, and intelligent automation - perfect for the Kiro ecosystem of AI-powered development tools.
+
+## 🏗️ Architecture Overview
+
+This project consists of **two main components**:
+
+### 1. **Web Application** (`/call_agent_smes`)
+- Next.js 15 dashboard for business management
+- Customer and invoice tracking
+- Payment reminder scheduling and analytics
+- CRM integrations (Zoho Books/CRM)
+- Multi-channel communication (SMS + Voice)
+
+### 2. **AI Voice Agent** (`/agent`)
+- Python-based LiveKit voice agent
+- Real-time conversation processing with OpenAI GPT-4o
+- Natural language understanding for payment discussions
+- Webhook integration for status reporting
+- Intelligent call flow management
+
+**🔗 [View Agent Source Code](https://github.com/priyanshutiwary/kiro-hackathon-agent)**
+
+Both components work together to create a complete automated payment collection system.
+
+## 🚀 Why This Matters for Kiro Hackathon
+
+### Innovation in AI Agents
+- **Real-time Voice Processing**: Demonstrates cutting-edge AI agent capabilities with natural conversation flows
+- **Multi-modal Communication**: Combines voice calls, SMS, and web interfaces in a unified system
+- **Intelligent Automation**: Shows how AI can handle complex business processes autonomously
+
+### Technical Excellence
+- **Modern Stack**: Next.js 15, TypeScript, LiveKit, OpenAI GPT-4o - showcasing latest technologies
+- **Scalable Architecture**: Microservices approach with separate web app and voice agent components
+- **Production Ready**: Complete with authentication, database, CRM integrations, and deployment configs
+
+### Real Business Impact
+- **Solves Actual Problems**: Addresses the challenge of unpaid B2B invoices for SMEs
+- **Measurable Results**: Automates tasks that typically require significant manual effort
+- **SME Focused**: Designed specifically for small businesses who need automation but lack resources
 
 ## ✨ Features
 
@@ -69,158 +115,174 @@ An intelligent call agent system that automates payment reminder calls for small
 - **Encryption**: AES-256-GCM for secure token storage
 - **Deployment**: Cloudflare Pages with OpenNext
 
-## 📁 Project Structure
+## 🏗️ Project Structure
 
+This hackathon submission consists of **two integrated components**:
+
+### 📱 Web Application (`/call_agent_smes`)
 ```
+call_agent_smes/
 ├── app/
 │   ├── dashboard/           # Business management dashboard
 │   │   ├── customers/       # Customer management
 │   │   ├── invoices/        # Invoice tracking
 │   │   ├── reminders/       # Payment reminders
 │   │   ├── scheduled/       # Scheduled calls
-│   │   ├── business-profile/ # Company settings
 │   │   └── integrations/    # CRM integrations
 │   └── api/                 # API routes
 │       ├── zoho/           # Zoho CRM/Books integration
 │       ├── reminders/      # Reminder processing
 │       ├── cron/           # Scheduled jobs
-│       └── business-profile/ # Profile management
+│       └── webhooks/       # Agent communication
 ├── lib/
 │   ├── payment-reminders/   # Core reminder system
-│   │   ├── sync-engine.ts   # Payment sync automation
-│   │   ├── customer-sync-engine.ts # Customer data sync
-│   │   ├── livekit-client.ts # Voice call integration
-│   │   ├── phone-extractor.ts # Phone validation
-│   │   └── pre-call-verification.ts # Call validation
 │   ├── business-profile/    # Business configuration
-│   ├── zoho-api-client.ts   # Zoho API integration
-│   └── encryption.ts        # Token security
+│   └── zoho-api-client.ts   # CRM integration
 └── db/
     ├── schema.ts           # Database schema
     └── drizzle.ts          # Database connection
 ```
 
-## 🛠️ Quick Start
+### 🤖 AI Voice Agent (`/agent`)
+**🔗 [View Agent Implementation](https://github.com/priyanshutiwary/kiro-hackathon-agent)**
+
+```
+agent/
+├── src/
+│   ├── agents/             # Voice agent implementations
+│   │   └── payment_assistant.py  # Main payment reminder agent
+│   ├── services/           # Core services
+│   │   ├── call_service.py      # Call management
+│   │   ├── greeting_service.py  # Dynamic greetings
+│   │   └── webhook_client.py    # Status reporting
+│   ├── models/             # Data models
+│   │   └── payment_context.py  # Payment conversation context
+│   └── utils/              # Utilities
+│       ├── context_parser.py    # Payment data parsing
+│       └── currency_utils.py    # Currency formatting
+├── agent.py               # Main agent entry point
+├── main.py               # LiveKit integration
+└── requirements.txt      # Python dependencies
+```
+
+**Integration Flow**:
+1. Web app schedules payment reminders
+2. LiveKit triggers voice agent with customer context
+3. AI agent conducts natural payment conversation
+4. Agent reports call outcomes via webhooks
+5. Web app updates status and schedules follow-ups
+
+## 🛠️ Quick Start for Judges
 
 ### Prerequisites
-- Node.js 18+
+- Node.js 18+ and Python 3.9+
 - PostgreSQL database (Neon recommended)
 - LiveKit account for voice calls
-- Zoho Books/CRM account for customer data
-- Business with overdue invoices to automate
+- OpenAI API key for GPT-4o
+- Zoho Books/CRM account (optional for full demo)
 
-### Installation
+### 🚀 Fast Setup (5 minutes)
 
-1. **Clone the repository**
+1. **Clone and Install**
 ```bash
 git clone <repository-url>
 cd call_agent_smes
-```
-
-2. **Install dependencies**
-```bash
 npm install
+
+# Set up Python agent
+cd ../agent
+pip install -r requirements.txt
 ```
 
-3. **Environment Setup**
-Create a `.env` file with:
+2. **Environment Setup**
+Copy `.env.example` to `.env` and add your keys:
 ```env
-# Database
+# Required for demo
 DATABASE_URL="your-neon-database-url"
-
-# Authentication
 BETTER_AUTH_SECRET="your-secret-key"
-
-# LiveKit Voice Integration
 LIVEKIT_API_KEY="your-livekit-api-key"
 LIVEKIT_API_SECRET="your-livekit-api-secret"
-LIVEKIT_URL="your-livekit-server-url"
-
-# OpenAI Integration
 OPENAI_API_KEY="your-openai-api-key"
 
-# Dodo Payments
-DODO_PAYMENTS_API_KEY="your-dodo-payments-api-key"
-
-# Resend Email Service
-RESEND_API_KEY="your-resend-api-key"
-
-# Twilio SMS Integration
-TWILIO_ACCOUNT_SID="your-twilio-account-sid"
-TWILIO_AUTH_TOKEN="your-twilio-auth-token"
-TWILIO_PHONE_NUMBER="your-twilio-phone-number"
-TWILIO_WEBHOOK_SECRET="your-webhook-secret-for-twilio"
-
-# Zoho CRM/Books Integration
+# Optional for full features
 ZOHO_CLIENT_ID="your-zoho-client-id"
-ZOHO_CLIENT_SECRET="your-zoho-client-secret"
-ZOHO_REDIRECT_URI="http://localhost:3000/api/zoho/auth/callback"
-
-# Encryption for secure token storage
-ENCRYPTION_KEY="your-32-character-encryption-key"
-
-# Webhook for call status updates
-WEBHOOK_SECRET="your-webhook-secret-key"
-
-# App Configuration
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
+TWILIO_ACCOUNT_SID="your-twilio-sid"
 ```
 
-4. **Database Setup**
+3. **Database Setup**
 ```bash
-# Generate and run migrations
-npx drizzle-kit generate
 npx drizzle-kit push
 ```
 
-5. **LiveKit Setup**
-- Create a LiveKit account at [livekit.io](https://livekit.io)
-- Set up voice agent configuration
-- Configure outbound calling capabilities
-
-6. **Zoho Integration Setup**
-- Create Zoho OAuth app in Zoho Developer Console
-- Configure OAuth scopes: `ZohoBooks.contacts.READ`, `ZohoBooks.invoices.READ`
-- Set up webhook endpoints for real-time updates
-
-7. **Twilio SMS Setup**
-- Create a Twilio account at [twilio.com](https://www.twilio.com)
-- Purchase a phone number with SMS capabilities
-- Get your Account SID and Auth Token from the Twilio Console
-- Configure webhook URL for SMS status callbacks:
-  - **Webhook URL**: `https://your-domain.com/api/webhooks/twilio/status`
-  - **Method**: POST
-  - **Events**: Message Status (delivered, failed, undelivered)
-- Generate a webhook secret for signature validation:
-  ```bash
-  node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-  ```
-- Add the webhook secret to your environment variables as `TWILIO_WEBHOOK_SECRET`
-- In Twilio Console, navigate to: Phone Numbers → Your Number → Messaging Configuration
-- Set "A MESSAGE COMES IN" webhook to your status endpoint
-
-8. **Python Agent Setup**
-- Navigate to the `agent` directory
-- Follow the setup instructions in `agent/README.md`
-- Configure webhook URL and secret to match your backend
-- The agent will report call status updates automatically
-
-9. **Start Development Server**
+4. **Start Both Components**
 ```bash
+# Terminal 1: Web Application
 npm run dev
+
+# Terminal 2: AI Voice Agent
+cd ../agent
+python main.py
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to access your call agent dashboard.
+5. **Demo the System**
+- Visit [http://localhost:3000](http://localhost:3000)
+- Create account and set up business profile
+- Add test customers and invoices
+- Schedule payment reminders
+- Watch AI agent make calls automatically
+
+### 🎮 Demo Features
+- **Live Voice Calls**: AI agent speaks naturally about payments
+- **Real-time Dashboard**: See call status updates in real-time
+- **Multi-channel**: Test both SMS and voice reminders
+- **CRM Integration**: Sync with Zoho or use mock data
+- **Analytics**: Track success rates and payment collection
+
+## 🎯 Hackathon Highlights
+
+### 🤖 Advanced AI Agent Capabilities
+- **Natural Conversations**: GPT-4o powered voice agent that understands context and responds naturally
+- **Real-time Processing**: LiveKit integration for seamless voice communication
+- **Intelligent Routing**: Smart call scheduling based on customer preferences and business rules
+- **Context Awareness**: Agent remembers customer history and payment details during calls
+
+### 🔧 Technical Innovation
+- **Microservices Architecture**: Separate web app and voice agent for scalability
+- **Event-driven Design**: Webhook-based communication between components
+- **Type-safe Development**: Full TypeScript implementation with Drizzle ORM
+- **Modern Stack**: Next.js 15, Python 3.9+, PostgreSQL, LiveKit, OpenAI
+
+### 💼 Business Value
+- **Cost Effective**: Reduces manual follow-up costs significantly with automated calls
+- **Scalable Solution**: Handles hundreds of concurrent payment reminders
+- **Integration Ready**: Works with existing CRM systems (Zoho, extensible to others)
+- **Multi-channel**: Combines cost-effective SMS with high-impact voice calls
+
+### 🚀 Production Ready
+- **Security First**: HMAC webhook validation, encrypted token storage, secure authentication
+- **Monitoring**: Real-time status tracking, call analytics, integration health checks
+- **Deployment**: Configured for Cloudflare Pages with OpenNext
+- **Testing**: Comprehensive test suite for critical payment flows
 
 ## 🎯 Key Features Explained
 
-### AI Voice Agent System
+### AI Voice Agent System (`/agent`)
+**🔗 [Explore Agent Code](https://github.com/priyanshutiwary/kiro-hackathon-agent)**
+
+- **LiveKit Integration**: Real-time voice calls with natural conversation flows
+- **GPT-4o Processing**: Advanced language understanding for payment discussions
+- **Context Management**: Maintains conversation state and customer payment history
+- **Webhook Reporting**: Real-time status updates to web application
+- **Dynamic Greetings**: Personalized call openings based on business profile
+
+### Payment Reminder Automation (`/call_agent_smes`)
 - **LiveKit Integration**: Real-time voice calls with natural conversation flows
 - **Pre-call Verification**: Smart validation before initiating calls
 - **Call Analytics**: Track success rates and customer responses
 - **Intelligent Scheduling**: Optimal timing based on customer preferences
 
 ### Payment Reminder Automation
+### Payment Reminder Automation (`/call_agent_smes`)
 - **Sync Engine**: Automatically processes overdue invoices from Zoho
 - **Customer Sync**: Two-way synchronization with CRM data
 - **Phone Extraction**: Intelligent parsing and validation of contact numbers
@@ -341,6 +403,17 @@ This project is licensed under the MIT License.
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+## 🏆 Kiro Hackathon Submission Summary
+
+**Project**: AI-Powered Call Agent for SME Payment Reminders  
+**Components**: Web Application (`/call_agent_smes`) + AI Voice Agent (`/agent`)  
+**Innovation**: Real-time AI voice conversations for automated payment collection  
+**Impact**: Addresses unpaid invoice challenges for small and medium enterprises  
+**Tech Stack**: Next.js 15, Python, LiveKit, OpenAI GPT-4o, PostgreSQL  
+
+**Why It Matters**: Demonstrates cutting-edge AI agent capabilities while solving real business problems for SMEs. Perfect showcase of how AI can automate complex human interactions with measurable ROI.
+
 ---
 
-Built for SMEs who want to automate payment collection with AI-powered voice agents.
+Built for SMEs who want to automate payment collection with AI-powered voice agents.  
+*Kiro Hackathon 2025 - Showcasing the Future of AI Agent Development*
