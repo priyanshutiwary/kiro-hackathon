@@ -469,40 +469,54 @@ const emailVerificationPlugin = {
               const canSend = await emailService.checkRateLimit(email, 'verification');
               
               if (canSend) {
-                // Generate verification token
-                const token = nanoid(32);
-                const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+                try {
+                  // Generate verification token
+                  const token = nanoid(32);
+                  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-                // Invalidate previous tokens
-                await db
-                  .delete(verification)
-                  .where(eq(verification.identifier, `email-verification:${foundUser.id}`));
+                  // Invalidate previous tokens
+                  await db
+                    .delete(verification)
+                    .where(eq(verification.identifier, `email-verification:${foundUser.id}`));
 
-                // Store new token
-                await db.insert(verification).values({
-                  id: nanoid(),
-                  identifier: `email-verification:${foundUser.id}`,
-                  value: token,
-                  expiresAt,
-                  createdAt: new Date(),
-                  updatedAt: new Date(),
-                });
+                  // Store new token
+                  await db.insert(verification).values({
+                    id: nanoid(),
+                    identifier: `email-verification:${foundUser.id}`,
+                    value: token,
+                    expiresAt,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                  });
 
-                // Generate verification URL
-                const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${token}&email=${encodeURIComponent(email)}`;
+                  // Generate verification URL
+                  const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${token}&email=${encodeURIComponent(email)}`;
 
-                // Send verification email
-                await emailService.sendVerificationEmail(email, verificationUrl);
-                console.log(`✅ Verification email sent to ${email}`);
+                  // Send verification email
+                  await emailService.sendVerificationEmail(email, verificationUrl);
+                  console.log(`✅ Verification email sent to ${email}`);
+                } catch (emailError) {
+                  console.error(`❌ Failed to send verification email:`, emailError);
+                  // Continue to throw the verification error even if email fails
+                }
               } else {
                 console.log(`⚠️ Rate limit reached for ${email}, skipping verification email`);
               }
 
-              // Throw error to prevent login
-              throw new Error("Email not verified. A verification email has been sent to your inbox. Please verify your email before signing in.");
+              // Return error response instead of throwing
+              return {
+                error: {
+                  message: "Email not verified. A verification email has been sent to your inbox. Please verify your email before signing in.",
+                  status: 403,
+                },
+              };
             }
           } catch (error) {
-            // Re-throw to prevent login
+            // If it's already a formatted error, return it
+            if (error && typeof error === 'object' && 'error' in error) {
+              return error;
+            }
+            // Otherwise re-throw
             throw error;
           }
         },

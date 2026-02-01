@@ -1,6 +1,23 @@
 # AI-Powered Call Agent for SME Payment Reminders
 *Kiro Hackathon Submission*
 
+---
+
+## 🏆 FOR HACKATHON JUDGES
+
+**📋 [JUDGE INSTRUCTIONS - START HERE](./JUDGE_INSTRUCTIONS.md)**  
+**🚀 [QUICK START GUIDE (2 min)](./QUICK_START_JUDGES.md)**
+
+**Test Credentials:**
+```
+Email: judge@invocall.demo
+Password: KiroHackathon2025!
+```
+
+**⚠️ IMPORTANT**: All premium features are **unlocked** for judging. No payment required!
+
+---
+
 ## 🎯 Project Overview
 
 **The Problem**: Small and medium enterprises (SMEs) struggle with unpaid invoices. Manual payment follow-ups are time-consuming, inconsistent, and often ineffective.
@@ -171,6 +188,28 @@ agent/
 3. AI agent conducts natural payment conversation
 4. Agent reports call outcomes via webhooks
 5. Web app updates status and schedules follow-ups
+
+## 🎮 For Hackathon Judges
+
+**⚠️ IMPORTANT NOTE FOR JUDGES**: 
+
+This application includes a **subscription/payment feature** that is **DISABLED for hackathon evaluation**. All premium features are **fully accessible without payment** during the judging period. The subscription system was implemented to demonstrate a complete production-ready application but has been bypassed to ensure judges can test all functionality without barriers.
+
+**📋 Test Credentials**: See `JUDGE_INSTRUCTIONS.md` for login credentials and testing guide.
+
+### Why Subscription is Disabled for Hackathon
+- ✅ All features are accessible without payment
+- ✅ No credit card or payment information required
+- ✅ Judges can test the complete application freely
+- ✅ Subscription will be re-enabled post-hackathon for production use
+
+The subscription feature demonstrates:
+- Integration with payment providers (Dodo Payments)
+- Gated feature implementation
+- Subscription management UI
+- Production-ready monetization strategy
+
+---
 
 ## 🛠️ Quick Start for Judges
 

@@ -8,6 +8,9 @@
   # Settings → Environment Variables → Production/Preview
   # The auth client now uses window.location.origin automatically
   
+  [vars]
+  NEXT_PUBLIC_APP_URL = your_cloudlare_url
+  
   [assets]
   directory = ".open-next/assets"
   binding = "ASSETS"
