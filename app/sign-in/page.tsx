@@ -77,103 +77,17 @@ function SignInContent() {
       });
 
       if (result.error) {
-        console.error("Sign-in error:", result.error);
-
-        // Handle specific error cases
-        if (result.error.message?.includes("verify") ||
-          result.error.message?.includes("verification")) {
-          // Automatically send verification email
-          try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/auth/send-verification-email`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ email }),
-            });
-
-            const data = await response.json();
-
-            if (response.ok && !data.error) {
-              toast.error("Email not verified", {
-                description: "A verification email has been sent to your inbox. Please verify your email to sign in.",
-                duration: 7000,
-                action: {
-                  label: "Resend",
-                  onClick: async () => {
-                    try {
-                      const resendResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/auth/send-verification-email`, {
-                        method: "POST",
-                        headers: {
-                          "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ email }),
-                      });
-
-                      const resendData = await resendResponse.json();
-
-                      if (resendResponse.ok && !resendData.error) {
-                        toast.success("Verification email sent!", {
-                          description: "Please check your inbox for the verification link.",
-                          duration: 5000,
-                        });
-                      } else {
-                        if (resendData.error?.message?.includes("rate limit") ||
-                          resendData.error?.message?.includes("too many")) {
-                          toast.error("Too many requests", {
-                            description: "Please wait an hour before requesting another verification email.",
-                            duration: 7000,
-                          });
-                        } else {
-                          toast.error(resendData.error?.message || "Failed to send verification email");
-                        }
-                      }
-                    } catch (error) {
-                      console.error("Resend verification error:", error);
-                      toast.error("Failed to send verification email. Please try again.");
-                    }
-                  },
-                },
-              });
-            } else {
-              // If sending fails (e.g., rate limit), show appropriate message
-              if (data.error?.message?.includes("rate limit") ||
-                data.error?.message?.includes("too many")) {
-                toast.error("Email not verified", {
-                  description: "Please check your inbox for the verification link. Too many emails sent recently.",
-                  duration: 7000,
-                });
-              } else {
-                toast.error("Email not verified", {
-                  description: "Please verify your email address before signing in. Check your inbox for the verification link.",
-                  duration: 7000,
-                });
-              }
-            }
-          } catch (error) {
-            console.error("Auto-send verification error:", error);
-            toast.error("Email not verified", {
-              description: "Please verify your email address before signing in. Check your inbox for the verification link.",
-              duration: 7000,
-            });
-          }
-        } else if (result.error.message?.includes("locked") ||
-          result.error.message?.includes("lockout")) {
-          toast.error("Account temporarily locked", {
-            description: "Too many failed login attempts. Please try again in 15 minutes.",
+        // Check if it's an unverified email (status 500 with no message usually means our hook blocked it)
+        if (result.error.status === 500 && !result.error.message) {
+          toast.error("Email not verified", {
+            description: "A verification email has been sent to your inbox. Please verify your email before signing in.",
             duration: 7000,
           });
-        } else if (result.error.message?.includes("credentials") ||
-          result.error.message?.includes("invalid") ||
-          result.error.message?.includes("incorrect")) {
-          // Generic error message for security (don't reveal which field is wrong)
-          toast.error("Invalid email or password", {
-            description: "Please check your credentials and try again.",
-            duration: 5000,
-          });
         } else {
-          toast.error(result.error.message || "Failed to sign in", {
-            duration: 5000,
+          // Show the error message
+          const errorMessage = result.error.message || result.error.statusText || "Failed to sign in";
+          toast.error(errorMessage, {
+            duration: 7000,
           });
         }
       } else {

@@ -9,7 +9,7 @@
   # The auth client now uses window.location.origin automatically
   
   [vars]
-  NEXT_PUBLIC_APP_URL = your_cloudlare_url
+  NEXT_PUBLIC_APP_URL = "https://invocall.priyanshutiwary711.workers.dev"
   
   [assets]
   directory = ".open-next/assets"
