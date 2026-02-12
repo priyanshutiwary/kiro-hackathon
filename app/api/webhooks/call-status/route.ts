@@ -23,6 +23,11 @@ interface WebhookRequest {
     duration: number;
     customer_response: 'will_pay_today' | 'already_paid' | 'dispute' | 'no_answer';
     notes?: string;
+    transcript?: Array<{
+      speaker: 'agent' | 'customer';
+      text: string;
+      timestamp: number;
+    }>;
   };
   timestamp?: string;
 }
@@ -205,8 +210,14 @@ async function handleStatusUpdate(
         duration: outcome.duration,
         customer_response: outcome.customer_response,
         notes: outcome.notes || null,
-        reported_at: now.toISOString()
+        reported_at: now.toISOString(),
+        transcript: outcome.transcript || null, // Include transcript if provided
       } : null;
+      
+      // Log transcript info if available
+      if (outcome?.transcript && outcome.transcript.length > 0) {
+        console.log(`Storing transcript with ${outcome.transcript.length} segments for reminder ${reminderId}`);
+      }
       
       // Update reminder with status, outcome data, and timestamp (Requirement 3.5)
       await db
@@ -235,7 +246,8 @@ async function handleStatusUpdate(
         duration: outcome.duration || 0,
         customer_response: outcome.customer_response || 'no_answer',
         notes: outcome.notes || 'Call failed to connect',
-        reported_at: now.toISOString()
+        reported_at: now.toISOString(),
+        transcript: outcome.transcript || null, // Include transcript even for failed calls
       } : null;
       
       await db
