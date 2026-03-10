@@ -48,7 +48,7 @@ export interface EmailService {
     template: T;
     data: EmailTemplateData[T];
   }): Promise<void>;
-  
+
   sendVerificationEmail(email: string, verificationUrl: string): Promise<void>;
   sendPasswordResetEmail(email: string, resetUrl: string): Promise<void>;
   sendWelcomeEmail(email: string, name: string, dashboardUrl: string): Promise<void>;
@@ -60,20 +60,20 @@ const checkEmailRateLimit = (email: string, type: 'verification' | 'reset'): boo
   const key = `${email}:${type}`;
   const now = Date.now();
   const hourInMs = 60 * 60 * 1000; // 1 hour in milliseconds
-  
+
   const current = emailRateLimit.get(key);
-  
+
   if (!current || now > current.resetTime) {
     // Reset or initialize rate limit
     emailRateLimit.set(key, { count: 1, resetTime: now + hourInMs });
     return true;
   }
-  
+
   if (current.count >= 3) {
     // Rate limit exceeded (3 emails per hour per type)
     return false;
   }
-  
+
   // Increment count
   current.count++;
   emailRateLimit.set(key, current);
@@ -97,7 +97,7 @@ const generateEmailTemplate = <T extends EmailTemplate>(
 ): string => {
   const appName = process.env.NEXT_PUBLIC_APP_NAME || 'InvoCall';
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://invocall.com';
-  
+
   switch (template) {
     case 'verify-email':
       const verifyData = data as EmailTemplateData['verify-email'];
@@ -111,7 +111,7 @@ const generateEmailTemplate = <T extends EmailTemplate>(
         </head>
         <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #2563eb; margin: 0;">${appName}</h1>
+            <h1 style="color: #0071e3; margin: 0;">${appName}</h1>
           </div>
           
           <div style="background: #f8fafc; padding: 30px; border-radius: 8px; margin-bottom: 30px;">
@@ -121,7 +121,7 @@ const generateEmailTemplate = <T extends EmailTemplate>(
             
             <div style="text-align: center; margin: 30px 0;">
               <a href="${verifyData.verificationUrl}" 
-                 style="background: #2563eb; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600;">
+                 style="background: #0071e3; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600;">
                 Verify Email Address
               </a>
             </div>
@@ -136,12 +136,12 @@ const generateEmailTemplate = <T extends EmailTemplate>(
           
           <div style="text-align: center; font-size: 14px; color: #6b7280;">
             <p>© ${new Date().getFullYear()} ${appName}. All rights reserved.</p>
-            <p><a href="${appUrl}" style="color: #2563eb;">Visit our website</a></p>
+            <p><a href="${appUrl}" style="color: #0071e3;">Visit our website</a></p>
           </div>
         </body>
         </html>
       `;
-      
+
     case 'reset-password':
       const resetData = data as EmailTemplateData['reset-password'];
       return `
@@ -154,7 +154,7 @@ const generateEmailTemplate = <T extends EmailTemplate>(
         </head>
         <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #2563eb; margin: 0;">${appName}</h1>
+            <h1 style="color: #0071e3; margin: 0;">${appName}</h1>
           </div>
           
           <div style="background: #f8fafc; padding: 30px; border-radius: 8px; margin-bottom: 30px;">
@@ -179,12 +179,12 @@ const generateEmailTemplate = <T extends EmailTemplate>(
           
           <div style="text-align: center; font-size: 14px; color: #6b7280;">
             <p>© ${new Date().getFullYear()} ${appName}. All rights reserved.</p>
-            <p><a href="${appUrl}" style="color: #2563eb;">Visit our website</a></p>
+            <p><a href="${appUrl}" style="color: #0071e3;">Visit our website</a></p>
           </div>
         </body>
         </html>
       `;
-      
+
     case 'welcome':
       const welcomeData = data as EmailTemplateData['welcome'];
       return `
@@ -197,7 +197,7 @@ const generateEmailTemplate = <T extends EmailTemplate>(
         </head>
         <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #2563eb; margin: 0;">${appName}</h1>
+            <h1 style="color: #0071e3; margin: 0;">${appName}</h1>
           </div>
           
           <div style="background: #f0fdf4; padding: 30px; border-radius: 8px; margin-bottom: 30px; border-left: 4px solid #22c55e;">
@@ -227,12 +227,12 @@ const generateEmailTemplate = <T extends EmailTemplate>(
           
           <div style="text-align: center; font-size: 14px; color: #6b7280;">
             <p>© ${new Date().getFullYear()} ${appName}. All rights reserved.</p>
-            <p><a href="${appUrl}" style="color: #2563eb;">Visit our website</a></p>
+            <p><a href="${appUrl}" style="color: #0071e3;">Visit our website</a></p>
           </div>
         </body>
         </html>
       `;
-      
+
     default:
       throw new Error(`Unknown email template: ${template}`);
   }
@@ -260,12 +260,12 @@ export const emailService: EmailService = {
 
       // Generate email HTML content
       const html = generateEmailTemplate(template, data);
-      
+
       // Send email via Resend with timeout
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => reject(new Error('Email sending timeout')), 30000); // 30 second timeout
       });
-      
+
       const sendPromise = getResendClient().emails.send({
         from: process.env.RESEND_FROM_EMAIL || 'InvoCall <noreply@invocall.com>',
         to,
@@ -283,7 +283,7 @@ export const emailService: EmailService = {
       console.log(`✅ Email sent successfully to ${to} with template ${template} (ID: ${result.data?.id || 'unknown'})`);
     } catch (error) {
       console.error('❌ Email service error:', error);
-      
+
       // Provide user-friendly error message
       if (error instanceof Error) {
         if (error.message.includes('timeout')) {
@@ -292,7 +292,7 @@ export const emailService: EmailService = {
           throw new Error('Email service is temporarily unavailable. Please contact support.');
         }
       }
-      
+
       throw error;
     }
   },
@@ -310,7 +310,7 @@ export const emailService: EmailService = {
     }
 
     const appName = process.env.NEXT_PUBLIC_APP_NAME || 'InvoCall';
-    
+
     try {
       await this.sendEmail({
         to: email,
@@ -337,7 +337,7 @@ export const emailService: EmailService = {
     }
 
     const appName = process.env.NEXT_PUBLIC_APP_NAME || 'InvoCall';
-    
+
     try {
       await this.sendEmail({
         to: email,
@@ -358,7 +358,7 @@ export const emailService: EmailService = {
 
   async sendWelcomeEmail(email: string, name: string, dashboardUrl: string): Promise<void> {
     const appName = process.env.NEXT_PUBLIC_APP_NAME || 'InvoCall';
-    
+
     try {
       await this.sendEmail({
         to: email,

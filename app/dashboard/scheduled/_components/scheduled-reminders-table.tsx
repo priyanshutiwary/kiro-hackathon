@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DashboardTheme } from "@/lib/dashboard-theme";
+import { brandColors } from "@/lib/brand-colors";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -51,15 +52,15 @@ export function ScheduledRemindersTable({ reminders }: ScheduledRemindersTablePr
   const getChannelBadge = (channel: string) => {
     if (channel === "sms") {
       return (
-        <Badge variant="outline" className="gap-1.5 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800">
+        <Badge variant="outline" className={`gap-1.5 ${brandColors.status.infoBg} ${brandColors.status.info} ${brandColors.border.accent}`}>
           <MessageSquare className="h-3 w-3" />
           SMS
         </Badge>
       );
     }
-    
+
     return (
-      <Badge variant="outline" className="gap-1.5 bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800">
+      <Badge variant="outline" className={`gap-1.5 bg-purple-50 dark:bg-purple-950/30 ${brandColors.status.purple} border-purple-200 dark:border-purple-800`}>
         <Phone className="h-3 w-3" />
         Voice
       </Badge>

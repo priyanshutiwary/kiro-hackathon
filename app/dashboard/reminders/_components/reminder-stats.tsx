@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Phone, CheckCircle, XCircle, Clock } from "lucide-react";
+import { brandColors } from "@/lib/brand-colors";
 
 interface ReminderStatsProps {
   stats: {
@@ -55,7 +56,7 @@ export function ReminderStats({ stats }: ReminderStatsProps) {
         <CardHeader>
           <CardDescription>Success Rate</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums flex items-center gap-2">
-            <CheckCircle className="h-5 w-5 text-green-500" />
+            <CheckCircle className={`h-5 w-5 ${brandColors.status.success}`} />
             {stats.overall.successRate.toFixed(1)}%
           </CardTitle>
           <CardAction>
@@ -100,7 +101,7 @@ export function ReminderStats({ stats }: ReminderStatsProps) {
         <CardHeader>
           <CardDescription>Failed Calls</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums flex items-center gap-2">
-            <XCircle className="h-5 w-5 text-red-500" />
+            <XCircle className={`h-5 w-5 ${brandColors.status.error}`} />
             {stats.overall.failed}
           </CardTitle>
         </CardHeader>

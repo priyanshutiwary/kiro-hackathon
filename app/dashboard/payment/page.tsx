@@ -121,8 +121,8 @@ export default async function PaymentPage() {
                     </div>
                   </div>
                   {subscriptionDetails.subscription.cancelAtPeriodEnd && (
-                    <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                      <p className="text-sm text-yellow-800">
+                    <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                      <p className="text-sm text-amber-800">
                         Your subscription will cancel at the end of the current
                         billing period.
                       </p>

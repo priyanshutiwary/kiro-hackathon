@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { brandColors } from "@/lib/brand-colors";
 
 interface ZohoInvoice {
   invoiceId: string;
@@ -119,7 +120,7 @@ export function InvoiceDetailModal({
       paid: {
         label: "Paid",
         variant: "default" as const,
-        className: "bg-green-500 hover:bg-green-600",
+        className: brandColors.badge.paid,
       },
       sent: { label: "Sent", variant: "secondary" as const, className: "" },
       draft: { label: "Draft", variant: "outline" as const, className: "" },
@@ -136,7 +137,7 @@ export function InvoiceDetailModal({
       partially_paid: {
         label: "Partially Paid",
         variant: "secondary" as const,
-        className: "bg-yellow-500 hover:bg-yellow-600",
+        className: brandColors.badge.partiallyPaid,
       },
     };
 
@@ -163,245 +164,244 @@ export function InvoiceDetailModal({
         </DialogHeader>
 
         <div className="space-y-6">
-            {/* Customer Information */}
-            <div>
-              <h3 className="text-sm font-semibold mb-3">Customer Information</h3>
-              <div className="grid grid-cols-2 gap-4">
+          {/* Customer Information */}
+          <div>
+            <h3 className="text-sm font-semibold mb-3">Customer Information</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-muted-foreground">Customer Name</p>
+                <p className="font-medium">{invoice.customerName}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Customer ID</p>
+                <p className="font-medium">{invoice.customerId}</p>
+              </div>
+            </div>
+
+            {/* Billing Address */}
+            {detailedInvoice?.billing_address && (
+              <div className="mt-4">
+                <p className="text-sm text-muted-foreground mb-1">Billing Address</p>
+                <p className="text-sm">
+                  {detailedInvoice.billing_address.address && (
+                    <>{detailedInvoice.billing_address.address}<br /></>
+                  )}
+                  {detailedInvoice.billing_address.city && detailedInvoice.billing_address.city}
+                  {detailedInvoice.billing_address.state && `, ${detailedInvoice.billing_address.state}`}
+                  {detailedInvoice.billing_address.zip && ` ${detailedInvoice.billing_address.zip}`}
+                  {detailedInvoice.billing_address.country && (
+                    <><br />{detailedInvoice.billing_address.country}</>
+                  )}
+                </p>
+              </div>
+            )}
+          </div>
+
+          <Separator />
+
+          {/* Invoice Details */}
+          <div>
+            <h3 className="text-sm font-semibold mb-3">Invoice Details</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-muted-foreground">Invoice Number</p>
+                <p className="font-medium">{invoice.invoiceNumber}</p>
+              </div>
+              {invoice.referenceNumber && (
                 <div>
-                  <p className="text-sm text-muted-foreground">Customer Name</p>
-                  <p className="font-medium">{invoice.customerName}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Reference Number
+                  </p>
+                  <p className="font-medium">{invoice.referenceNumber}</p>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Customer ID</p>
-                  <p className="font-medium">{invoice.customerId}</p>
+              )}
+              <div>
+                <p className="text-sm text-muted-foreground">Invoice Date</p>
+                <p className="font-medium">{formatDate(invoice.date)}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Due Date</p>
+                <p className="font-medium">{formatDate(invoice.dueDate)}</p>
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Line Items */}
+          {detailedInvoice?.line_items && detailedInvoice.line_items.length > 0 && (
+            <>
+              <div>
+                <h3 className="text-sm font-semibold mb-3">Items Purchased</h3>
+                <div className="border rounded-lg overflow-hidden">
+                  <table className="w-full">
+                    <thead className="bg-muted/50">
+                      <tr>
+                        <th className="text-left p-3 text-sm font-medium">Item</th>
+                        <th className="text-right p-3 text-sm font-medium">Qty</th>
+                        <th className="text-right p-3 text-sm font-medium">Rate</th>
+                        {detailedInvoice.line_items?.some(item => item.discount_amount) && (
+                          <th className="text-right p-3 text-sm font-medium">Discount</th>
+                        )}
+                        <th className="text-right p-3 text-sm font-medium">Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {detailedInvoice.line_items.map((item, index) => (
+                        <tr key={item.line_item_id || index} className="border-t">
+                          <td className="p-3">
+                            <p className="font-medium">{item.name}</p>
+                            {item.description && (
+                              <p className="text-sm text-muted-foreground mt-1">
+                                {item.description}
+                              </p>
+                            )}
+                          </td>
+                          <td className="text-right p-3">
+                            {item.quantity} {item.unit && `${item.unit}`}
+                          </td>
+                          <td className="text-right p-3">
+                            {formatCurrency(item.rate, invoice.currencySymbol)}
+                          </td>
+                          {detailedInvoice.line_items?.some(i => i.discount_amount) && (
+                            <td className="text-right p-3">
+                              {item.discount_amount
+                                ? formatCurrency(item.discount_amount, invoice.currencySymbol)
+                                : '-'}
+                            </td>
+                          )}
+                          <td className="text-right p-3 font-medium">
+                            {formatCurrency(item.item_total, invoice.currencySymbol)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
 
-              {/* Billing Address */}
-              {detailedInvoice?.billing_address && (
-                <div className="mt-4">
-                  <p className="text-sm text-muted-foreground mb-1">Billing Address</p>
-                  <p className="text-sm">
-                    {detailedInvoice.billing_address.address && (
-                      <>{detailedInvoice.billing_address.address}<br /></>
-                    )}
-                    {detailedInvoice.billing_address.city && detailedInvoice.billing_address.city}
-                    {detailedInvoice.billing_address.state && `, ${detailedInvoice.billing_address.state}`}
-                    {detailedInvoice.billing_address.zip && ` ${detailedInvoice.billing_address.zip}`}
-                    {detailedInvoice.billing_address.country && (
-                      <><br />{detailedInvoice.billing_address.country}</>
+              <Separator />
+            </>
+          )}
+
+          {/* Financial Summary */}
+          <div>
+            <h3 className="text-sm font-semibold mb-3">
+              Financial Summary
+            </h3>
+            <div className="space-y-2">
+              {detailedInvoice?.sub_total !== undefined && (
+                <div className="flex justify-between items-center">
+                  <p className="text-sm text-muted-foreground">Subtotal</p>
+                  <p className="font-medium">
+                    {formatCurrency(detailedInvoice.sub_total, invoice.currencySymbol)}
+                  </p>
+                </div>
+              )}
+
+              {detailedInvoice?.discount_amount !== undefined && detailedInvoice.discount_amount > 0 && (
+                <div className="flex justify-between items-center">
+                  <p className="text-sm text-muted-foreground">
+                    Discount {detailedInvoice.discount && `(${detailedInvoice.discount}%)`}
+                  </p>
+                  <p className={`font-medium ${brandColors.status.success}`}>
+                    -{formatCurrency(detailedInvoice.discount_amount, invoice.currencySymbol)}
+                  </p>
+                </div>
+              )}
+
+              {detailedInvoice?.taxes && detailedInvoice.taxes.length > 0 && (
+                <>
+                  {detailedInvoice.taxes.map((tax, index) => (
+                    <div key={index} className="flex justify-between items-center">
+                      <p className="text-sm text-muted-foreground">{tax.tax_name}</p>
+                      <p className="font-medium">
+                        {formatCurrency(tax.tax_amount, invoice.currencySymbol)}
+                      </p>
+                    </div>
+                  ))}
+                </>
+              )}
+
+              {detailedInvoice?.shipping_charge !== undefined && detailedInvoice.shipping_charge > 0 && (
+                <div className="flex justify-between items-center">
+                  <p className="text-sm text-muted-foreground">Shipping Charge</p>
+                  <p className="font-medium">
+                    {formatCurrency(detailedInvoice.shipping_charge, invoice.currencySymbol)}
+                  </p>
+                </div>
+              )}
+
+              {detailedInvoice?.adjustment !== undefined && detailedInvoice.adjustment !== 0 && (
+                <div className="flex justify-between items-center">
+                  <p className="text-sm text-muted-foreground">
+                    Adjustment {detailedInvoice.adjustment_description && `(${detailedInvoice.adjustment_description})`}
+                  </p>
+                  <p className={`font-medium ${detailedInvoice.adjustment > 0 ? brandColors.status.success : brandColors.status.error}`}>
+                    {detailedInvoice.adjustment > 0 ? '+' : ''}
+                    {formatCurrency(detailedInvoice.adjustment, invoice.currencySymbol)}
+                  </p>
+                </div>
+              )}
+
+              <Separator />
+
+              <div className="flex justify-between items-center">
+                <p className="text-sm font-semibold">Total Amount</p>
+                <p className="font-bold text-lg">
+                  {formatCurrency(invoice.total, invoice.currencySymbol)}
+                </p>
+              </div>
+
+              {invoice.balance < invoice.total && (
+                <div className="flex justify-between items-center">
+                  <p className="text-sm text-muted-foreground">Amount Paid</p>
+                  <p className={`font-medium ${brandColors.status.success}`}>
+                    {formatCurrency(
+                      invoice.total - invoice.balance,
+                      invoice.currencySymbol
                     )}
                   </p>
                 </div>
               )}
-            </div>
 
-            <Separator />
-
-            {/* Invoice Details */}
-            <div>
-              <h3 className="text-sm font-semibold mb-3">Invoice Details</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Invoice Number</p>
-                  <p className="font-medium">{invoice.invoiceNumber}</p>
-                </div>
-                {invoice.referenceNumber && (
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Reference Number
-                    </p>
-                    <p className="font-medium">{invoice.referenceNumber}</p>
-                  </div>
-                )}
-                <div>
-                  <p className="text-sm text-muted-foreground">Invoice Date</p>
-                  <p className="font-medium">{formatDate(invoice.date)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Due Date</p>
-                  <p className="font-medium">{formatDate(invoice.dueDate)}</p>
-                </div>
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Line Items */}
-            {detailedInvoice?.line_items && detailedInvoice.line_items.length > 0 && (
-              <>
-                <div>
-                  <h3 className="text-sm font-semibold mb-3">Items Purchased</h3>
-                  <div className="border rounded-lg overflow-hidden">
-                    <table className="w-full">
-                      <thead className="bg-muted/50">
-                        <tr>
-                          <th className="text-left p-3 text-sm font-medium">Item</th>
-                          <th className="text-right p-3 text-sm font-medium">Qty</th>
-                          <th className="text-right p-3 text-sm font-medium">Rate</th>
-                          {detailedInvoice.line_items?.some(item => item.discount_amount) && (
-                            <th className="text-right p-3 text-sm font-medium">Discount</th>
-                          )}
-                          <th className="text-right p-3 text-sm font-medium">Amount</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {detailedInvoice.line_items.map((item, index) => (
-                          <tr key={item.line_item_id || index} className="border-t">
-                            <td className="p-3">
-                              <p className="font-medium">{item.name}</p>
-                              {item.description && (
-                                <p className="text-sm text-muted-foreground mt-1">
-                                  {item.description}
-                                </p>
-                              )}
-                            </td>
-                            <td className="text-right p-3">
-                              {item.quantity} {item.unit && `${item.unit}`}
-                            </td>
-                            <td className="text-right p-3">
-                              {formatCurrency(item.rate, invoice.currencySymbol)}
-                            </td>
-                            {detailedInvoice.line_items?.some(i => i.discount_amount) && (
-                              <td className="text-right p-3">
-                                {item.discount_amount 
-                                  ? formatCurrency(item.discount_amount, invoice.currencySymbol)
-                                  : '-'}
-                              </td>
-                            )}
-                            <td className="text-right p-3 font-medium">
-                              {formatCurrency(item.item_total, invoice.currencySymbol)}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-                <Separator />
-              </>
-            )}
-
-            {/* Financial Summary */}
-            <div>
-              <h3 className="text-sm font-semibold mb-3">
-                Financial Summary
-              </h3>
-              <div className="space-y-2">
-                {detailedInvoice?.sub_total !== undefined && (
-                  <div className="flex justify-between items-center">
-                    <p className="text-sm text-muted-foreground">Subtotal</p>
-                    <p className="font-medium">
-                      {formatCurrency(detailedInvoice.sub_total, invoice.currencySymbol)}
-                    </p>
-                  </div>
-                )}
-
-                {detailedInvoice?.discount_amount !== undefined && detailedInvoice.discount_amount > 0 && (
-                  <div className="flex justify-between items-center">
-                    <p className="text-sm text-muted-foreground">
-                      Discount {detailedInvoice.discount && `(${detailedInvoice.discount}%)`}
-                    </p>
-                    <p className="font-medium text-green-600">
-                      -{formatCurrency(detailedInvoice.discount_amount, invoice.currencySymbol)}
-                    </p>
-                  </div>
-                )}
-
-                {detailedInvoice?.taxes && detailedInvoice.taxes.length > 0 && (
-                  <>
-                    {detailedInvoice.taxes.map((tax, index) => (
-                      <div key={index} className="flex justify-between items-center">
-                        <p className="text-sm text-muted-foreground">{tax.tax_name}</p>
-                        <p className="font-medium">
-                          {formatCurrency(tax.tax_amount, invoice.currencySymbol)}
-                        </p>
-                      </div>
-                    ))}
-                  </>
-                )}
-
-                {detailedInvoice?.shipping_charge !== undefined && detailedInvoice.shipping_charge > 0 && (
-                  <div className="flex justify-between items-center">
-                    <p className="text-sm text-muted-foreground">Shipping Charge</p>
-                    <p className="font-medium">
-                      {formatCurrency(detailedInvoice.shipping_charge, invoice.currencySymbol)}
-                    </p>
-                  </div>
-                )}
-
-                {detailedInvoice?.adjustment !== undefined && detailedInvoice.adjustment !== 0 && (
-                  <div className="flex justify-between items-center">
-                    <p className="text-sm text-muted-foreground">
-                      Adjustment {detailedInvoice.adjustment_description && `(${detailedInvoice.adjustment_description})`}
-                    </p>
-                    <p className={`font-medium ${detailedInvoice.adjustment > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {detailedInvoice.adjustment > 0 ? '+' : ''}
-                      {formatCurrency(detailedInvoice.adjustment, invoice.currencySymbol)}
-                    </p>
-                  </div>
-                )}
-
-                <Separator />
-
-                <div className="flex justify-between items-center">
-                  <p className="text-sm font-semibold">Total Amount</p>
-                  <p className="font-bold text-lg">
-                    {formatCurrency(invoice.total, invoice.currencySymbol)}
-                  </p>
-                </div>
-
-                {invoice.balance < invoice.total && (
-                  <div className="flex justify-between items-center">
-                    <p className="text-sm text-muted-foreground">Amount Paid</p>
-                    <p className="font-medium text-green-600">
-                      {formatCurrency(
-                        invoice.total - invoice.balance,
-                        invoice.currencySymbol
-                      )}
-                    </p>
-                  </div>
-                )}
-
-                <div className="flex justify-between items-center">
-                  <p className="text-sm font-semibold">Balance Due</p>
-                  <p
-                    className={`font-bold text-lg ${
-                      invoice.balance > 0 ? "text-red-600" : "text-green-600"
+              <div className="flex justify-between items-center">
+                <p className="text-sm font-semibold">Balance Due</p>
+                <p
+                  className={`font-bold text-lg ${invoice.balance > 0 ? brandColors.status.error : brandColors.status.success
                     }`}
-                  >
-                    {formatCurrency(invoice.balance, invoice.currencySymbol)}
-                  </p>
-                </div>
+                >
+                  {formatCurrency(invoice.balance, invoice.currencySymbol)}
+                </p>
               </div>
             </div>
-
-            {/* Notes and Terms */}
-            {(detailedInvoice?.notes || detailedInvoice?.terms) && (
-              <>
-                <Separator />
-                <div className="space-y-4">
-                  {detailedInvoice.notes && (
-                    <div>
-                      <h3 className="text-sm font-semibold mb-2">Notes</h3>
-                      <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                        {detailedInvoice.notes}
-                      </p>
-                    </div>
-                  )}
-                  {detailedInvoice.terms && (
-                    <div>
-                      <h3 className="text-sm font-semibold mb-2">Terms & Conditions</h3>
-                      <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                        {detailedInvoice.terms}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
           </div>
+
+          {/* Notes and Terms */}
+          {(detailedInvoice?.notes || detailedInvoice?.terms) && (
+            <>
+              <Separator />
+              <div className="space-y-4">
+                {detailedInvoice.notes && (
+                  <div>
+                    <h3 className="text-sm font-semibold mb-2">Notes</h3>
+                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                      {detailedInvoice.notes}
+                    </p>
+                  </div>
+                )}
+                {detailedInvoice.terms && (
+                  <div>
+                    <h3 className="text-sm font-semibold mb-2">Terms & Conditions</h3>
+                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                      {detailedInvoice.terms}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );

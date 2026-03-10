@@ -2,16 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns"; // Make sure to check if date-fns is available, usually standard in these stacks
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Phone, MessageSquare, CheckCircle, XCircle, Clock, AlertCircle } from "lucide-react";
-// import { DashboardTheme } from "@/lib/dashboard-theme";
+import { brandColors } from "@/lib/brand-colors";
 
 interface Reminder {
     id: string;
@@ -51,13 +44,13 @@ export function RecentActivity() {
     const getStatusIcon = (status: string) => {
         switch (status) {
             case "completed":
-                return <CheckCircle className="h-4 w-4 text-green-500" />;
+                return <CheckCircle className={`h-4 w-4 ${brandColors.status.success}`} />;
             case "failed":
-                return <XCircle className="h-4 w-4 text-red-500" />;
+                return <XCircle className={`h-4 w-4 ${brandColors.status.error}`} />;
             case "in_progress":
-                return <Clock className="h-4 w-4 text-yellow-500" />;
+                return <Clock className={`h-4 w-4 ${brandColors.status.warning}`} />;
             default:
-                return <AlertCircle className="h-4 w-4 text-gray-500" />;
+                return <AlertCircle className="h-4 w-4 text-muted-foreground" />;
         }
     };
 
@@ -69,21 +62,21 @@ export function RecentActivity() {
     };
 
     return (
-        <Card className="@container/card h-full flex flex-col">
-            <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-medium">Recent Activity</CardTitle>
-                <CardDescription>
+        <div className="flex flex-col rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 shadow-sm overflow-hidden h-full">
+            <div className="p-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Recent Activity</h2>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                     Latest automated payment reminders
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 p-0">
-                <div className="h-[400px] px-6 overflow-y-auto">
+                </p>
+            </div>
+            <div className="flex-1 overflow-hidden">
+                <div className="h-full px-6 overflow-y-auto">
                     {loading ? (
-                        <div className="flex items-center justify-center py-8 text-neutral-500 text-sm">
+                        <div className="flex items-center justify-center py-8 text-muted-foreground text-sm">
                             Loading activity...
                         </div>
                     ) : reminders.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-12 text-center text-neutral-500">
+                        <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
                             <Clock className="mb-2 h-8 w-8 opacity-20" />
                             <p className="text-sm font-medium">No recent activity</p>
                             <p className="text-xs">Reminders will appear here once scheduled</p>
@@ -99,9 +92,9 @@ export function RecentActivity() {
                                         <div className="flex items-center gap-2">
                                             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted/50">
                                                 {reminder.channel === "voice" ? (
-                                                    <Phone className="h-4 w-4 text-blue-500" />
+                                                    <Phone className={`h-4 w-4 ${brandColors.status.info}`} />
                                                 ) : (
-                                                    <MessageSquare className="h-4 w-4 text-purple-500" />
+                                                    <MessageSquare className={`h-4 w-4 ${brandColors.status.purple}`} />
                                                 )}
                                             </div>
                                             <div>
@@ -128,7 +121,7 @@ export function RecentActivity() {
                         </div>
                     )}
                 </div>
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     );
 }

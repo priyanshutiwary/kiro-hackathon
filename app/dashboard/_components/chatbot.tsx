@@ -11,7 +11,7 @@ export default function Chatbot() {
   const [isExpanded, setIsExpanded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  
+
   const { messages, input, handleInputChange, handleSubmit, isLoading, setMessages } = useChat({
     api: "/api/chat",
     initialMessages: [
@@ -69,13 +69,13 @@ export default function Chatbot() {
       role: "user",
       content: question
     };
-    
+
     const assistantMessage: Message = {
       id: `assistant-${Date.now()}`,
       role: "assistant",
       content: answer
     };
-    
+
     setMessages([...messages, userMessage, assistantMessage]);
   };
 
@@ -95,18 +95,18 @@ export default function Chatbot() {
           <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse" />
         )}
       </button>
-      
+
       {/* Chat Window */}
       {open && (
-        <div 
-          className={`absolute bottom-20 right-0 ${chatWidth} ${chatHeight} z-[99] dark:bg-zinc-900 bg-white rounded-xl border shadow-2xl transition-all duration-300 flex flex-col animate-in slide-in-from-bottom-5 fade-in`}
+        <div
+          className={`absolute bottom-20 right-0 ${chatWidth} ${chatHeight} z-[99] bg-card rounded-xl border shadow-2xl transition-all duration-300 flex flex-col animate-in slide-in-from-bottom-5 fade-in`}
         >
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-primary/10 to-primary/5 rounded-t-xl">
             <div className="flex items-center gap-2">
               <div className="relative">
                 <Bot className="w-5 h-5 text-primary" />
-                <Sparkles className="w-3 h-3 text-yellow-500 absolute -top-1 -right-1 animate-pulse" />
+                <Sparkles className="w-3 h-3 text-amber-500 absolute -top-1 -right-1 animate-pulse" />
               </div>
               <div>
                 <h3 className="text-base font-semibold flex items-center gap-1">
@@ -150,11 +150,10 @@ export default function Chatbot() {
                 style={{ animationDelay: `${index * 50}ms` }}
               >
                 <div
-                  className={`max-w-[85%] p-3 rounded-2xl text-sm shadow-sm ${
-                    message.role === "user"
+                  className={`max-w-[85%] p-3 rounded-2xl text-sm shadow-sm ${message.role === "user"
                       ? "bg-primary text-primary-foreground rounded-br-sm"
                       : "bg-muted rounded-bl-sm"
-                  }`}
+                    }`}
                 >
                   {message.role === "assistant" ? (
                     <div className="prose prose-sm dark:prose-invert max-w-none">
@@ -181,7 +180,7 @@ export default function Chatbot() {
                 </div>
               </div>
             ))}
-            
+
             {isLoading && (
               <div className="flex justify-start animate-in fade-in">
                 <div className="bg-muted p-3 rounded-2xl rounded-bl-sm shadow-sm">
@@ -193,7 +192,7 @@ export default function Chatbot() {
                 </div>
               </div>
             )}
-            
+
             {/* Quick Actions */}
             {messages.length === 1 && !isLoading && (
               <div className="space-y-2 pt-2">
@@ -211,7 +210,7 @@ export default function Chatbot() {
                 </div>
               </div>
             )}
-            
+
             <div ref={messagesEndRef} />
           </div>
 
@@ -232,9 +231,9 @@ export default function Chatbot() {
                   }
                 }}
               />
-              <Button 
-                type="submit" 
-                size="sm" 
+              <Button
+                type="submit"
+                size="sm"
                 disabled={isLoading || !input.trim()}
                 className="rounded-full px-4 shadow-sm hover:shadow-md transition-all"
               >

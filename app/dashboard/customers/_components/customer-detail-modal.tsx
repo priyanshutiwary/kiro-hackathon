@@ -144,133 +144,133 @@ export function CustomerDetailModal({
         </DialogHeader>
 
         <div className="space-y-6">
-            {/* Basic Information */}
-            <div>
-              <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                <Building2 className="h-4 w-4" />
-                Basic Information
-              </h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Customer Name</p>
-                  <p className="font-medium">{contact.contact_name}</p>
-                </div>
-                {contact.company_name && (
-                  <div>
-                    <p className="text-sm text-muted-foreground">Company Name</p>
-                    <p className="font-medium">{contact.company_name}</p>
-                  </div>
-                )}
-                <div>
-                  <p className="text-sm text-muted-foreground">Customer Type</p>
-                  <p className="font-medium capitalize">{contact.contact_type}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Sub Type</p>
-                  <p className="font-medium capitalize">{contact.customer_sub_type}</p>
-                </div>
+          {/* Basic Information */}
+          <div>
+            <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+              <Building2 className="h-4 w-4" />
+              Basic Information
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-muted-foreground">Customer Name</p>
+                <p className="font-medium">{contact.contact_name}</p>
               </div>
+              {contact.company_name && (
+                <div>
+                  <p className="text-sm text-muted-foreground">Company Name</p>
+                  <p className="font-medium">{contact.company_name}</p>
+                </div>
+              )}
+              <div>
+                <p className="text-sm text-muted-foreground">Customer Type</p>
+                <p className="font-medium capitalize">{contact.contact_type}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Sub Type</p>
+                <p className="font-medium capitalize">{contact.customer_sub_type}</p>
+              </div>
+            </div>
 
-              {detailedContact?.website && (
-                <div className="mt-4">
-                  <p className="text-sm text-muted-foreground">Website</p>
-                  <a 
-                    href={detailedContact.website} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline"
-                  >
-                    {detailedContact.website}
-                  </a>
+            {detailedContact?.website && (
+              <div className="mt-4">
+                <p className="text-sm text-muted-foreground">Website</p>
+                <a
+                  href={detailedContact.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  {detailedContact.website}
+                </a>
+              </div>
+            )}
+          </div>
+
+          <Separator />
+
+          {/* Contact Information */}
+          <div>
+            <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+              <Phone className="h-4 w-4" />
+              Contact Information
+            </h3>
+            <div className="space-y-3">
+              {getPrimaryPhone(contact) && (
+                <div className="flex items-center gap-2">
+                  <Phone className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">{getPrimaryPhone(contact)}</span>
+                  <Badge variant="secondary" className="text-xs">Primary</Badge>
+                </div>
+              )}
+              {getPrimaryEmail(contact) && (
+                <div className="flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  <span>{getPrimaryEmail(contact)}</span>
                 </div>
               )}
             </div>
+          </div>
 
-            <Separator />
+          <Separator />
 
-            {/* Contact Information */}
-            <div>
-              <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                <Phone className="h-4 w-4" />
-                Contact Information
-              </h3>
-              <div className="space-y-3">
-                {getPrimaryPhone(contact) && (
-                  <div className="flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">{getPrimaryPhone(contact)}</span>
-                    <Badge variant="secondary" className="text-xs">Primary</Badge>
-                  </div>
-                )}
-                {getPrimaryEmail(contact) && (
-                  <div className="flex items-center gap-2">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                    <span>{getPrimaryEmail(contact)}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Contact Persons */}
-            {contact.contact_persons && contact.contact_persons.length > 0 && (
-              <>
-                <div>
-                  <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                    <User className="h-4 w-4" />
-                    Contact Persons ({contact.contact_persons.length})
-                  </h3>
-                  <div className="space-y-3">
-                    {contact.contact_persons.map((person) => (
-                      <div
-                        key={person.contact_person_id}
-                        className="border rounded-lg p-3"
-                      >
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="font-medium">
-                            {person.first_name} {person.last_name}
-                          </span>
-                          {person.is_primary_contact && (
-                            <Badge variant="default" className="text-xs">
-                              Primary
-                            </Badge>
-                          )}
+          {/* Contact Persons */}
+          {contact.contact_persons && contact.contact_persons.length > 0 && (
+            <>
+              <div>
+                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Contact Persons ({contact.contact_persons.length})
+                </h3>
+                <div className="space-y-3">
+                  {contact.contact_persons.map((person) => (
+                    <div
+                      key={person.contact_person_id}
+                      className="border rounded-lg p-3"
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="font-medium">
+                          {person.first_name} {person.last_name}
+                        </span>
+                        {person.is_primary_contact && (
+                          <Badge variant="default" className="text-xs">
+                            Primary
+                          </Badge>
+                        )}
+                      </div>
+                      {person.email && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Mail className="h-3 w-3" />
+                          {person.email}
                         </div>
-                        {person.email && (
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Mail className="h-3 w-3" />
-                            {person.email}
+                      )}
+                      <div className="flex gap-3 text-sm text-muted-foreground mt-1">
+                        {person.mobile && (
+                          <div className="flex items-center gap-1">
+                            <Phone className="h-3 w-3" />
+                            Mobile: {person.mobile}
                           </div>
                         )}
-                        <div className="flex gap-3 text-sm text-muted-foreground mt-1">
-                          {person.mobile && (
-                            <div className="flex items-center gap-1">
-                              <Phone className="h-3 w-3" />
-                              Mobile: {person.mobile}
-                            </div>
-                          )}
-                          {person.phone && (
-                            <div className="flex items-center gap-1">
-                              <Phone className="h-3 w-3" />
-                              Phone: {person.phone}
-                            </div>
-                          )}
-                        </div>
+                        {person.phone && (
+                          <div className="flex items-center gap-1">
+                            <Phone className="h-3 w-3" />
+                            Phone: {person.phone}
+                          </div>
+                        )}
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
-                <Separator />
-              </>
-            )}
+              </div>
+              <Separator />
+            </>
+          )}
 
-            {/* Metadata */}
-            <div className="text-xs text-muted-foreground pt-2 border-t">
-              <div>Contact ID: {contact.contact_id}</div>
-              <div>Last Modified: {new Date(contact.last_modified_time).toLocaleString()}</div>
-            </div>
+          {/* Metadata */}
+          <div className="text-xs text-muted-foreground pt-2 border-t">
+            <div>Contact ID: {contact.contact_id}</div>
+            <div>Last Modified: {new Date(contact.last_modified_time).toLocaleString()}</div>
           </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

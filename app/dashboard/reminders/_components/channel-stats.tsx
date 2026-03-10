@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { MessageSquare, Phone, CheckCircle, DollarSign } from "lucide-react";
+import { brandColors } from "@/lib/brand-colors";
 
 interface ChannelStatsProps {
   stats: {
@@ -63,7 +64,7 @@ export function ChannelStats({ stats }: ChannelStatsProps) {
           <CardHeader>
             <CardDescription>SMS Reminders</CardDescription>
             <CardTitle className="text-2xl font-semibold tabular-nums flex items-center gap-2">
-              <MessageSquare className="h-5 w-5 text-blue-500" />
+              <MessageSquare className={`h-5 w-5 ${brandColors.status.info}`} />
               {smsCount}
             </CardTitle>
           </CardHeader>
@@ -79,7 +80,7 @@ export function ChannelStats({ stats }: ChannelStatsProps) {
           <CardHeader>
             <CardDescription>Voice Reminders</CardDescription>
             <CardTitle className="text-2xl font-semibold tabular-nums flex items-center gap-2">
-              <Phone className="h-5 w-5 text-green-500" />
+              <Phone className={`h-5 w-5 ${brandColors.status.success}`} />
               {voiceCount}
             </CardTitle>
           </CardHeader>
@@ -95,7 +96,7 @@ export function ChannelStats({ stats }: ChannelStatsProps) {
           <CardHeader>
             <CardDescription>SMS Success Rate</CardDescription>
             <CardTitle className="text-2xl font-semibold tabular-nums flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-blue-500" />
+              <CheckCircle className={`h-5 w-5 ${brandColors.status.info}`} />
               {smsSuccessRate.toFixed(1)}%
             </CardTitle>
             <CardAction>
@@ -123,7 +124,7 @@ export function ChannelStats({ stats }: ChannelStatsProps) {
           <CardHeader>
             <CardDescription>Voice Success Rate</CardDescription>
             <CardTitle className="text-2xl font-semibold tabular-nums flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-500" />
+              <CheckCircle className={`h-5 w-5 ${brandColors.status.success}`} />
               {voiceSuccessRate.toFixed(1)}%
             </CardTitle>
             <CardAction>
@@ -170,11 +171,11 @@ export function ChannelStats({ stats }: ChannelStatsProps) {
           <CardHeader>
             <CardDescription>Smart Mode Savings</CardDescription>
             <CardTitle className="text-2xl font-semibold tabular-nums flex items-center gap-2">
-              <DollarSign className="h-5 w-5 text-green-500" />
+              <DollarSign className={`h-5 w-5 ${brandColors.status.success}`} />
               ${savings.toFixed(2)}
             </CardTitle>
             <CardAction>
-              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+              <Badge variant="outline" className={brandColors.badge.savings}>
                 <IconTrendingUp />
                 {savingsPercentage.toFixed(0)}% saved
               </Badge>
@@ -215,17 +216,17 @@ export function ChannelStats({ stats }: ChannelStatsProps) {
 
       {/* Cost Savings Highlight */}
       {savings > 0 && (
-        <Card className="border-green-200 bg-green-50/50">
+        <Card className={brandColors.highlight.successCard}>
           <CardHeader>
             <div className="flex items-start gap-3">
-              <div className="rounded-full bg-green-100 p-2">
-                <DollarSign className="h-5 w-5 text-green-600" />
+              <div className={brandColors.highlight.successIcon}>
+                <DollarSign className={`h-5 w-5 ${brandColors.status.success}`} />
               </div>
               <div className="flex-1">
                 <CardTitle className="text-lg">Cost Savings with Smart Mode</CardTitle>
                 <CardDescription className="mt-1">
                   By using SMS for early reminders and voice for urgent ones, you&apos;re saving approximately{" "}
-                  <span className="font-semibold text-green-700">${savings.toFixed(2)}</span> per month
+                  <span className={brandColors.highlight.successText}>${savings.toFixed(2)}</span> per month
                   ({savingsPercentage.toFixed(0)}% reduction) compared to using voice calls only.
                 </CardDescription>
               </div>

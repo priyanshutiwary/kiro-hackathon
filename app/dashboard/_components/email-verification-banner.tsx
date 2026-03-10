@@ -29,7 +29,7 @@ export default function EmailVerificationBanner() {
 
   const handleResendEmail = async () => {
     if (!user) return; // Guard clause
-    
+
     setSending(true);
     try {
       const response = await fetch("/api/auth/send-verification-email", {
@@ -61,12 +61,12 @@ export default function EmailVerificationBanner() {
   }
 
   return (
-    <Alert className="mb-4 border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20">
-      <Mail className="h-4 w-4 text-yellow-600 dark:text-yellow-500" />
-      <AlertTitle className="text-yellow-800 dark:text-yellow-300">
+    <Alert className="mb-4 border-amber-500 bg-amber-50 dark:bg-amber-950/20">
+      <Mail className="h-4 w-4 text-amber-600 dark:text-amber-500" />
+      <AlertTitle className="text-amber-800 dark:text-amber-300">
         Email Verification Required
       </AlertTitle>
-      <AlertDescription className="text-yellow-700 dark:text-yellow-400">
+      <AlertDescription className="text-amber-700 dark:text-amber-400">
         <div className="flex items-center justify-between">
           <div className="flex-1">
             Please verify your email address ({user.email}) to access all features.
@@ -78,7 +78,7 @@ export default function EmailVerificationBanner() {
               size="sm"
               onClick={handleResendEmail}
               disabled={sending}
-              className="border-yellow-600 text-yellow-700 hover:bg-yellow-100 dark:border-yellow-500 dark:text-yellow-400 dark:hover:bg-yellow-950/40"
+              className="border-amber-600 text-amber-700 hover:bg-amber-100 dark:border-amber-500 dark:text-amber-400 dark:hover:bg-amber-950/40"
             >
               {sending ? "Sending..." : "Resend Email"}
             </Button>
@@ -86,7 +86,7 @@ export default function EmailVerificationBanner() {
               variant="ghost"
               size="sm"
               onClick={() => setDismissed(true)}
-              className="text-yellow-700 hover:bg-yellow-100 dark:text-yellow-400 dark:hover:bg-yellow-950/40"
+              className="text-amber-700 hover:bg-amber-100 dark:text-amber-400 dark:hover:bg-amber-950/40"
             >
               <X className="h-4 w-4" />
             </Button>

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { brandColors } from "@/lib/brand-colors";
 
 interface ZohoBill {
   billId: string;
@@ -82,22 +83,22 @@ export function BillsTable({ bills }: BillsTableProps) {
       paid: {
         variant: "default" as const,
         label: "Paid",
-        className: "bg-green-500 hover:bg-green-600",
+        className: brandColors.badge.paid,
       },
       open: {
         variant: "secondary" as const,
         label: "Unpaid",
-        className: "bg-yellow-500 hover:bg-yellow-600 text-white",
+        className: brandColors.badge.partiallyPaid,
       },
       overdue: {
         variant: "destructive" as const,
         label: "Overdue",
-        className: "bg-red-500 hover:bg-red-600",
+        className: "bg-destructive hover:bg-destructive/90",
       },
       void: {
         variant: "outline" as const,
         label: "Void",
-        className: "bg-gray-500 hover:bg-gray-600 text-white",
+        className: "bg-muted-foreground hover:bg-muted-foreground/90 text-white",
       },
     };
 

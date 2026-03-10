@@ -98,38 +98,36 @@ export default function Dashboard() {
   }
 
   return (
-    <div className={DashboardTheme.layout.container}>
-      <div className={DashboardTheme.layout.sectionAnimateInDelayed}>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2 mb-2">
-          <div>
-            {/* <h2 className={DashboardTheme.typography.sectionTitle}>Dashboard Overview</h2>
-            <p className={DashboardTheme.typography.subtext}>
-              Monitor your automated payment reminder performance and analytics.
-            </p> */}
-          </div>
-          <Button
-            onClick={handleRefresh}
-            disabled={refreshing}
-            variant="outline"
-            size="icon"
-            className="h-9 w-9"
-          >
-            <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
-            <span className="sr-only">Refresh</span>
-          </Button>
-        </div>
-
+    <div className="container mx-auto pb-8 pt-4 flex flex-col h-[calc(100vh-theme(spacing.20))]">
+      <div className={`${DashboardTheme.layout.sectionAnimateInDelayed} flex flex-col h-full`}>
         {error && (
-          <Alert variant="destructive" className="mb-6">
+          <Alert variant="destructive" className="mb-6 shrink-0">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Error</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
 
-        <div className="flex flex-col gap-4 py-4 md:gap-6">
-          {stats && <DashboardStats stats={stats} />}
+        {stats && (
+          <div className="mb-6 shrink-0">
+            <DashboardStats stats={stats} />
+          </div>
+        )}
 
+        <div className="flex justify-end mb-4 shrink-0">
+          <Button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2 h-9"
+          >
+            <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+        </div>
+
+        <div className="flex-1 min-h-0">
           <RecentActivity />
         </div>
       </div>

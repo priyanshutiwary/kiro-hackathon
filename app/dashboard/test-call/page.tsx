@@ -9,9 +9,10 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 // import { Badge } from "@/components/ui/badge";
 // import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Phone, Loader2, CheckCircle2, XCircle, AlertCircle, Wand2} from "lucide-react";
+import { Phone, Loader2, CheckCircle2, XCircle, AlertCircle, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 import { DashboardTheme } from "@/lib/dashboard-theme";
+import { brandColors } from "@/lib/brand-colors";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -173,7 +174,7 @@ export default function TestCallPage() {
                     <div className={cn(DashboardTheme.card.base, "animate-in slide-in-from-left-4 duration-700 delay-100")}>
                         <div className="p-6 pb-4 border-b border-border/40">
                             <h3 className="font-semibold flex items-center gap-2">
-                                <div className="h-8 w-1 bg-blue-500 rounded-full"></div>
+                                <div className="h-8 w-1 bg-primary rounded-full"></div>
                                 Call Context
                             </h3>
                             <p className="text-sm text-muted-foreground mt-1 ml-3">
@@ -271,13 +272,13 @@ export default function TestCallPage() {
                             >
                                 <div className="flex items-start gap-3">
                                     {result.success
-                                        ? <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5" />
+                                        ? <CheckCircle2 className={`h-5 w-5 ${brandColors.status.success} mt-0.5`} />
                                         : <XCircle className="h-5 w-5 text-destructive mt-0.5" />
                                     }
                                     <div className="space-y-1">
                                         <h4 className={cn(
                                             "font-semibold text-sm",
-                                            result.success ? "text-green-700" : "text-destructive"
+                                            result.success ? brandColors.status.success : "text-destructive"
                                         )}>
                                             {result.success ? "Call Initiated Successfully" : "Call Failed"}
                                         </h4>

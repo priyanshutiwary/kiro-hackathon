@@ -5,6 +5,7 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
+import { brandColors } from "@/lib/brand-colors";
 
 export default function ModeToggle() {
     const { theme, setTheme } = useTheme();
@@ -21,12 +22,12 @@ export default function ModeToggle() {
     return (
         <div>
             {theme === "dark" ? (
-                <Button variant="ghost" className="hover:bg-inherit border-zinc-900 bg-[#0c0c0d]" size="icon" onClick={() => setTheme("light")}>
+                <Button variant="ghost" className={brandColors.toggle.dark} size="icon" onClick={() => setTheme("light")}>
                     <Sun className="w-5 h-5" />
                     <span className="sr-only">Toggle theme</span>
                 </Button>
             ) : (
-                <Button variant="ghost" size="icon" className="hover:bg-inherit border-zinc-100 bg-inherit" onClick={() => setTheme("dark")}>
+                <Button variant="ghost" size="icon" className={brandColors.toggle.light} onClick={() => setTheme("dark")}>
                     <Moon className="w-5 h-5" />
                     <span className="sr-only">Toggle theme</span>
                 </Button>

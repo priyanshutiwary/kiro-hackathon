@@ -14,6 +14,7 @@ import { Check, FileImage, Upload, X } from "lucide-react";
 import Image from "next/image";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
+import { brandColors } from "@/lib/brand-colors";
 
 interface UploadedFile {
   id: string;
@@ -159,8 +160,8 @@ export default function UploadPage() {
           <CardContent className="space-y-4">
             <div
               className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${dragActive
-                  ? "border-primary bg-primary/5"
-                  : "border-muted-foreground/25 hover:border-muted-foreground/50"
+                ? "border-primary bg-primary/5"
+                : "border-muted-foreground/25 hover:border-muted-foreground/50"
                 }`}
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
@@ -213,7 +214,7 @@ export default function UploadPage() {
           <CardContent className="space-y-4">
             <div className="space-y-3">
               <div className="flex items-start gap-3">
-                <Check className="h-4 w-4 text-green-500 mt-0.5" />
+                <Check className={`h-4 w-4 ${brandColors.status.success} mt-0.5`} />
                 <div className="text-sm">
                   <p className="font-medium">Global CDN</p>
                   <p className="text-muted-foreground">
@@ -222,14 +223,14 @@ export default function UploadPage() {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <Check className="h-4 w-4 text-green-500 mt-0.5" />
+                <Check className={`h-4 w-4 ${brandColors.status.success} mt-0.5`} />
                 <div className="text-sm">
                   <p className="font-medium">Zero Egress Fees</p>
                   <p className="text-muted-foreground">No bandwidth charges</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <Check className="h-4 w-4 text-green-500 mt-0.5" />
+                <Check className={`h-4 w-4 ${brandColors.status.success} mt-0.5`} />
                 <div className="text-sm">
                   <p className="font-medium">S3 Compatible</p>
                   <p className="text-muted-foreground">
@@ -238,7 +239,7 @@ export default function UploadPage() {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <Check className="h-4 w-4 text-green-500 mt-0.5" />
+                <Check className={`h-4 w-4 ${brandColors.status.success} mt-0.5`} />
                 <div className="text-sm">
                   <p className="font-medium">Auto Scaling</p>
                   <p className="text-muted-foreground">Handles any file size</p>

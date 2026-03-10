@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { DashboardTheme } from "@/lib/dashboard-theme";
+import { brandColors } from "@/lib/brand-colors";
 
 interface ZohoInvoice {
   invoiceId: string;
@@ -50,12 +51,12 @@ export function InvoicesTable({ invoices, onInvoiceClick }: InvoicesTableProps) 
 
   const getStatusBadge = (status: ZohoInvoice["status"]) => {
     const statusConfig = {
-      paid: { label: "Paid", variant: "default" as const, className: "bg-green-500 hover:bg-green-600" },
+      paid: { label: "Paid", variant: "default" as const, className: brandColors.badge.paid },
       sent: { label: "Sent", variant: "secondary" as const, className: "" },
       draft: { label: "Draft", variant: "outline" as const, className: "" },
       overdue: { label: "Overdue", variant: "destructive" as const, className: "" },
       void: { label: "Void", variant: "outline" as const, className: "opacity-50" },
-      partially_paid: { label: "Partially Paid", variant: "secondary" as const, className: "bg-yellow-500 hover:bg-yellow-600" },
+      partially_paid: { label: "Partially Paid", variant: "secondary" as const, className: brandColors.badge.partiallyPaid },
     };
 
     const config = statusConfig[status] || statusConfig.draft;
