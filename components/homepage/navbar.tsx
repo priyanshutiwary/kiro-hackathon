@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import Link from "next/link";
@@ -15,10 +17,7 @@ export default function Navbar() {
           <div className="flex h-14 items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 group">
-              <span className={`text-lg ${brandColors.text.gradient} flex items-center gap-0.5`}>
-                <span className="font-medium">Invo</span>
-                <span className="font-extrabold">Call</span>
-              </span>
+              <Image src="/icon.svg" alt="InvoCall Logo" width={32} height={32} className="w-20 h-8" priority />
             </Link>
 
             {/* Navigation Links */}
@@ -31,6 +30,9 @@ export default function Navbar() {
               </Link>
               <Link href="#integrations" className={`text-sm font-medium ${brandColors.text.secondary} hover:${brandColors.primary.text} transition-colors duration-200`}>
                 Integrations
+              </Link>
+              <Link href="/privacy-policy" className={`text-sm font-medium ${brandColors.text.secondary} hover:${brandColors.primary.text} transition-colors duration-200`}>
+                Privacy
               </Link>
             </div>
 

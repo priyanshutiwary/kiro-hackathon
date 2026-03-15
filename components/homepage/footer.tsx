@@ -1,27 +1,12 @@
 import Link from "next/link";
-import { Phone} from "lucide-react";
+import { Phone } from "lucide-react";
 import { brandColors } from "@/lib/brand-colors";
 
-const _footerLinks = {
-  product: [
-    { title: "Features", href: "#features" },
-    { title: "Pricing", href: "#pricing" },
-    { title: "Integrations", href: "#integrations" },
-    { title: "Demo", href: "#demo" },
-  ],
-  company: [
-    { title: "About", href: "/about" },
-    { title: "Blog", href: "/blog" },
-    { title: "Careers", href: "/careers" },
-    { title: "Contact", href: "/contact" },
-  ],
-  legal: [
-    { title: "Privacy Policy", href: "/privacy" },
-    { title: "Terms of Service", href: "/terms" },
-    { title: "Security", href: "/security" },
-    { title: "GDPR Compliance", href: "/gdpr" },
-  ],
-};
+const legalLinks = [
+  { title: "Privacy Policy", href: "/privacy-policy" },
+  { title: "Terms of Service", href: "/terms-of-service" },
+];
+
 
 export default function FooterSection() {
   return (
@@ -45,7 +30,20 @@ export default function FooterSection() {
             </p>
           </div>
 
-          {/* Minimal Social Links */}
+          {/* Legal links */}
+          <div className="flex items-center gap-4">
+            {legalLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`text-xs ${brandColors.text.muted} hover:${brandColors.primary.text} transition-colors`}
+              >
+                {link.title}
+              </Link>
+            ))}
+          </div>
+
+          {/* Social Links */}
           <div className="flex items-center gap-6">
             <Link
               href="https://twitter.com"

@@ -1,6 +1,5 @@
 
 import { Mic, MessageSquare, XCircle, CheckCircle2, TrendingUp, TrendingDown } from "lucide-react";
-import { brandColors } from "@/lib/brand-colors";
 
 interface DashboardStatsProps {
     stats: {
@@ -105,8 +104,8 @@ export function DashboardStats({ stats }: DashboardStatsProps) {
 
                     {/* Status Badge */}
                     <div className={`flex items-center gap-1 shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${successRate >= 70
-                            ? "bg-emerald-100/50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
-                            : "bg-amber-100/50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400"
+                        ? "bg-emerald-100/50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
+                        : "bg-amber-100/50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400"
                         }`}>
                         {successRate >= 70 ? (
                             <><TrendingUp className="h-3 w-3" /> Good</>

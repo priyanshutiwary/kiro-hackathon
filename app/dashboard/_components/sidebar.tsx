@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import UserProfile from "@/components/user-profile";
 import clsx from "clsx";
@@ -118,43 +119,7 @@ export default function DashboardSideBar({ isMobile = false }: SidebarProps) {
           className="flex items-center gap-2 font-bold text-lg tracking-tight hover:opacity-80 transition-opacity"
           href="/"
         >
-          <div className="w-8 h-8 bg-sidebar-primary rounded-lg flex items-center justify-center text-sidebar-primary-foreground shrink-0">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="w-5 h-5"
-            >
-              <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
-            </svg>
-          </div>
-          {isMobile ? (
-            <span className="flex items-center gap-0.5 ml-2">
-              <span className="font-medium">Invo</span>
-              <span className="font-extrabold">Call</span>
-            </span>
-          ) : (
-            <AnimatePresence>
-              {!isCollapsed && (
-                <motion.span
-                  initial={{ opacity: 0, width: 0 }}
-                  animate={{ opacity: 1, width: "auto" }}
-                  exit={{ opacity: 0, width: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="whitespace-nowrap overflow-hidden"
-                >
-                  <span className="flex items-center gap-0.5 ml-2">
-                    <span className="font-medium">Invo</span>
-                    <span className="font-extrabold">Call</span>
-                  </span>
-                </motion.span>
-              )}
-            </AnimatePresence>
-          )}
+          <Image src="/icon.svg" alt="InvoCall Logo" width={32} height={32} className="w-20 h-14 shrink-0" priority />
         </Link>
       </div>
 

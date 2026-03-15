@@ -12,6 +12,7 @@ import { db } from "@/db/drizzle";
 import { agentIntegrations } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { syncInvoicesForUser } from "@/lib/payment-reminders/sync-engine";
+import { syncGenericProviderForUser } from "@/lib/payment-reminders/sync-engine-generic";
 
 /**
  * POST handler for the cron job
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
     // Verify cron secret (if using Vercel Cron)
     const authHeader = request.headers.get('authorization');
     const cronSecret = process.env.CRON_SECRET;
-    
+
     if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -38,26 +39,27 @@ export async function POST(request: Request) {
     }
 
     console.log('[Cron] Starting daily invoice sync...');
-    
+
     // Track critical errors for alerting
     const criticalErrors: Array<{ userId: string; error: string }> = [];
-    
-    // Get all users with active Zoho Books integration
+
+    // Get all users with any active integration, excluding excel_upload locally attached ones if they don't sync.
+    // Actually, we'll fetch all active integrations and switch case them inside the loop.
     const integrations = await db
       .select({
         userId: agentIntegrations.userId,
         organizationId: agentIntegrations.config,
+        provider: agentIntegrations.provider,
       })
       .from(agentIntegrations)
       .where(
         and(
-          eq(agentIntegrations.provider, 'zoho_books'),
           eq(agentIntegrations.enabled, true),
           eq(agentIntegrations.status, 'active')
         )
       );
 
-    console.log(`[Cron] Found ${integrations.length} users with Zoho Books integration`);
+    console.log(`[Cron] Found ${integrations.length} active integrations to sync`);
 
     const results = [];
     let successCount = 0;
@@ -66,41 +68,57 @@ export async function POST(request: Request) {
     // Sync invoices for each user
     for (const integration of integrations) {
       try {
-        // Parse organization ID from config
-        const config = integration.organizationId 
-          ? JSON.parse(integration.organizationId) 
-          : {};
-        const organizationId = config.organizationId || config.organization_id;
-
-        if (!organizationId) {
-          console.error(`[Cron] No organization ID found for user ${integration.userId}`);
-          errorCount++;
-          results.push({
-            userId: integration.userId,
-            success: false,
-            error: 'No organization ID configured',
-          });
+        if (integration.provider === 'excel_upload') {
+          // Excel uploads don't auto-sync from external APIs via cron.
           continue;
         }
 
-        console.log(`[Cron] Syncing invoices for user ${integration.userId}...`);
-        
-        const syncResult = await syncInvoicesForUser(
-          integration.userId,
-          organizationId
-        );
+        console.log(`[Cron] Syncing invoices for user ${integration.userId} via ${integration.provider}...`);
+
+        let syncResult;
+
+        if (integration.provider === 'zoho_books') {
+          // Parse organization ID from config
+          const config = integration.organizationId
+            ? JSON.parse(integration.organizationId)
+            : {};
+          const organizationId = config.organizationId || config.organization_id;
+
+          if (!organizationId) {
+            console.error(`[Cron] No organization ID found for user ${integration.userId}`);
+            errorCount++;
+            results.push({
+              userId: integration.userId,
+              provider: integration.provider,
+              success: false,
+              error: 'No organization ID configured',
+            });
+            continue;
+          }
+
+          syncResult = await syncInvoicesForUser(
+            integration.userId,
+            organizationId
+          );
+        } else {
+          // Generic providers like Google Sheets
+          syncResult = await syncGenericProviderForUser(
+            integration.userId,
+            integration.provider
+          );
+        }
 
         if (syncResult.errors.length > 0) {
-          console.error(`[Cron] Sync completed with errors for user ${integration.userId}:`, syncResult.errors);
+          console.error(`[Cron] Sync completed with errors for user ${integration.userId} (${integration.provider}):`, syncResult.errors);
           errorCount++;
-          
+
           // Track critical errors for alerting
           criticalErrors.push({
             userId: integration.userId,
-            error: syncResult.errors.join('; '),
+            error: `[${integration.provider}] ` + syncResult.errors.join('; '),
           });
         } else {
-          console.log(`[Cron] Sync successful for user ${integration.userId}:`, {
+          console.log(`[Cron] Sync successful for user ${integration.userId} (${integration.provider}):`, {
             fetched: syncResult.invoicesFetched,
             inserted: syncResult.invoicesInserted,
             updated: syncResult.invoicesUpdated,
@@ -117,13 +135,13 @@ export async function POST(request: Request) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         console.error(`[Cron] Error syncing for user ${integration.userId}:`, error);
         errorCount++;
-        
+
         // Track critical errors for alerting
         criticalErrors.push({
           userId: integration.userId,
           error: errorMessage,
         });
-        
+
         results.push({
           userId: integration.userId,
           success: false,
@@ -133,14 +151,14 @@ export async function POST(request: Request) {
     }
 
     console.log(`[Cron] Daily sync complete. Success: ${successCount}, Errors: ${errorCount}`);
-    
+
     // Alert on sync failures (Requirement 4.1)
     if (criticalErrors.length > 0) {
       console.error('[Cron] ALERT: Sync failures detected for the following users:');
       criticalErrors.forEach(({ userId, error }) => {
         console.error(`  - User ${userId}: ${error}`);
       });
-      
+
       // In production, this would trigger an alert to monitoring service
       // Examples: Sentry, DataDog, PagerDuty, email notification, etc.
       // await sendAlert('Sync Failures', criticalErrors);
@@ -159,7 +177,7 @@ export async function POST(request: Request) {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error('[Cron] Fatal error in daily sync:', error);
-    
+
     return NextResponse.json(
       {
         success: false,
@@ -180,7 +198,7 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
   // Check if manual trigger is allowed
   const allowManualTrigger = process.env.ALLOW_MANUAL_CRON_TRIGGER === 'true';
-  
+
   if (!allowManualTrigger) {
     return NextResponse.json(
       { error: 'Manual trigger not allowed' },

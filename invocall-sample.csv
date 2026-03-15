@@ -1,0 +1,6 @@
+invoice_number,customer_name,customer_id,customer_phone,customer_email,amount_total,amount_due,currency,due_date,status
+INV-2025-001,Acme Corporation,CUST-101,+1234567890,accounts@acme.com,1500.00,1500.00,USD,2025-05-15,open
+INV-2025-002,Global Tech LLC,CUST-102,+1987654321,finance@globaltech.com,3250.50,3250.50,USD,2025-06-01,open
+INV-2025-003,Stark Industries,CUST-103,+1555123456,billing@stark.com,450.00,450.00,USD,2025-04-20,open
+INV-2025-004,Wayne Enterprises,CUST-104,+1555987654,ap@wayne.com,8900.00,4450.00,USD,2025-07-10,open
+INV-2025-005,Daily Planet,CUST-105,+1555888999,finance@dailyplanet.com,120.75,0.00,USD,2025-03-01,paid
