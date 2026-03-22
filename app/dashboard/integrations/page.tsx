@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { DashboardTheme } from "@/lib/dashboard-theme";
 import NavTabs from "../configuration/_components/nav-tabs";
 import { motion, AnimatePresence } from "framer-motion";
+import Nango from "@nangohq/frontend";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -65,6 +66,33 @@ const PROVIDER_CONFIGS: IntegrationConfig[] = [
     apiPrefix: "/api/zoho",
   },
   {
+    id: "quickbooks",
+    name: "QuickBooks",
+    description: "Connect QuickBooks Online to sync invoices and customers automatically.",
+    icon: "💼",
+    category: "Accounting",
+    connectType: "oauth",
+    apiPrefix: "/api/nango",
+  },
+  {
+    id: "xero",
+    name: "Xero",
+    description: "Sync invoices and customers from Xero accounting software.",
+    icon: "🔷",
+    category: "Accounting",
+    connectType: "oauth",
+    apiPrefix: "/api/nango",
+  },
+  {
+    id: "freshbooks",
+    name: "FreshBooks",
+    description: "Connect FreshBooks to automatically sync your invoice data.",
+    icon: "📗",
+    category: "Accounting",
+    connectType: "oauth",
+    apiPrefix: "/api/nango",
+  },
+  {
     id: "google_sheets",
     name: "Google Sheets",
     description: "Connect a Google Spreadsheet as your invoice source. Syncs daily.",
@@ -92,6 +120,10 @@ export default function IntegrationsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [disconnecting, setDisconnecting] = useState<string | null>(null);
 
+  // Nango SDK instance
+  const [nango, setNango] = useState<Nango | null>(null);
+  const [nangoLoading, setNangoLoading] = useState(false);
+
   // Sheet URL modal (Google Sheets post-connect)
   const [sheetModalOpen, setSheetModalOpen] = useState(false);
   const [sheetUrl, setSheetUrl] = useState("");
@@ -116,6 +148,7 @@ export default function IntegrationsPage() {
 
   useEffect(() => {
     fetchAllStatuses();
+    initializeNango();
 
     const params = new URLSearchParams(window.location.search);
     const success = params.get("success");
@@ -151,15 +184,43 @@ export default function IntegrationsPage() {
     }
   }, []);
 
+  // ── Initialize Nango SDK ──────────────────────────────────────────────────
+
+  const initializeNango = async () => {
+    try {
+      // 7.2.2 Fetch session token from backend
+      const response = await fetch("/api/nango/session");
+      if (!response.ok) {
+        throw new Error("Failed to fetch Nango session token");
+      }
+
+      const { sessionToken } = await response.json();
+
+      // 7.2.3 Initialize Nango with session token
+      const nangoInstance = new Nango({ connectSessionToken: sessionToken });
+      setNango(nangoInstance);
+
+      console.log("✅ Nango SDK initialized");
+    } catch (error) {
+      console.error("❌ Failed to initialize Nango:", error);
+      toast.error("Failed to initialize integrations SDK");
+    }
+  };
+
   const fetchAllStatuses = async () => {
     setIsLoading(true);
     try {
       // Fetch status for each OAuth provider in parallel
       const oauthProviders = PROVIDER_CONFIGS.filter((p) => p.connectType === "oauth");
       const results = await Promise.allSettled(
-        oauthProviders.map((p) =>
-          fetch(`${p.apiPrefix}/status`).then((r) => r.json())
-        )
+        oauthProviders.map((p) => {
+          // For Nango providers, use the Nango status endpoint
+          if (p.apiPrefix === "/api/nango") {
+            return fetch(`/api/nango/status?provider=${p.id}`).then((r) => r.json());
+          }
+          // For custom providers, use their own status endpoint
+          return fetch(`${p.apiPrefix}/status`).then((r) => r.json());
+        })
       );
 
       setIntegrations(
@@ -185,7 +246,7 @@ export default function IntegrationsPage() {
               : data.status === "error"
                 ? "error"
                 : "available") as IntegrationStatus,
-            errorMessage: data.error,
+            errorMessage: data.error || data.errorMessage,
             lastSync: data.lastSync ? new Date(data.lastSync) : undefined,
             spreadsheetId: data.spreadsheetId,
           };
@@ -226,8 +287,42 @@ export default function IntegrationsPage() {
 
   // ── Connect handlers ──────────────────────────────────────────────────────
 
+  // 7.2.4 Implement connectProvider() function using nango.openConnectUI()
+  const connectProvider = async (integration: IntegrationState) => {
+    if (!nango) {
+      toast.error("Integration SDK not initialized. Please refresh the page.");
+      return;
+    }
+
+    setNangoLoading(true);
+
+    try {
+      // Open Nango Connect UI with the integration ID
+      // The session token is already set when Nango was initialized
+      const result = await nango.auth(integration.id);
+
+      if (result) {
+        // 7.2.5 Handle connection success event
+        toast.success(`${integration.name} connected successfully!`);
+        await fetchAllStatuses();
+      }
+    } catch (error) {
+      // 7.2.6 Handle connection error event
+      console.error("Connection error:", error);
+      toast.error(`Failed to connect ${integration.name}`, {
+        description: error instanceof Error ? error.message : "Unknown error",
+      });
+    } finally {
+      setNangoLoading(false);
+    }
+  };
+
   const handleConnect = (integration: IntegrationState) => {
-    if (integration.connectType === "oauth" && integration.apiPrefix) {
+    // For Nango providers, use the Nango SDK
+    if (integration.apiPrefix === "/api/nango") {
+      connectProvider(integration);
+    } else if (integration.connectType === "oauth" && integration.apiPrefix) {
+      // For custom OAuth providers, redirect to their connect endpoint
       window.location.href = `${integration.apiPrefix}/auth/connect`;
     } else if (integration.connectType === "upload") {
       setUploadModalOpen(true);
@@ -237,12 +332,23 @@ export default function IntegrationsPage() {
   };
 
   const handleDisconnect = async (integration: IntegrationState) => {
-    if (integration.connectType !== "oauth" || !integration.apiPrefix) return;
-
     try {
       setDisconnecting(integration.id);
-      const res = await fetch(`${integration.apiPrefix}/auth/disconnect`, { method: "POST" });
-      if (!res.ok) throw new Error("Failed to disconnect");
+
+      // For Nango providers, use the Nango disconnect endpoint
+      if (integration.apiPrefix === "/api/nango") {
+        const res = await fetch("/api/nango/disconnect", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ provider: integration.id }),
+        });
+        if (!res.ok) throw new Error("Failed to disconnect");
+      } else if (integration.connectType === "oauth" && integration.apiPrefix) {
+        // For custom OAuth providers, use their disconnect endpoint
+        const res = await fetch(`${integration.apiPrefix}/auth/disconnect`, { method: "POST" });
+        if (!res.ok) throw new Error("Failed to disconnect");
+      }
+
       toast.success(`${integration.name} disconnected successfully`);
       await fetchAllStatuses();
     } catch {
@@ -304,6 +410,7 @@ export default function IntegrationsPage() {
 
   const getActionButtons = (integration: IntegrationState) => {
     const isDisconnecting = disconnecting === integration.id;
+    const isConnecting = nangoLoading && integration.apiPrefix === "/api/nango";
 
     if (integration.status === "connected") {
       return (
@@ -343,7 +450,15 @@ export default function IntegrationsPage() {
 
     if (integration.status === "error") {
       return (
-        <Button variant="destructive" size="sm" onClick={() => handleConnect(integration)}>
+        <Button 
+          variant="destructive" 
+          size="sm" 
+          onClick={() => handleConnect(integration)}
+          disabled={isConnecting}
+        >
+          {isConnecting ? (
+            <Loader2 className="h-3 w-3 animate-spin mr-2" />
+          ) : null}
           Reconnect <ExternalLink className="h-3 w-3 ml-2" />
         </Button>
       );
@@ -354,8 +469,11 @@ export default function IntegrationsPage() {
         variant="default"
         size="sm"
         onClick={() => handleConnect(integration)}
+        disabled={isConnecting}
       >
-        {integration.connectType === "upload" ? (
+        {isConnecting ? (
+          <Loader2 className="h-3 w-3 animate-spin mr-2" />
+        ) : integration.connectType === "upload" ? (
           <>
             <Upload className="h-3 w-3 mr-1" /> Upload File
           </>
@@ -387,7 +505,7 @@ export default function IntegrationsPage() {
         <div className="flex flex-col">
           <NavTabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
 
-          <div className="min-h-[500px]">
+          <div className="min-h-125">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}

@@ -10,6 +10,11 @@
 !.yarn/releases
 !.yarn/versions
 
+# nango integrations
+/nango-integrations/node_modules
+/nango-integrations/build
+/nango-integrations/.nango
+
 # testing
 /coverage
 
