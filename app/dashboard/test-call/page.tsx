@@ -85,16 +85,17 @@ export default function TestCallPage() {
             });
 
             const data = await response.json();
-            setResult(data);
-
+            
             if (data.success) {
+                setResult(data);
                 toast.success("Call dispatched successfully!");
             } else {
-                toast.error(data.error || "Failed to dispatch call");
+                setResult({ success: false, error: "Configuration or server error prevented the call. Please verify your settings." });
+                toast.error("Failed to dispatch call. Please verify your configuration.");
             }
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "Unknown error";
-            setResult({ success: false, error: errorMessage });
+            console.error("Error dispatching call:", error);
+            setResult({ success: false, error: "An unexpected error occurred. Please try again." });
             toast.error("Error dispatching call");
         } finally {
             setLoading(false);

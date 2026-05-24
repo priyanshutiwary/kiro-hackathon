@@ -116,7 +116,7 @@ function ResetPasswordContent() {
             },
           });
         } else {
-          toast.error(result.error.message || "Failed to reset password", {
+          toast.error("Failed to reset password. Please request a new link and try again.", {
             duration: 5000,
           });
         }

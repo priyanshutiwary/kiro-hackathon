@@ -141,7 +141,7 @@ function SignUpContent() {
             duration: 5000,
           });
         } else {
-          toast.error(result.error.message || "Failed to create account", {
+          toast.error("Failed to create account. Please check your details and try again.", {
             duration: 5000,
           });
         }

@@ -376,7 +376,8 @@ export default function IntegrationsPage() {
       setSheetUrl("");
       await fetchAllStatuses();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save spreadsheet");
+      console.error("Failed to save spreadsheet:", err);
+      toast.error("Failed to save spreadsheet. Please ensure the URL is correct and try again.");
     } finally {
       setSavingSheet(false);
     }
@@ -400,7 +401,8 @@ export default function IntegrationsPage() {
       setUploadModalOpen(false);
       await fetchExcelStatus();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to import file");
+      console.error("Failed to import file:", err);
+      toast.error("Failed to import file. Please check the file formatting and try again.");
     } finally {
       setUploading(false);
     }

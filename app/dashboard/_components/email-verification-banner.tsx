@@ -45,7 +45,7 @@ export default function EmailVerificationBanner() {
       if (response.ok) {
         toast.success("Verification email sent! Please check your inbox.");
       } else {
-        toast.error(data.error || "Failed to send verification email");
+        toast.error("Failed to send verification email. Please try again later.");
       }
     } catch (error) {
       console.error("Error sending verification email:", error);

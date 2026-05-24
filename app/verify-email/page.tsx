@@ -102,7 +102,7 @@ function VerifyEmailContent() {
             setErrorMessage("This verification link has expired or is invalid.");
           } else {
             setStatus("error");
-            setErrorMessage(data.error?.message || data.message || "Failed to verify email");
+            setErrorMessage("Failed to verify email. Please request a new link.");
           }
         }
       } catch (error) {
@@ -150,7 +150,7 @@ function VerifyEmailContent() {
             duration: 7000,
           });
         } else {
-          toast.error(data.error?.message || "Failed to send verification email", {
+          toast.error("Failed to send verification email. Please try again later.", {
             duration: 5000,
           });
         }
