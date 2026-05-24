@@ -40,7 +40,7 @@ export default function EmailVerificationBanner() {
         body: JSON.stringify({ email: user.email }),
       });
 
-      const data = await response.json();
+      await response.json();
 
       if (response.ok) {
         toast.success("Verification email sent! Please check your inbox.");

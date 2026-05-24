@@ -24,7 +24,7 @@ async function verifySetup() {
   // Check 2: Client initialization
   console.log('2. Testing Nango client initialization...');
   try {
-    const nango = getNangoClient();
+    getNangoClient();
     console.log('   ✅ Nango client initialized successfully\n');
   } catch (error) {
     console.log('   ❌ Failed to initialize Nango client');
@@ -40,7 +40,7 @@ async function verifySetup() {
     
     console.log(`   ✅ @nangohq/node: v${nodePackage.version}`);
     console.log(`   ✅ @nangohq/frontend: v${frontendPackage.version}\n`);
-  } catch (error) {
+  } catch (_error) {
     console.log('   ⚠️  Could not verify SDK versions\n');
   }
 

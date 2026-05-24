@@ -83,6 +83,7 @@ describe('QuickBooksProvider', () => {
       ];
 
       // Mock the triggerAction to return customers
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const mockNango = provider['nango'] as any;
       mockNango.triggerAction = vi.fn().mockResolvedValue(mockCustomers);
 
@@ -103,6 +104,7 @@ describe('QuickBooksProvider', () => {
         },
       ];
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const mockNango = provider['nango'] as any;
       mockNango.triggerAction = vi.fn().mockResolvedValue(mockInvoices);
 
@@ -112,6 +114,7 @@ describe('QuickBooksProvider', () => {
     });
 
     it('should return Promise<boolean> from checkConnection', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const mockNango = provider['nango'] as any;
       mockNango.getConnection = vi.fn().mockResolvedValue({ id: 'conn-123' });
 

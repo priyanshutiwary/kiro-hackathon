@@ -102,7 +102,7 @@ export default function PricingTable({
       } else {
         toast.error("Failed to get checkout URL");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Oops, something went wrong");
     }
   };
@@ -119,7 +119,7 @@ export default function PricingTable({
       } else {
         router.push("/dashboard/payment");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to open subscription management");
     }
   };
@@ -138,13 +138,7 @@ export default function PricingTable({
     );
   };
 
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
+
 
   return (
     <section id="pricing" className="relative py-24 lg:py-40 bg-white dark:bg-[#0B1121] overflow-hidden">

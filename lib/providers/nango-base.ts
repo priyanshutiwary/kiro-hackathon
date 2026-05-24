@@ -165,15 +165,15 @@ export abstract class NangoProviderBase implements InvoiceProvider {
    * 
    * @protected
    */
-  protected async triggerAction<T = any>(
+  protected async triggerAction<T = unknown>(
     userId: string,
     actionName: string,
-    input: Record<string, any>
+    input: Record<string, unknown>
   ): Promise<T> {
     const connectionId = this.getConnectionId(userId);
 
     try {
-      const result = await this.nango.triggerAction<Record<string, any>, T>(
+      const result = await this.nango.triggerAction<Record<string, unknown>, T>(
         this.integrationId,
         connectionId,
         actionName,

@@ -50,7 +50,7 @@ export function normalizePhoneNumber(
   const original = phoneNumber.trim();
 
   // Clean the phone number: remove all spaces, dashes, parentheses, dots, brackets
-  let cleaned = original.replace(/[\s\-\(\)\.\[\]]/g, '');
+  const cleaned = original.replace(/[\s\-\(\)\.\[\]]/g, '');
 
   try {
     // Strategy 1: If it starts with +, it's already in international format

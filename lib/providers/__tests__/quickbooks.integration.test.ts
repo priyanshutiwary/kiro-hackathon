@@ -22,7 +22,9 @@ vi.mock('@/lib/nango/client', () => {
 
 describe('QuickBooksProvider Integration Tests', () => {
   let provider: QuickBooksProvider;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let mockTriggerAction: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let mockGetConnection: any;
   const testUserId = 'test-user-123';
 
@@ -30,9 +32,11 @@ describe('QuickBooksProvider Integration Tests', () => {
     vi.clearAllMocks();
     
     // Get mock references
-    const nangoModule = await import('@/lib/nango/client');
+    await import('@/lib/nango/client');
     provider = new QuickBooksProvider();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockTriggerAction = (provider as any).nango.triggerAction;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockGetConnection = (provider as any).nango.getConnection;
   });
 
@@ -261,7 +265,7 @@ describe('QuickBooksProvider Integration Tests', () => {
 
       await provider.checkConnection(testUserId);
 
-      const nangoModule = await import('@/lib/nango/client');
+      await import('@/lib/nango/client');
       expect(mockGetConnection).toHaveBeenCalledWith(
         'quickbooks',
         'test-user-123_quickbooks'

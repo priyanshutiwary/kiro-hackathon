@@ -3,34 +3,7 @@
 import Link from "next/link";
 import { Phone, Twitter, Linkedin, Github, Mail } from "lucide-react";
 
-const footerLinks = [
-  {
-    title: "Product",
-    links: [
-      { name: "Features", href: "#" },
-      { name: "Integrations", href: "#" },
-      { name: "Pricing", href: "#" },
-      { name: "Changelog", href: "#" },
-    ],
-  },
-  {
-    title: "Company",
-    links: [
-      { name: "About Us", href: "#" },
-      { name: "Careers", href: "#" },
-      { name: "Blog", href: "#" },
-      { name: "Contact", href: "#" },
-    ],
-  },
-  {
-    title: "Legal",
-    links: [
-      { name: "Privacy Policy", href: "/privacy-policy" },
-      { name: "Terms of Service", href: "/terms-of-service" },
-      { name: "Cookie Policy", href: "#" },
-    ],
-  },
-];
+
 
 export default function FooterSection() {
   return (

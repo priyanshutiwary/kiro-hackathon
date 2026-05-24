@@ -8,7 +8,7 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import { HelpCircle, ChevronDown } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 
 const faqs = [
   {

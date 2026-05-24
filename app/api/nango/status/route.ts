@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import { getNangoClient, getConnectionId } from "@/lib/nango/client";
+import { getNangoClient } from "@/lib/nango/client";
 import { db } from "@/db/drizzle";
 import { agentIntegrations } from "@/db/schema";
 import { headers } from "next/headers";

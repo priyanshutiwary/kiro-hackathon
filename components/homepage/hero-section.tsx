@@ -3,10 +3,10 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { Phone, Zap, TrendingUp, Shield, Play } from "lucide-react";
+import { Phone, TrendingUp, Shield, Play } from "lucide-react";
 import { brandColors } from "@/lib/brand-colors";
 import { motion } from "framer-motion";
-import Image from "next/image";
+
 
 export default function HeroSection() {
   return (

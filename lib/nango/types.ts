@@ -16,7 +16,7 @@ export interface NangoConnection {
   providerConfigKey: string;
   provider: string;
   createdAt: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -26,13 +26,13 @@ export interface NangoActionTriggerOptions {
   connectionId: string;
   providerConfigKey: string;
   action: string;
-  input?: Record<string, any>;
+  input?: Record<string, unknown>;
 }
 
 /**
  * Nango action result
  */
-export interface NangoActionResult<T = any> {
+export interface NangoActionResult<T = unknown> {
   data: T;
   metadata?: {
     executionTime?: number;
@@ -223,5 +223,5 @@ export interface ProviderMetadata {
   lastSyncAt?: Date;
   syncStatus?: 'success' | 'error' | 'pending';
   errorMessage?: string;
-  customFields?: Record<string, any>;
+  customFields?: Record<string, unknown>;
 }
